@@ -78,18 +78,6 @@ export class MapViewComponent implements OnInit, OnDestroy {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-
-    // Static demo cars so something is visible even without backend data
-    const demoWaiting: [number, number] = [36.8065, 10.1815]; // Tunis
-    const demoInProgress: [number, number] = [36.81, 10.19];  // Close to Tunis
-
-    L.marker(demoWaiting, { icon: this.waitingIcon })
-      .bindPopup('<b>Demo Taxi (WAITING)</b><br>Tunis center')
-      .addTo(this.map);
-
-    L.marker(demoInProgress, { icon: this.inProgressIcon })
-      .bindPopup('<b>Demo Taxi (IN PROGRESS)</b><br>Tunis center')
-      .addTo(this.map);
   }
 
   private handleFleetLocations(message: any): void {

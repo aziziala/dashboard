@@ -5,6 +5,7 @@ import { TaxiService } from '../../services/taxi.service';
 import { FleetLocation, FleetStatus, FleetStatistics, NearbyTaxiResponse } from '../../models/fleet-location.model';
 import { Taxi } from '../../models/taxi.model';
 import { ChartType, revenueChartOptions, smsChartOptions, taxiActivityChartOptions, monthlyEarningChartOptions } from '../../models/chart.model';
+import { WebsocketService } from '../../services/websocket.service';
 import * as L from 'leaflet';
 
 @Component({
@@ -31,11 +32,25 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
   private map!: L.Map;
   private markers: L.Marker[] = [];
+  private wsSubscription: any;
   
-  // Map properties
-  mapCenter = { lat: 33.9716, lng: -6.8498 }; // Default to Rabat, Morocco
-  mapZoom = 12;
+  // Map properties - Initialize to Tunisia
+  mapCenter = { lat: 34.0, lng: 9.0 }; // Tunisia center
+  mapZoom = 6;
   showMap = true;
+
+  // Car icons from assets
+  private activeCarIcon = L.icon({
+    iconUrl: 'assets/car_icon.png',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+
+  private busyCarIcon = L.icon({
+    iconUrl: 'assets/car-booked.png',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
   
   // Map styles for a modern look
   mapStyles = [
@@ -141,14 +156,16 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   constructor(
     private modalService: NgbModal,
     private fleetService: FleetService,
-    private taxiService: TaxiService
+    private taxiService: TaxiService,
+    private wsService: WebsocketService // Injected WebSocketService
   ) { }
 
   ngOnInit(): void {
-    this.loadFleetData();
+    this.loadFleetData(); // Keep existing HTTP call
     this.loadFleetStatistics();
     this.initializeCharts();
     this.startRealTimeUpdates();
+    this.initFleetWebSocket(); // Initialize WebSocket
   }
 
   ngAfterViewInit(): void {
@@ -159,6 +176,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     if (this.locationUpdateInterval) {
       clearInterval(this.locationUpdateInterval);
     }
+    this.wsService.disconnect(); // Disconnect WebSocket
   }
 
   loadFleetData(): void {
@@ -263,8 +281,11 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
 
   initializeMap(): void {
     if (this.mapContainer && this.mapContainer.nativeElement) {
-      // Initialize the map
-      this.map = L.map(this.mapContainer.nativeElement).setView([this.mapCenter.lat, this.mapCenter.lng], this.mapZoom);
+      // Initialize the map centered on Tunisia
+      this.map = L.map(this.mapContainer.nativeElement).setView(
+        [34.0, 9.0], // Tunisia approximate center
+        6
+      );
       
       // Add OpenStreetMap tiles
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -278,6 +299,58 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     }
   }
 
+  private initFleetWebSocket(): void {
+    this.wsService.connect(true);
+    this.wsService.onConnected().subscribe((connected) => {
+      console.log('[FleetManagement] WebSocket connection status:', connected ? 'connected' : 'disconnected');
+      if (connected) {
+        this.wsSubscription = this.wsService.subscribe(
+          '/topic/fleet/locations',
+          (message) => this.handleFleetLocationsFromSocket(message)
+        );
+        this.wsService.send('/app/fleet.subscribe', {});
+      }
+    });
+  }
+
+  private handleFleetLocationsFromSocket(message: any): void {
+    console.log('[FleetManagement] Received fleet locations via WS:', message);
+    try {
+      const body: Array<{
+        taxiId: number;
+        taxiNumber: string;
+        latitude: number;
+        longitude: number;
+        rideStatus: 'WAITING' | 'IN_PROGRESS' | 'TERMINATED' | string;
+        driverName?: string;
+        phone?: string;
+      }> = JSON.parse(message.body);
+
+      this.fleetLocations = body.map((taxi) => ({
+        taxiId: taxi.taxiId,
+        taxiNumber: taxi.taxiNumber,
+        driverName: taxi.driverName || '',
+        telephone: taxi.phone || '',
+        latitude: taxi.latitude,
+        longitude: taxi.longitude,
+        status: (() => {
+          const s = (taxi.rideStatus || '').toUpperCase();
+          if (s === 'IN_PROGRESS' || s === 'TERMINATED') {
+            return FleetStatus.BUSY;
+          }
+          return FleetStatus.ACTIVE;
+        })(),
+        isOnline: true
+      })) as FleetLocation[];
+
+      this.totalItems = this.fleetLocations.length;
+      this.updateMapCenter();
+      this.updateMapMarkers();
+    } catch (e) {
+      console.error('[FleetManagement] Failed to parse WS fleet locations:', e);
+    }
+  }
+
   updateMapMarkers(): void {
     // Clear existing markers
     this.markers.forEach(marker => marker.remove());
@@ -286,8 +359,9 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     // Add new markers for each fleet location
     this.fleetLocations.forEach(location => {
       if (location.latitude && location.longitude) {
+        const icon = this.getMarkerIcon(location.status);
         const marker = L.marker([location.latitude, location.longitude], {
-          icon: this.createCustomIcon(location.status)
+          icon: icon
         }).addTo(this.map);
         
         // Add popup
@@ -319,29 +393,13 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     });
   }
 
-  createCustomIcon(status: FleetStatus): L.DivIcon {
-    const iconColor = this.getMarkerColor(status);
-    
-    return L.divIcon({
-      className: 'custom-marker',
-      html: `<div style="background-color: ${iconColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
-    });
-  }
-
-  getMarkerColor(status: FleetStatus): string {
+  private getMarkerIcon(status: FleetStatus): L.Icon {
     switch (status) {
-      case FleetStatus.ACTIVE:
-        return '#28a745'; // green
       case FleetStatus.BUSY:
-        return '#ffc107'; // yellow
-      case FleetStatus.OFFLINE:
-        return '#6c757d'; // gray
-      case FleetStatus.MAINTENANCE:
-        return '#17a2b8'; // blue
+        return this.busyCarIcon;
+      case FleetStatus.ACTIVE:
       default:
-        return '#6c757d';
+        return this.activeCarIcon;
     }
   }
 

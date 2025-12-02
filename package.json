@@ -4,7 +4,7 @@
   "description": "Admin Dashboard for SMS Taxi Application",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4100",
+    "start": "ng serve --host 0.0.0.0 --port 4100",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
