@@ -1,0 +1,30 @@
+<!-- Main App Layout -->
+<div class="app-container" *ngIf="showLayout">
+  <!-- Top Navigation Bar -->
+  <app-topbar></app-topbar>
+
+  <!-- Main Content Area -->
+  <div class="d-flex">
+    <app-sidebar></app-sidebar>
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- Floating layout settings (Skote-like) -->
+  <app-layout-settings></app-layout-settings>
+
+  <!-- Right sidebar -->
+  <app-right-sidebar></app-right-sidebar>
+
+  <!-- Mobile overlay -->
+  <div
+    class="vertical-overlay"
+    (click)="document.documentElement.classList.remove('vertical-menu-open')"
+  ></div>
+</div>
+
+<!-- Login or other pages without layout -->
+<div *ngIf="!showLayout">
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,59 @@
+{
+  "name": "sms-taxi-admin",
+  "version": "1.0.0",
+  "description": "Admin Dashboard for SMS Taxi Application",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --port 4100",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "dependencies": {
+    "@angular/animations": "^17.3.0",
+    "@angular/cdk": "^17.3.0",
+    "@angular/common": "^17.3.0",
+    "@angular/compiler": "^17.3.0",
+    "@angular/core": "^17.3.0",
+    "@angular/forms": "^17.3.0",
+    "@angular/localize": "^17.3.0",
+    "@angular/material": "^17.3.10",
+    "@angular/platform-browser": "^17.3.0",
+    "@angular/platform-browser-dynamic": "^17.3.0",
+    "@angular/router": "^17.3.0",
+    "@coreui/icons": "^3.0.1",
+    "@mdi/font": "^7.4.47",
+    "@ng-bootstrap/ng-bootstrap": "^16.0.0",
+    "@popperjs/core": "^2.11.8",
+    "@types/leaflet": "^1.9.8",
+    "apexcharts": "^3.44.0",
+    "bootstrap": "^5.3.8",
+    "boxicons": "^2.1.4",
+    "chart.js": "^4.4.0",
+    "date-fns": "^2.30.0",
+    "leaflet": "^1.9.4",
+    "moment": "^2.29.4",
+    "ng-apexcharts": "^2.0.1",
+    "ng2-charts": "^5.0.4",
+    "rxjs": "~7.8.1",
+    "tslib": "^2.6.2",
+    "zone.js": "~0.14.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^17.3.0",
+    "@angular/cli": "^17.3.0",
+    "@angular/compiler-cli": "^17.3.0",
+    "@types/jasmine": "~5.1.0",
+    "jasmine-core": "~5.1.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=8.0.0"
+  }
+}

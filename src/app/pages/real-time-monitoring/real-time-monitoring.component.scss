@@ -1,0 +1,71 @@
+// Real-time monitoring component styles
+.custom-marker-container {
+  .custom-marker {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+  }
+}
+
+.taxi-popup {
+  min-width: 200px;
+  
+  h6 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+  }
+  
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  button {
+    margin-top: 0.5rem;
+  }
+}
+
+.fleet-locations {
+  .location-item {
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
+}
+
+.map-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  
+  .btn {
+    margin-bottom: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+}
+
+.heatmap-toggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .map-container {
+    height: 400px !important;
+  }
+  
+  .stats-cards {
+    .col-xl-2 {
+      margin-bottom: 1rem;
+    }
+  }
+}

@@ -1,0 +1,101 @@
+<form [formGroup]="taxiForm" (ngSubmit)="onSubmit()" class="form">
+  <h1>Formulaire d'inscription</h1>
+  <pre>Veuillez remplir ce formulaire pour vous inscrire au service SMS TAXI.
+  </pre>
+ 
+  <p style="margin-top: -3%;">
+  <label>
+    Nom et prénom :<span style="color: red;">*</span>
+  </label>
+  <input formControlName="nomPrenom" type="text" placeholder="Ex: Ahmed Ben Salah" />
+  <small *ngIf="taxiForm.get('nomPrenom')?.touched && taxiForm.get('nomPrenom')?.invalid" style="color: red;">
+    Le nom et prénom sont obligatoires.
+  </small>
+</p>
+
+<p>
+  <label>
+    Carte d'identiter national :<span style="color: red;">*</span>
+  </label>
+  <input formControlName="cin" type="text" maxlength="8" placeholder="Ex: 12345678 " />
+  <small *ngIf="taxiForm.get('cin')?.touched && taxiForm.get('cin')?.invalid" style="color: red;">
+    <span *ngIf="taxiForm.get('cin')?.errors?.['required']">
+      La Carte d'identiter national est obligatoire.
+    </span>
+    <span *ngIf="taxiForm.get('cin')?.errors?.['invalidCIN']">
+      CIN invalide : 8 chiffres requis, sans lettres ni caractères spéciaux.
+    </span>
+  </small>
+</p>
+
+<p>
+  <label>
+    Immatriculation :<span style="color: red;">*</span>
+  </label>
+  <input formControlName="numeroMatricule" type="text" maxlength="9" placeholder="Ex: 123TU4567" />
+  <small *ngIf="taxiForm.get('numeroMatricule')?.touched && taxiForm.get('numeroMatricule')?.invalid" style="color: red;">
+    Numéro de matricule invalide. Format attendu: 3 chiffres + TU + 4 chiffres (ex: 123TU4567).
+  </small>
+</p>
+
+<p><label>
+    Plaque taxi :<span style="color: red;">*</span>
+  </label>
+  <input formControlName="numeroTaxi" type="text" placeholder="Ex: 10045" maxlength="5" />
+  <small *ngIf="taxiForm.get('numeroTaxi')?.touched && taxiForm.get('numeroTaxi')?.invalid" style="color: red;">
+    <span *ngIf="numeroTaxi?.errors?.['required']">La plaque de taxi est requis.</span>
+    <span *ngIf="numeroTaxi?.errors?.['pattern']">La plaque ne doit contenir que des chiffres.</span>
+    <span *ngIf="numeroTaxi?.errors?.['minlength']">La plaque doit contenir au moins 4 chiffres.</span>
+    <span *ngIf="numeroTaxi?.errors?.['maxlength']">La plaque ne doit pas dépasser 5 chiffres.</span>
+  </small>
+</p>
+
+<p><label>
+    Modèle de voiture :<span style="color: red;">*</span>
+  </label>
+  <input formControlName="modelevoiture" type="text" placeholder="Ex: Peugeot 206" />
+  <small *ngIf="taxiForm.get('modelevoiture')?.touched && taxiForm.get('modelevoiture')?.invalid" style="color: red;">
+    Le modèle de voiture est obligatoire.
+  </small>
+</p>
+
+<p style="margin-top: 8px;margin-bottom: -1.5%;">
+  <label>
+    Type de téléphone :<span style="color: red;">*</span>
+  </label>
+  <span style="display: flex; gap: 20px; margin-top: 8px;">
+    <label style="display: flex; align-items: center; font-size: 14px; color: #333; cursor: pointer;">
+      <input type="radio" formControlName="typeTelephone" value="GSM" style="margin-right: 6px;" /> GSM
+    </label>
+    <label style="display: flex; align-items: center; font-size: 14px; color: #333; cursor: pointer;">
+      <input type="radio" formControlName="typeTelephone" value="SMARTPHONE" style="margin-right: 6px;" /> SMARTPHONE
+    </label>
+  </span>
+  <br />
+  <small
+    *ngIf="taxiForm.get('typeTelephone')?.touched && taxiForm.get('typeTelephone')?.invalid"
+    style="color: red;">
+    Veuillez sélectionner un type de téléphone.
+  </small>
+</p>
+
+<p>
+  <label>
+    Numéro de téléphone:<span style="color: red;">*</span>
+  </label>
+  <input formControlName="telephone" type="text" placeholder="Ex: (+216) 22 345 678" />
+  <small *ngIf="taxiForm.get('telephone')?.hasError('invalidTelephone') && taxiForm.get('telephone')?.touched" style="color: red;">
+    Numéro invalide : 8 chiffres requis, commençant par 2, 4, 5, 7 ou 9.
+  </small>
+</p>
+
+<p> Adresse mail :
+  <input formControlName="email" type="email" placeholder="Ex: flenfoulen@gmail.com" />
+  <small *ngIf="taxiForm.get('email')?.touched && taxiForm.get('email')?.invalid" style="color: red;">
+    <span *ngIf="taxiForm.get('email')?.errors?.['required']">L'adresse e-mail est obligatoire.</span>
+    <span *ngIf="taxiForm.get('email')?.errors?.['email']">L'adresse e-mail doit être valide.</span>
+  </small>
+</p>
+
+  <button type="submit">Enregistrer</button>
+</form>

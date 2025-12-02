@@ -1,0 +1,23 @@
+<div class="container-fluid fade-in">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+      <i class="fas fa-map-marked-alt me-2"></i>
+      Real-time Taxi Map
+    </h2>
+    <span
+      class="badge"
+      [ngClass]="{
+        'bg-success': connectionStatus === 'connected',
+        'bg-warning': connectionStatus === 'connecting',
+        'bg-danger': connectionStatus === 'disconnected'
+      }"
+    >
+      {{ connectionStatus | titlecase }}
+    </span>
+  </div>
+
+  <div id="taxiMap"></div>
+</div>
+
+
+

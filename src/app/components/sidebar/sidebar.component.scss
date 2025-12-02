@@ -1,0 +1,62 @@
+.vertical-menu {
+  width: 250px;
+  position: fixed;
+  top: 70px;
+  bottom: 0;
+  left: 0;
+  background: #211F54;
+  color: #c7d1da;
+  display: flex;
+  flex-direction: column;
+
+  // Scrollable area
+  .h-100 {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .metismenu li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: inherit;
+    text-decoration: none !important;
+
+    i, span {
+      text-decoration: none !important;
+    }
+
+    &.active,
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFC900;
+    }
+  }
+
+  .menu-title {
+    padding: 12px 16px;
+    font-size: 12px;
+    text-transform: uppercase;
+    opacity: .6;
+  }
+
+  // 🔻 Logo at the bottom
+  .sidebar-logo {
+    padding: 16px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    img {
+      max-width: 100%;
+      height: auto;
+      max-height: 50px; // Adjust as needed
+      opacity: 0.85;
+      transition: opacity 0.3s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}

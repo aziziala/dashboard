@@ -1,0 +1,47 @@
+#page-topbar {
+  background-color: #211F54;
+  color: #FFC900;
+  .navbar-header {
+    background-color: inherit;
+  }
+
+  .header-item {
+    color: #FFC900 !important;
+
+    i, .bx, .fa {
+      color: #FFC900 !important;
+    }
+
+    &:hover,
+    &:focus {
+      color: #FFD633 !important;
+    }
+  }
+
+  .btn.header-item {
+    background-color: transparent;
+    border: none;
+  }
+
+  .app-search .bx {
+    color: #211F54 !important;
+    margin-left: 70%;
+  }
+
+  .app-search input.form-control {
+    
+    color: #000000;
+    width: 150%;
+    margin-left: 70%;
+    
+    &::placeholder {
+      color: #211F54;
+      opacity: 0.7;
+    }
+  }
+
+  .navbar-brand-box img {
+    max-height: 24px;
+  }
+
+}

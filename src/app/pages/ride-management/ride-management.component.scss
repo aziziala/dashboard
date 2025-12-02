@@ -1,0 +1,405 @@
+// Ride Management Component Styles
+.page-content {
+  padding: 20px 0;
+}
+
+.page-title-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  
+  .breadcrumb-item {
+    font-size: 14px;
+    
+    a {
+      color: #6c757d;
+      text-decoration: none;
+      
+      &:hover {
+        color: #495057;
+      }
+    }
+    
+    &.active {
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+}
+
+// Statistics Cards
+.mini-stats-wid {
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  .card-body {
+    padding: 24px;
+  }
+  
+  .mini-stat-icon {
+    width: 48px;
+    height: 48px;
+    
+    .avatar-title {
+      font-size: 24px;
+      color: #fff;
+    }
+  }
+  
+  p {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  h4 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+// Main Card
+.card {
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  
+  .card-body {
+    padding: 0;
+  }
+}
+
+// Tab Navigation
+.nav-tabs-custom {
+  border-bottom: 2px solid #e9ecef;
+  padding: 0 24px;
+  
+  .nav-item {
+    margin-bottom: -2px;
+    
+    .nav-link {
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      font-weight: 500;
+      padding: 16px 24px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        color: #495057;
+        border-bottom-color: #dee2e6;
+      }
+      
+      &.active {
+        color: #556ee6;
+        border-bottom-color: #556ee6;
+        background: transparent;
+      }
+    }
+  }
+}
+
+// Tab Content
+.tab-content {
+  padding: 24px;
+}
+
+// Search and Filter
+.search-box {
+  position: relative;
+  
+  .form-control {
+    padding-left: 40px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    
+    &:focus {
+      border-color: #556ee6;
+      box-shadow: 0 0 0 0.2rem rgba(85, 110, 230, 0.25);
+    }
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+  }
+}
+
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  
+  &:focus {
+    border-color: #556ee6;
+    box-shadow: 0 0 0 0.2rem rgba(85, 110, 230, 0.25);
+  }
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 16px;
+  
+  &.btn-primary {
+    background: #556ee6;
+    border-color: #556ee6;
+    
+    &:hover {
+      background: #485ec4;
+      border-color: #485ec4;
+    }
+  }
+}
+
+// Table Styles
+.table {
+  margin-bottom: 0;
+  
+  thead {
+    th {
+      border: none;
+      background: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+      padding: 16px 12px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  tbody {
+    tr {
+      border-bottom: 1px solid #f1f3f4;
+      
+      &:hover {
+        background: #f8f9fa;
+      }
+      
+      td {
+        padding: 16px 12px;
+        vertical-align: middle;
+        border: none;
+        color: #495057;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Badge Styles
+.badge {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  
+  &.bg-success {
+    background: #34c38f !important;
+  }
+  
+  &.bg-warning {
+    background: #f1b44c !important;
+  }
+  
+  &.bg-danger {
+    background: #f46a6a !important;
+  }
+  
+  &.bg-info {
+    background: #50a5f1 !important;
+  }
+  
+  &.bg-secondary {
+    background: #6c757d !important;
+  }
+}
+
+// Button Group
+.btn-group {
+  .btn {
+    border-radius: 6px;
+    margin: 0 2px;
+    
+    &.btn-outline-primary {
+      color: #556ee6;
+      border-color: #556ee6;
+      
+      &:hover {
+        background: #556ee6;
+        color: #fff;
+      }
+    }
+    
+    &.btn-outline-success {
+      color: #34c38f;
+      border-color: #34c38f;
+      
+      &:hover {
+        background: #34c38f;
+        color: #fff;
+      }
+    }
+    
+    &.btn-outline-warning {
+      color: #f1b44c;
+      border-color: #f1b44c;
+      
+      &:hover {
+        background: #f1b44c;
+        color: #fff;
+      }
+    }
+    
+    &.btn-outline-danger {
+      color: #f46a6a;
+      border-color: #f46a6a;
+      
+      &:hover {
+        background: #f46a6a;
+        color: #fff;
+      }
+    }
+  }
+}
+
+// Pagination
+.pagination {
+  margin-bottom: 0;
+  
+  .page-item {
+    .page-link {
+      border: none;
+      color: #495057;
+      padding: 8px 12px;
+      margin: 0 2px;
+      border-radius: 6px;
+      
+      &:hover {
+        background: #e9ecef;
+        color: #495057;
+      }
+    }
+    
+    &.active .page-link {
+      background: #556ee6;
+      color: #fff;
+    }
+    
+    &.disabled .page-link {
+      color: #6c757d;
+      background: transparent;
+    }
+  }
+}
+
+// Loading Spinner
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+// Modal Styles
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 20px 24px;
+  
+  .modal-title {
+    font-weight: 600;
+    color: #495057;
+  }
+}
+
+.modal-body {
+  padding: 24px;
+  
+  h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 8px;
+  }
+  
+  p {
+    margin-bottom: 12px;
+    font-size: 14px;
+    
+    strong {
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 20px 24px;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .page-title-box {
+    padding: 16px;
+    
+    h4 {
+      font-size: 20px;
+    }
+  }
+  
+  .mini-stats-wid {
+    margin-bottom: 16px;
+    
+    .card-body {
+      padding: 16px;
+    }
+    
+    h4 {
+      font-size: 24px;
+    }
+  }
+  
+  .nav-tabs-custom {
+    padding: 0 16px;
+    
+    .nav-item .nav-link {
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+  }
+  
+  .tab-content {
+    padding: 16px;
+  }
+  
+  .table-responsive {
+    font-size: 12px;
+    
+    .table td, .table th {
+      padding: 8px 6px;
+    }
+  }
+  
+  .btn-group .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}

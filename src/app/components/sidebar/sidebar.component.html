@@ -1,0 +1,64 @@
+<div class="vertical-menu">
+  <div data-simplebar class="h-100">
+    <div id="sidebar-menu">
+      <ul class="metismenu list-unstyled" id="side-menu">
+        
+        <li [class.mm-active]="activeUrl.startsWith('/dashboard')">
+          <a routerLink="/dashboard" class="waves-effect" [class.active]="activeUrl.startsWith('/dashboard')">
+            <i class="bx bx-home-circle"></i>
+            <span key="t-dashboards">Acceuil</span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/taxis')">
+          <a routerLink="/taxis" [class.active]="activeUrl.startsWith('/taxis')">
+            <i class="bx bx-taxi"></i>
+            <span key="t-taxis">Gestion des Taxis</span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/clients')">
+          <a routerLink="/clients" [class.active]="activeUrl.startsWith('/clients')">
+            <i class="bx bx-user"></i>
+            <span key="t-clients">Gestion des clients</span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/sms')">
+          <a routerLink="/sms" [class.active]="activeUrl.startsWith('/sms')">
+            <i class="bx bx-message"></i>
+            <span key="t-sms">Gestion des SMS</span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/fleet')">
+          <a routerLink="/fleet" [class.active]="activeUrl.startsWith('/fleet')">
+            <i class="bx bx-map"></i>
+            <span key="t-fleet">Géolocalisation</span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/analytics')">
+          <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')">
+            <i class="bx bx-bar-chart"></i>
+            <span key="t-analytics">Analyse de données</span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/rides')">
+          <a routerLink="/rides" [class.active]="activeUrl.startsWith('/rides')">
+            <i class="bx bx-navigation"></i>
+            <span key="t-rides">Suivi de course </span>
+          </a>
+        </li>
+        <li [class.mm-active]="activeUrl.startsWith('/sms-gateway')">
+          <a routerLink="/sms-gateway" [class.active]="activeUrl.startsWith('/sms-gateway')">
+            <i class="bx bx-broadcast"></i>
+            <span key="t-sms-gateway">SMS Gateway</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sidebar-logo">
+    <img src="assets/logoY.png" alt="Logo Y">
+
+  </div>
+
+</div>
+

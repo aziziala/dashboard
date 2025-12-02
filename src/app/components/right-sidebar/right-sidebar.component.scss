@@ -1,0 +1,13 @@
+.right-bar {
+  position: fixed;
+  top: 70px;
+  right: -320px;
+  width: 320px;
+  bottom: 0;
+  background: #fff;
+  box-shadow: 0 0 24px rgba(0,0,0,0.08);
+  transition: right .25s ease;
+  z-index: 1048;
+}
+.right-bar.open { right: 0; }
+

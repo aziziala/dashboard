@@ -1,0 +1,528 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 font-size-18">
+          <i class="fas fa-route me-2"></i>Ride Management & Matching
+        </h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
+            <li class="breadcrumb-item active">Ride Management</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ride Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Requests</p>
+              <h4 class="mb-0 text-primary">{{ rideStats.totalRequests }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-hand-paper font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Pending</p>
+              <h4 class="mb-0 text-warning">{{ rideStats.pendingRequests }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-clock font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Active Rides</p>
+              <h4 class="mb-0 text-info">{{ rideStats.activeRides }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-info align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-car font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Completed</p>
+              <h4 class="mb-0 text-success">{{ rideStats.completedRides }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-check font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Revenue</p>
+              <h4 class="mb-0 text-success">${{ rideStats.totalRevenue | number:'1.0-0' }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-dollar-sign font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Success Rate</p>
+              <h4 class="mb-0 text-primary">{{ rideStats.successRate | number:'1.1-1' }}%</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-chart-line font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Controls -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search rides..." 
+               [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+        <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+        <option value="">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+    </div>
+    <div class="col-md-3 text-end">
+      <button class="btn btn-primary" (click)="loadRideData()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Ride Management Tabs -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#ride-requests" role="tab">
+                <span class="d-none d-sm-block">Ride Requests</span>
+                <span class="d-block d-sm-none">Requests</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#ride-offers" role="tab">
+                <span class="d-none d-sm-block">Ride Offers</span>
+                <span class="d-block d-sm-none">Offers</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#ride-matchings" role="tab">
+                <span class="d-none d-sm-block">Ride Matchings</span>
+                <span class="d-block d-sm-none">Matchings</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- Ride Requests Tab -->
+            <div class="tab-pane active" id="ride-requests" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Client</th>
+                      <th>Pickup</th>
+                      <th>Dropoff</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let request of rideRequests">
+                      <td>#{{ request.id }}</td>
+                      <td>
+                        <div>
+                          <strong>{{ request.clientPhone }}</strong>
+                          <br>
+                          <small class="text-muted">Client ID: {{ request.clientId }}</small>
+                        </div>
+                      </td>
+                      <td>{{ request.pickupLocation }}</td>
+                      <td>{{ request.dropoffLocation }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="getStatusBadgeClass(request.status)">
+                          {{ getStatusText(request.status) }}
+                        </span>
+                      </td>
+                      <td>{{ request.dateCreated | date:'short' }}</td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <button class="btn btn-sm btn-outline-primary" 
+                                  (click)="openRideDetailsModal(rideDetailsModal, request)">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success" 
+                                  *ngIf="request.status === 'PENDING'"
+                                  (click)="approveRideRequest(request)"
+                                  [disabled]="isProcessing">
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" 
+                                  *ngIf="request.status === 'PENDING'"
+                                  (click)="rejectRideRequest(request)"
+                                  [disabled]="isProcessing">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Ride Offers Tab -->
+            <div class="tab-pane" id="ride-offers" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Taxi</th>
+                      <th>Client</th>
+                      <th>Pickup</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let offer of rideOffers">
+                      <td>#{{ offer.id }}</td>
+                      <td>
+                        <div>
+                          <strong>{{ offer.taxiPhone }}</strong>
+                          <br>
+                          <small class="text-muted">Taxi ID: {{ offer.taxiId }}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <strong>{{ offer.clientPhone }}</strong>
+                          <br>
+                          <small class="text-muted">Client ID: {{ offer.clientId }}</small>
+                        </div>
+                      </td>
+                      <td>{{ offer.pickupLocation }}</td>
+                      <td>${{ offer.totalPrice || '0' | number:'1.2-2' }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="getStatusBadgeClass(offer.status)">
+                          {{ getStatusText(offer.status) }}
+                        </span>
+                      </td>
+                      <td>{{ offer.dateCreated | date:'short' }}</td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <button class="btn btn-sm btn-outline-primary" 
+                                  (click)="openOfferDetailsModal(offerDetailsModal, offer)">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success" 
+                                  *ngIf="offer.status === 'PENDING'"
+                                  (click)="approveRideOffer(offer)"
+                                  [disabled]="isProcessing">
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" 
+                                  *ngIf="offer.status === 'PENDING'"
+                                  (click)="rejectRideOffer(offer)"
+                                  [disabled]="isProcessing">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Ride Matchings Tab -->
+            <div class="tab-pane" id="ride-matchings" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Request</th>
+                      <th>Offer</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let matching of rideMatchings">
+                      <td>#{{ matching.requestId }}-{{ matching.taxiId }}</td>
+                      <td>
+                        <div>
+                          <strong>Request #{{ matching.requestId }}</strong>
+                          <br>
+                          <small class="text-muted">Distance: {{ matching.distance }} km</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <strong>Taxi #{{ matching.taxiId }}</strong>
+                          <br>
+                          <small class="text-muted">Taxi Name: {{ matching.taxiName || 'N/A' }}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-info">ETA: {{ matching.estimatedArrival }} min</span>
+                      </td>
+                      <td>-</td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <button class="btn btn-sm btn-outline-primary" 
+                                  (click)="openMatchingDetailsModal(matchingDetailsModal, matching)">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <!-- Actions temporarily disabled until backend supports match status updates -->
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="row" *ngIf="totalItems > itemsPerPage">
+    <div class="col-12">
+      <nav aria-label="Ride pagination">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="javascript: void(0);" (click)="onPageChange(currentPage - 1)">
+              Previous
+            </a>
+          </li>
+          <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalItems / itemsPerPage)); let i = index"
+              [class.active]="currentPage === i + 1">
+            <a class="page-link" href="javascript: void(0);" (click)="onPageChange(i + 1)">
+              {{ i + 1 }}
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === Math.ceil(totalItems / itemsPerPage)">
+            <a class="page-link" href="javascript: void(0);" (click)="onPageChange(currentPage + 1)">
+              Next
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Ride Details Modal -->
+<ng-template #rideDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ride Request Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedRequest">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Client Information</h6>
+        <p><strong>Phone:</strong> {{ selectedRequest.clientPhone }}</p>
+        <p><strong>Client ID:</strong> {{ selectedRequest.clientId }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Ride Information</h6>
+        <p><strong>Pickup:</strong> {{ selectedRequest.pickupLocation }}</p>
+        <p><strong>Dropoff:</strong> {{ selectedRequest.dropoffLocation }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedRequest.status)">
+            {{ getStatusText(selectedRequest.status) }}
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <h6>Additional Details</h6>
+        <p><strong>Created:</strong> {{ selectedRequest.dateCreated | date:'medium' }}</p>
+        <p><strong>Notes:</strong> {{ selectedRequest.notes || 'No notes' }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Actions</h6>
+        <div class="d-grid gap-2">
+          <button class="btn btn-success" 
+                  *ngIf="selectedRequest.status === 'PENDING'"
+                  (click)="approveRideRequest(selectedRequest)">
+            <i class="fas fa-check me-2"></i>Approve
+          </button>
+          <button class="btn btn-danger" 
+                  *ngIf="selectedRequest.status === 'PENDING'"
+                  (click)="rejectRideRequest(selectedRequest)">
+            <i class="fas fa-times me-2"></i>Reject
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Offer Details Modal -->
+<ng-template #offerDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ride Offer Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedOffer">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Taxi Information</h6>
+        <p><strong>Taxi ID:</strong> {{ selectedOffer.taxiId }}</p>
+        <p><strong>Phone:</strong> {{ selectedOffer.taxiPhone }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Client Information</h6>
+        <p><strong>Client ID:</strong> {{ selectedOffer.clientId }}</p>
+        <p><strong>Phone:</strong> {{ selectedOffer.clientPhone }}</p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <h6>Ride Details</h6>
+        <p><strong>Pickup:</strong> {{ selectedOffer.pickupLocation }}</p>
+        <p><strong>Dropoff:</strong> {{ selectedOffer.dropoffLocation }}</p>
+        <p><strong>Price:</strong> ${{ selectedOffer.totalPrice || '0' | number:'1.2-2' }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Actions</h6>
+        <div class="d-grid gap-2">
+          <button class="btn btn-success" 
+                  *ngIf="selectedOffer.status === 'PENDING'"
+                  (click)="approveRideOffer(selectedOffer)">
+            <i class="fas fa-check me-2"></i>Approve
+          </button>
+          <button class="btn btn-danger" 
+                  *ngIf="selectedOffer.status === 'PENDING'"
+                  (click)="rejectRideOffer(selectedOffer)">
+            <i class="fas fa-times me-2"></i>Reject
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Matching Details Modal -->
+<ng-template #matchingDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ride Matching Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedMatching">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Request Details</h6>
+        <p><strong>Request ID:</strong> #{{ selectedMatching.requestId }}</p>
+        <p><strong>Estimated Arrival:</strong> {{ selectedMatching.estimatedArrival }} min</p>
+        <p><strong>Distance:</strong> {{ selectedMatching.distance }} km</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Offer Details</h6>
+        <p><strong>Taxi ID:</strong> #{{ selectedMatching.taxiId }}</p>
+        <p><strong>Taxi Name:</strong> {{ selectedMatching.taxiName || 'N/A' }}</p>
+        <p><strong>Fare:</strong> ${{ selectedMatching.fare | number:'1.2-2' }}</p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <h6>Matching Information</h6>
+        <p><strong>Client ID:</strong> {{ selectedMatching.clientId }}</p>
+        <p><strong>ETA:</strong> {{ selectedMatching.estimatedArrival }} min</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Actions</h6>
+        <div class="d-grid gap-2"><!-- actions disabled --></div>
+      </div>
+    </div>
+  </div>
+</ng-template>

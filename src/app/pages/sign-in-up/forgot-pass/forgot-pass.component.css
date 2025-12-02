@@ -1,0 +1,79 @@
+.gradient-custom-2 {
+ background-image: linear-gradient(to right bottom, #211f54, #80296b, #d13e61, #ff7b3d, #ffc900);
+}
+
+@media (min-width: 768px) {
+.gradient-form {
+height: 100vh !important;
+}
+}
+@media (min-width: 769px) {
+.gradient-custom-2 {
+border-top-right-radius: .3rem;
+border-bottom-right-radius: .3rem;
+}
+
+.form-outline .form-label {
+  transition: all 0.2s ease-in-out;
+}
+
+.form-outline input:focus ~ .form-label,
+.form-outline input:not(:placeholder-shown):not(:focus):valid ~ .form-label {
+  transform: translateY(-1.25rem) scale(0.8);
+  color: #3b71ca;
+}
+
+/* Style input field with visible border */
+.form-outline .form-control {
+  border: 1px solid #ced4da !important;
+  border-radius: 0.375rem;
+  padding-top: 0.3rem !important;
+  padding-bottom: 0.1rem;
+  
+}
+
+/* Float label above with background to "cut" the border */
+.form-outline .form-label {
+  top:0.7rem;
+  left: 0.75rem;
+  background-color: #fff; /* Match your form's background */
+  padding: 0 5px;
+  font-size: 1.0rem;
+  color: #211F54;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Fix on focus */
+.form-outline .form-control:focus {
+  border-color: #3b71ca;
+  box-shadow: none;
+}
+
+/* Container positioning fix */
+.form-outline {
+  position: relative;
+}
+
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #d8363a; /* Harmonize with gradient */
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.page-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #ee7724, #dd3675);
+  margin: 8px auto 0 auto;
+  border-radius: 2px;
+}
+
+
+}

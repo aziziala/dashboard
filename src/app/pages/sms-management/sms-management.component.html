@@ -1,0 +1,680 @@
+<div class="page-content">
+  <div class="container-fluid">
+    <!-- Page Title -->
+    <div class="row">
+      <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+          <h4 class="mb-0">
+            <i class="fas fa-sms me-2 text-primary"></i>SMS Management & Monitoring
+          </h4>
+          <div class="page-title-right">
+            <ol class="breadcrumb m-0">
+              <li class="breadcrumb-item"><a href="javascript: void(0);">SMS Taxi</a></li>
+              <li class="breadcrumb-item active">SMS Management</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-xl-2 col-md-4">
+        <div class="card mini-stats-wid border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-1">Total SMS</p>
+                <h4 class="mb-0 text-primary">{{ smsStats.totalSms }}</h4>
+                <p class="text-muted mb-0">
+                  <span class="text-success me-1">
+                    <i class="fas fa-arrow-up"></i> 12.5%
+                  </span>
+                  vs last month
+                </p>
+              </div>
+              <div class="flex-shrink-0 align-self-center">
+                <div class="mini-stat-icon avatar-sm rounded-circle bg-primary bg-gradient align-self-center">
+                  <span class="avatar-title">
+                    <i class="fas fa-sms font-size-24"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-2 col-md-4">
+        <div class="card mini-stats-wid border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-1">Delivered</p>
+                <h4 class="mb-0 text-success">{{ smsStats.deliveredSms }}</h4>
+                <p class="text-muted mb-0">
+                  <span class="text-success me-1">
+                    <i class="fas fa-arrow-up"></i> 8.2%
+                  </span>
+                  delivery rate
+                </p>
+              </div>
+              <div class="flex-shrink-0 align-self-center">
+                <div class="mini-stat-icon avatar-sm rounded-circle bg-success bg-gradient align-self-center">
+                  <span class="avatar-title">
+                    <i class="fas fa-check font-size-24"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-2 col-md-4">
+        <div class="card mini-stats-wid border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-1">Sent</p>
+                <h4 class="mb-0 text-info">{{ smsStats.sentSms }}</h4>
+                <p class="text-muted mb-0">
+                  <span class="text-info me-1">
+                    <i class="fas fa-paper-plane"></i> 95.8%
+                  </span>
+                  success rate
+                </p>
+              </div>
+              <div class="flex-shrink-0 align-self-center">
+                <div class="mini-stat-icon avatar-sm rounded-circle bg-info bg-gradient align-self-center">
+                  <span class="avatar-title">
+                    <i class="fas fa-paper-plane font-size-24"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-2 col-md-4">
+        <div class="card mini-stats-wid border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-1">Failed</p>
+                <h4 class="mb-0 text-danger">{{ smsStats.failedSms }}</h4>
+                <p class="text-muted mb-0">
+                  <span class="text-danger me-1">
+                    <i class="fas fa-arrow-down"></i> 2.1%
+                  </span>
+                  failure rate
+                </p>
+              </div>
+              <div class="flex-shrink-0 align-self-center">
+                <div class="mini-stat-icon avatar-sm rounded-circle bg-danger bg-gradient align-self-center">
+                  <span class="avatar-title">
+                    <i class="fas fa-times font-size-24"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-2 col-md-4">
+        <div class="card mini-stats-wid border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-1">Pending</p>
+                <h4 class="mb-0 text-warning">{{ smsStats.pendingSms }}</h4>
+                <p class="text-muted mb-0">
+                  <span class="text-warning me-1">
+                    <i class="fas fa-clock"></i> 1.2%
+                  </span>
+                  in queue
+                </p>
+              </div>
+              <div class="flex-shrink-0 align-self-center">
+                <div class="mini-stat-icon avatar-sm rounded-circle bg-warning bg-gradient align-self-center">
+                  <span class="avatar-title">
+                    <i class="fas fa-clock font-size-24"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-2 col-md-4">
+        <div class="card mini-stats-wid border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-1">Success Rate</p>
+                <h4 class="mb-0 text-primary">{{ smsStats.successRate | number:'1.1-1' }}%</h4>
+                <p class="text-muted mb-0">
+                  <span class="text-primary me-1">
+                    <i class="fas fa-chart-line"></i> 95.8%
+                  </span>
+                  average
+                </p>
+              </div>
+              <div class="flex-shrink-0 align-self-center">
+                <div class="mini-stat-icon avatar-sm rounded-circle bg-primary bg-gradient align-self-center">
+                  <span class="avatar-title">
+                    <i class="fas fa-chart-line font-size-24"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+      <div class="col-xl-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-transparent border-0">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-chart-pie me-2 text-primary"></i>SMS Status Distribution
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="text-center py-4">
+              <div class="row">
+                <div class="col-3">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="h2 text-success mb-0">{{ smsStats.deliveredSms }}</div>
+                    <small class="text-muted">Delivered</small>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="h2 text-info mb-0">{{ smsStats.sentSms }}</div>
+                    <small class="text-muted">Sent</small>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="h2 text-warning mb-0">{{ smsStats.pendingSms }}</div>
+                    <small class="text-muted">Pending</small>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="h2 text-danger mb-0">{{ smsStats.failedSms }}</div>
+                    <small class="text-muted">Failed</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-transparent border-0">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-chart-area me-2 text-primary"></i>Monthly SMS Volume
+            </h4>
+          </div>
+          <div class="card-body">
+            <apx-chart 
+              [chart]="smsChartOptions.chart"
+              [series]="smsChartOptions.series"
+              [legend]="smsChartOptions.legend"
+              [colors]="smsChartOptions.colors"
+              [fill]="smsChartOptions.fill"
+              [dataLabels]="smsChartOptions.dataLabels"
+              [xaxis]="smsChartOptions.xaxis"
+              [plotOptions]="smsChartOptions.plotOptions">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS Gateway Status -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-transparent border-0">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-broadcast-tower me-2 text-primary"></i>SMS Gateway Status
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm rounded-circle bg-success me-3">
+                    <span class="avatar-title">
+                      <i class="fas fa-check font-size-18"></i>
+                    </span>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Primary Gateway</h6>
+                    <p class="text-muted mb-0">Online - 99.9% uptime</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm rounded-circle bg-warning me-3">
+                    <span class="avatar-title">
+                      <i class="fas fa-exclamation-triangle font-size-18"></i>
+                    </span>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Secondary Gateway</h6>
+                    <p class="text-muted mb-0">Maintenance - 2 min</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm rounded-circle bg-info me-3">
+                    <span class="avatar-title">
+                      <i class="fas fa-chart-line font-size-18"></i>
+                    </span>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Queue Size</h6>
+                    <p class="text-muted mb-0">1,234 messages</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm rounded-circle bg-primary me-3">
+                    <span class="avatar-title">
+                      <i class="fas fa-tachometer-alt font-size-18"></i>
+                    </span>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Throughput</h6>
+                    <p class="text-muted mb-0">150 SMS/min</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <div class="search-box">
+          <input type="text" class="form-control" placeholder="Search SMS..." 
+                 [(ngModel)]="searchTerm" (input)="filterSmsRecords()">
+          <i class="fas fa-search search-icon"></i>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="statusFilter" (change)="filterSmsRecords()">
+          <option value="">All Status</option>
+          <option value="DELIVERED">Delivered</option>
+          <option value="SENT">Sent</option>
+          <option value="FAILED">Failed</option>
+          <option value="PENDING">Pending</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="typeFilter" (change)="filterSmsRecords()">
+          <option value="">All Types</option>
+          <option value="INCOMING">Incoming</option>
+          <option value="OUTGOING">Outgoing</option>
+        </select>
+      </div>
+      <div class="col-md-5 text-end">
+        <div class="btn-group" role="group">
+          <button class="btn btn-outline-secondary" (click)="exportData('csv')">
+            <i class="fas fa-download me-1"></i>CSV
+          </button>
+          <button class="btn btn-outline-secondary" (click)="exportData('pdf')">
+            <i class="fas fa-file-pdf me-1"></i>PDF
+          </button>
+          <button class="btn btn-outline-secondary" (click)="exportData('excel')">
+            <i class="fas fa-file-excel me-1"></i>Excel
+          </button>
+          <button class="btn btn-primary" (click)="openAddModal(addSmsModal)">
+            <i class="fas fa-plus me-1"></i>Send SMS
+          </button>
+          <button class="btn btn-success" (click)="sendBulkSms()">
+            <i class="fas fa-bullhorn me-1"></i>Bulk SMS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS Records Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-centered table-nowrap table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Content</th>
+                <th scope="col">Type</th>
+                <th scope="col">Status</th>
+                <th scope="col">Date</th>
+                <th scope="col">Gateway</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of paginatedSmsRecords">
+                <td>{{ record.id }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-xs rounded-circle bg-primary me-2">
+                      <span class="avatar-title">
+                        <i class="fas fa-phone font-size-12"></i>
+                      </span>
+                    </div>
+                    <strong>{{ record.telephone }}</strong>
+                  </div>
+                </td>
+                <td>
+                  <div class="text-truncate" style="max-width: 200px;" [title]="record.contenu">
+                    {{ record.contenu || 'No content' }}
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getTypeBadgeClass(record.type)">
+                    <i class="fas fa-arrow-up me-1" *ngIf="record.type === 'OUTGOING'"></i>
+                    <i class="fas fa-arrow-down me-1" *ngIf="record.type === 'INCOMING'"></i>
+                    {{ record.type }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(record.status)">
+                    <i class="fas fa-check me-1" *ngIf="record.status === 'DELIVERED'"></i>
+                    <i class="fas fa-paper-plane me-1" *ngIf="record.status === 'SENT'"></i>
+                    <i class="fas fa-times me-1" *ngIf="record.status === 'FAILED'"></i>
+                    <i class="fas fa-clock me-1" *ngIf="record.status === 'PENDING'"></i>
+                    {{ record.status }}
+                  </span>
+                </td>
+                <td>
+                  <div *ngIf="record.date_envoi">
+                    <div class="fw-medium">{{ record.date_envoi | date:'MMM dd' }}</div>
+                    <small class="text-muted">{{ record.date_envoi | date:'HH:mm' }}</small>
+                  </div>
+                  <span *ngIf="!record.date_envoi" class="text-muted">No date</span>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark">
+                    <i class="fas fa-broadcast-tower me-1"></i>
+                    {{ record.smscId || 'Default' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                            (click)="openViewModal(viewSmsModal, record)" title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" 
+                            (click)="openEditModal(editSmsModal, record)" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" 
+                            (click)="retrySms(record.id!)" title="Retry" 
+                            *ngIf="record.status === 'FAILED'">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            (click)="deleteSmsRecord(record.id!)" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="paginatedSmsRecords.length === 0">
+                <td colspan="8" class="text-center py-5">
+                  <div class="text-muted">
+                    <i class="fas fa-sms fa-3x mb-3"></i>
+                    <h5>No SMS records found</h5>
+                    <p>Start by sending your first SMS or adjust your filters.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="row mt-3" *ngIf="totalItems > itemsPerPage">
+          <div class="col-12">
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <a class="page-link" href="javascript:void(0);" (click)="onPageChange(currentPage - 1)">
+                    Previous
+                  </a>
+                </li>
+                <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalItems / itemsPerPage)); let i = index"
+                    [class.active]="currentPage === i + 1">
+                  <a class="page-link" href="javascript:void(0);" (click)="onPageChange(i + 1)">
+                    {{ i + 1 }}
+                  </a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === Math.ceil(totalItems / itemsPerPage)">
+                  <a class="page-link" href="javascript:void(0);" (click)="onPageChange(currentPage + 1)">
+                    Next
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit SMS Modal -->
+<ng-template #addSmsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="fas fa-sms me-2"></i>{{ isEditing ? 'Edit SMS' : 'Send New SMS' }}
+    </h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form #addSmsForm="ngForm">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" class="form-control" [(ngModel)]="smsForm.telephone" name="telephone" 
+                   placeholder="+1234567890" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Type *</label>
+            <select class="form-select" [(ngModel)]="smsForm.type" name="type" required>
+              <option value="OUTGOING">Outgoing</option>
+              <option value="INCOMING">Incoming</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Message Content *</label>
+        <textarea class="form-control" rows="4" [(ngModel)]="smsForm.contenu" name="contenu" 
+                  placeholder="Enter your message here..." required></textarea>
+        <div class="d-flex justify-content-between mt-1">
+          <small class="form-text text-muted">Character count: {{ smsForm.contenu?.length || 0 }}</small>
+          <small class="form-text text-muted">SMS count: {{ Math.ceil((smsForm.contenu?.length || 0) / 160) }}</small>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="smsForm.status" name="status">
+              <option value="PENDING">Pending</option>
+              <option value="SENT">Sent</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="FAILED">Failed</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Priority</label>
+            <select class="form-select" [(ngModel)]="smsForm.priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="saveSmsRecord()" [disabled]="!addSmsForm.valid">
+      <i class="fas fa-paper-plane me-1"></i>{{ isEditing ? 'Update' : 'Send SMS' }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- View SMS Modal -->
+<ng-template #viewSmsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="fas fa-eye me-2"></i>SMS Details
+    </h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedSmsRecord">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Basic Information</h6>
+        <p><strong>ID:</strong> {{ selectedSmsRecord.id }}</p>
+        <p><strong>Phone:</strong> {{ selectedSmsRecord.telephone }}</p>
+        <p><strong>Type:</strong> 
+          <span class="badge" [ngClass]="getTypeBadgeClass(selectedSmsRecord.type)">
+            {{ selectedSmsRecord.type }}
+          </span>
+        </p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedSmsRecord.status)">
+            {{ selectedSmsRecord.status }}
+          </span>
+        </p>
+      </div>
+      <div class="col-md-6">
+        <h6>Technical Details</h6>
+        <p><strong>Date:</strong> {{ selectedSmsRecord.date_envoi | date:'full' }}</p>
+        <p><strong>Gateway:</strong> {{ selectedSmsRecord.smscId || 'Default' }}</p>
+        <p><strong>Service:</strong> {{ selectedSmsRecord.service || 'N/A' }}</p>
+        <p><strong>Account:</strong> {{ selectedSmsRecord.account || 'N/A' }}</p>
+      </div>
+    </div>
+    
+    <div class="row mt-3">
+      <div class="col-12">
+        <h6>Message Content</h6>
+        <div class="border rounded p-3 bg-light">
+          <pre class="mb-0">{{ selectedSmsRecord.contenu || 'No content' }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+    <button type="button" class="btn btn-warning" 
+            (click)="openEditModal(editSmsModal, selectedSmsRecord); modal.dismiss()">
+      <i class="fas fa-edit me-1"></i>Edit
+    </button>
+  </div>
+</ng-template>
+
+<!-- Edit SMS Modal -->
+<ng-template #editSmsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="fas fa-edit me-2"></i>Edit SMS
+    </h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form #editSmsForm="ngForm">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" class="form-control" [(ngModel)]="smsForm.telephone" name="telephone" 
+                   placeholder="+1234567890" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Type *</label>
+            <select class="form-select" [(ngModel)]="smsForm.type" name="type" required>
+              <option value="OUTGOING">Outgoing</option>
+              <option value="INCOMING">Incoming</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Message Content *</label>
+        <textarea class="form-control" rows="4" [(ngModel)]="smsForm.contenu" name="contenu" required></textarea>
+        <div class="d-flex justify-content-between mt-1">
+          <small class="form-text text-muted">Character count: {{ smsForm.contenu?.length || 0 }}</small>
+          <small class="form-text text-muted">SMS count: {{ Math.ceil((smsForm.contenu?.length || 0) / 160) }}</small>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="smsForm.status" name="status">
+              <option value="PENDING">Pending</option>
+              <option value="SENT">Sent</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="FAILED">Failed</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Priority</label>
+            <select class="form-select" [(ngModel)]="smsForm.priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="saveSmsRecord()" [disabled]="!editSmsForm.valid">
+      <i class="fas fa-save me-1"></i>Update
+    </button>
+  </div>
+</ng-template>

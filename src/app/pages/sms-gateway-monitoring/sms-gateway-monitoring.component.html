@@ -1,0 +1,567 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 font-size-18">
+          <i class="fas fa-broadcast-tower me-2"></i>SMS Gateway Monitoring & Management
+        </h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
+            <li class="breadcrumb-item active">SMS Gateway</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gateway Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total SMS</p>
+              <h4 class="mb-0 text-primary">{{ gatewayStats.totalSms }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-sms font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Queued</p>
+              <h4 class="mb-0 text-warning">{{ gatewayStats.queuedSms }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-clock font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Failed</p>
+              <h4 class="mb-0 text-danger">{{ gatewayStats.failedSms }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-danger align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-exclamation-triangle font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Success Rate</p>
+              <h4 class="mb-0 text-success">{{ gatewayStats.successRate }}%</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-chart-line font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Avg Response</p>
+              <h4 class="mb-0 text-info">{{ gatewayMetrics.latency?.current || 0 }}ms</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-info align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-tachometer-alt font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Throughput</p>
+              <h4 class="mb-0 text-primary">{{ gatewayMetrics.throughput?.current || 0 }}/min</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-rocket font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls and Filters -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search SMS..." 
+               [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+        <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+        <option value="">All Status</option>
+        <option value="PENDING">Pending</option>
+        <option value="SENT">Sent</option>
+        <option value="DELIVERED">Delivered</option>
+        <option value="FAILED">Failed</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="gatewayFilter" (change)="onGatewayFilterChange()">
+        <option value="">All Gateways</option>
+        <option value="PRIMARY">Primary</option>
+        <option value="SECONDARY">Secondary</option>
+        <option value="BACKUP">Backup</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="priorityFilter" (change)="onPriorityFilterChange()">
+        <option value="">All Priorities</option>
+        <option value="HIGH">High</option>
+        <option value="NORMAL">Normal</option>
+        <option value="LOW">Low</option>
+      </select>
+    </div>
+    <div class="col-md-3 text-end">
+      <button class="btn btn-primary me-2" (click)="refreshData()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+        {{ isLoading ? 'Loading...' : 'Refresh' }}
+      </button>
+      <button class="btn btn-outline-danger" (click)="clearQueue(0)">
+        <i class="fas fa-trash me-2"></i>Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Row -->
+  <div class="row">
+    <!-- Gateway Status Column -->
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-server me-2 text-primary"></i>Gateway Status
+            <span class="badge bg-primary ms-2">{{ gatewayStatus.length }}</span>
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height: 400px;">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Gateway</th>
+                  <th>Status</th>
+                  <th>Queue</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let gateway of gatewayStatus">
+                  <td>
+                    <div>
+                      <strong>{{ gateway.name }}</strong>
+                      <br>
+                      <small class="text-muted">{{ gateway.ipAddress }}:{{ gateway.port }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(gateway.status)">
+                      {{ getStatusText(gateway.status) }}
+                    </span>
+                    <br>
+                    <small [class]="getGatewayHealthClass(gateway)">
+                      {{ gateway.uptime }} uptime
+                    </small>
+                  </td>
+                  <td>
+                    <div>
+                      <strong>{{ gateway.queueSize }}</strong>
+                      <br>
+                      <small class="text-muted">{{ gateway.responseTime }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <button class="btn btn-sm btn-outline-primary" 
+                              (click)="openGatewayDetailsModal(gatewayDetailsModal, gateway)">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-warning" 
+                              *ngIf="gateway.status !== 'OFFLINE'"
+                              (click)="restartGateway(gateway.id)"
+                              [disabled]="isProcessing">
+                        <i class="fas fa-redo"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-success" 
+                              *ngIf="gateway.status === 'STANDBY'"
+                              (click)="switchToGateway(gateway.id)"
+                              [disabled]="isProcessing">
+                        <i class="fas fa-toggle-on"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gateway Metrics -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-bar me-2 text-info"></i>Performance Metrics
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-primary">{{ gatewayMetrics.throughput?.current || 0 }}</h4>
+                <p class="text-muted mb-0">SMS/min</p>
+                <small class="text-muted">Peak: {{ gatewayMetrics.throughput?.peak || 0 }}</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-info">{{ gatewayMetrics.latency?.current || 0 }}ms</h4>
+                <p class="text-muted mb-0">Avg Response</p>
+                <small class="text-muted">Peak: {{ gatewayMetrics.latency?.peak || 0 }}ms</small>
+              </div>
+            </div>
+          </div>
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-warning">{{ gatewayMetrics.errors?.current || 0 }}</h4>
+                <p class="text-muted mb-0">Errors/min</p>
+                <small class="text-muted">Avg: {{ gatewayMetrics.errors?.average || 0 }}</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-danger">{{ gatewayMetrics.queueDepth?.current || 0 }}</h4>
+                <p class="text-muted mb-0">Queue Depth</p>
+                <small class="text-muted">Peak: {{ gatewayMetrics.queueDepth?.peak || 0 }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS Queue Column -->
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#sms-queue" role="tab">
+                <span class="d-none d-sm-block">SMS Queue</span>
+                <span class="d-block d-sm-none">Queue</span>
+                <span class="badge bg-warning ms-2">{{ smsQueue.length }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#failed-sms" role="tab">
+                <span class="d-none d-sm-block">Failed SMS</span>
+                <span class="d-block d-sm-none">Failed</span>
+                <span class="badge bg-danger ms-2">{{ failedSms.length }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <div class="tab-content">
+            <!-- SMS Queue Tab -->
+            <div class="tab-pane active" id="sms-queue" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Phone</th>
+                      <th>Message</th>
+                      <th>Priority</th>
+                      <th>Gateway</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let sms of smsQueue">
+                      <td>#{{ sms.id }}</td>
+                      <td>{{ sms.telephone }}</td>
+                      <td>
+                        <div class="text-truncate" style="max-width: 200px;" title="{{ sms.contenu }}">
+                          {{ sms.contenu }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" [ngClass]="{
+                          'bg-danger': sms.priority === 'urgent',
+                          'bg-warning': sms.priority === 'medium',
+                          'bg-secondary': sms.priority === 'low',
+                          'bg-info': sms.priority === 'high'
+                        }">
+                          {{ (sms.priority || 'medium') | uppercase }}
+                        </span>
+                      </td>
+                      <td>{{ 'Primary' }}</td>
+                      <td>{{ sms.date_envoi | date:'short' || 'N/A' }}</td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <button class="btn btn-sm btn-outline-primary" 
+                                  (click)="openSmsDetailsModal(smsDetailsModal, sms)">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success" 
+                                  (click)="retrySms(sms.id)"
+                                  [disabled]="isProcessing">
+                            <i class="fas fa-redo"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" 
+                                  (click)="cancelSms(sms.id)"
+                                  [disabled]="isProcessing">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Failed SMS Tab -->
+            <div class="tab-pane" id="failed-sms" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Phone</th>
+                      <th>Message</th>
+                      <th>Error</th>
+                      <th>Attempts</th>
+                      <th>Failed At</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let sms of failedSms">
+                      <td>#{{ sms.id }}</td>
+                      <td>{{ sms.telephone }}</td>
+                      <td>
+                        <div class="text-truncate" style="max-width: 200px;" title="{{ sms.contenu }}">
+                          {{ sms.contenu }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="text-danger">{{ sms.error_message || 'Unknown error' }}</span>
+                      </td>
+                      <td>{{ sms.retry_count || 0 }}/{{ sms.max_retries || 3 }}</td>
+                      <td>{{ sms.date_envoi | date:'short' || 'N/A' }}</td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <button class="btn btn-sm btn-outline-primary" 
+                                  (click)="openSmsDetailsModal(smsDetailsModal, sms)">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success" 
+                                  (click)="retrySms(sms.id)"
+                                  [disabled]="isProcessing || (sms.retry_count || 0) >= (sms.max_retries || 3)">
+                            <i class="fas fa-redo"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SMS Performance Chart -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-line me-2 text-success"></i>SMS Performance Trends
+          </h5>
+        </div>
+        <div class="card-body">
+          <apx-chart 
+            [chart]="smsChartOptions.chart"
+            [series]="smsChartOptions.series"
+            [legend]="smsChartOptions.legend"
+            [colors]="smsChartOptions.colors"
+            [fill]="smsChartOptions.fill"
+            [dataLabels]="smsChartOptions.dataLabels"
+            [xaxis]="smsChartOptions.xaxis"
+            [plotOptions]="smsChartOptions.plotOptions">
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SMS Details Modal -->
+<ng-template #smsDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">SMS Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedSms">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Message Information</h6>
+        <p><strong>ID:</strong> #{{ selectedSms.id }}</p>
+        <p><strong>Phone:</strong> {{ selectedSms.telephone }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedSms.status)">
+            {{ getStatusText(selectedSms.status) }}
+          </span>
+        </p>
+        <p><strong>Priority:</strong> {{ selectedSms.priority || 'NORMAL' }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Gateway Information</h6>
+        <p><strong>Gateway:</strong> Primary</p>
+        <p><strong>Sent Date:</strong> {{ selectedSms.date_envoi | date:'medium' || 'N/A' }}</p>
+        <p><strong>Received Date:</strong> {{ selectedSms.date_reception | date:'medium' || 'N/A' }}</p>
+        <p><strong>Retry Count:</strong> {{ selectedSms.retry_count || 0 }}/{{ selectedSms.max_retries || 3 }}</p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-12">
+        <h6>Message Content</h6>
+        <div class="border p-3 bg-light">
+          <p class="mb-0">{{ selectedSms.contenu }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3" *ngIf="selectedSms.error_message">
+      <div class="col-12">
+        <h6>Error Information</h6>
+        <div class="border p-3 bg-danger text-white">
+          <p class="mb-0"><strong>Error:</strong> {{ selectedSms.error_message }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+    <button type="button" class="btn btn-success" 
+            *ngIf="selectedSms.status === 'FAILED' && (selectedSms.retry_count || 0) < (selectedSms.max_retries || 3)"
+            (click)="retrySms(selectedSms.id); modal.dismiss()">
+      <i class="fas fa-redo me-2"></i>Retry SMS
+    </button>
+  </div>
+</ng-template>
+
+<!-- Gateway Details Modal -->
+<ng-template #gatewayDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Gateway Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedGateway">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Gateway Information</h6>
+        <p><strong>Name:</strong> {{ selectedGateway.name }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedGateway.status)">
+            {{ getStatusText(selectedGateway.status) }}
+          </span>
+        </p>
+        <p><strong>IP Address:</strong> {{ selectedGateway.ipAddress }}</p>
+        <p><strong>Port:</strong> {{ selectedGateway.port }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Performance Metrics</h6>
+        <p><strong>Uptime:</strong> {{ selectedGateway.uptime }}</p>
+        <p><strong>Response Time:</strong> {{ selectedGateway.responseTime }}</p>
+        <p><strong>Error Rate:</strong> {{ selectedGateway.errorRate }}</p>
+        <p><strong>Queue Size:</strong> {{ selectedGateway.queueSize }}</p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <h6>Last Heartbeat</h6>
+        <p>{{ selectedGateway.lastHeartbeat | date:'medium' }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Actions</h6>
+        <div class="d-grid gap-2">
+          <button class="btn btn-warning" 
+                  *ngIf="selectedGateway.status !== 'OFFLINE'"
+                  (click)="restartGateway(selectedGateway.id)">
+            <i class="fas fa-redo me-2"></i>Restart Gateway
+          </button>
+          <button class="btn btn-success" 
+                  *ngIf="selectedGateway.status === 'STANDBY'"
+                  (click)="switchToGateway(selectedGateway.id)">
+            <i class="fas fa-toggle-on me-2"></i>Activate Gateway
+          </button>
+          <button class="btn btn-danger" 
+                  (click)="clearQueue(selectedGateway.id)">
+            <i class="fas fa-trash me-2"></i>Clear Queue
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

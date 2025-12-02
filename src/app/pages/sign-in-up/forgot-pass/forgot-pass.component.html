@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Réinitialisation du mot de passe - SMSTaxi</title>
+
+  <!-- MDB UI Kit CSS -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css"
+    rel="stylesheet"
+  />
+ 
+</head>
+
+<body>
+  <section class="h-100 gradient-form" style="background-color: #eeeeee;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-xl-10">
+          <div class="card rounded-9 text-black">
+            <div class="row g-0">
+              <div class="col-lg-6">
+                <div class="card-body p-md-5 mx-md-4">
+                  <div class="text-center mb-4">
+                    <img src="assets/logoY2.png" alt="logo-smstaxi" />
+                    <h4 class="page-title mt-3">Réinitialisation du mot de passe</h4>
+
+                  </div>
+
+                  <form>
+                    <pre>Entrez votre adresse e-mail pour recevoir un <br>lien de réinitialisation.</pre>
+                      <div data-mdb-input-init  class="form-outline mb-4">
+  					        <input type="text" id="resetEmail" class="form-control" placeholder="Entrez votre adresse e-mail" required/>
+  					        <label class="form-label" for="resetEmail">Adresse e-mail de réinitialisation</label>
+				          </div>
+                    <div class="text-center pt-1 mb-5 pb-1">
+                      <button type="submit" class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3">
+                        Envoyer le lien
+                      </button>
+                      <a class="text-muted" href="/login">Retour à la connexion</a>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
+                <div class="text-white px-3 py-4 p-md-5 mx-md-4">
+                  <h4 class="mb-4">Besoin d'aide pour accéder à votre compte ?</h4>
+                  <p class="small mb-0">
+                    Nous sommes là pour vous aider à retrouver l'accès. Entrez simplement votre adresse e-mail,
+                    et nous vous enverrons un lien sécurisé pour réinitialiser votre mot de passe.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MDB UI Kit JS -->
+  <script
+    type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"
+  ></script>
+</body>
+</html>

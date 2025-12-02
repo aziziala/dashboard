@@ -1,0 +1,518 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 font-size-18">
+          <i class="fas fa-satellite me-2"></i>Real-Time Monitoring & GPS Tracking
+        </h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
+            <li class="breadcrumb-item active">Real-Time Monitoring</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Taxis</p>
+              <h4 class="mb-0 text-primary">{{ realTimeStats.totalTaxis }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-taxi font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Active</p>
+              <h4 class="mb-0 text-success">{{ realTimeStats.activeTaxis }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-circle font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Available</p>
+              <h4 class="mb-0 text-info">{{ realTimeStats.availableTaxis }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-info align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-check font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Busy</p>
+              <h4 class="mb-0 text-warning">{{ realTimeStats.busyTaxis }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-clock font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Active Rides</p>
+              <h4 class="mb-0 text-success">{{ realTimeStats.activeRides }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-route font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Coverage</p>
+              <h4 class="mb-0 text-primary">{{ realTimeStats.coverageArea | number:'1.0-0' }} km²</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-map-marker-alt font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls and Filters -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search taxis..." 
+               [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+        <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+        <option value="">All Status</option>
+        <option value="AVAILABLE">Available</option>
+        <option value="BUSY">Busy</option>
+        <option value="OFFLINE">Offline</option>
+        <option value="MAINTENANCE">Maintenance</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="taxiTypeFilter" (change)="onTaxiTypeFilterChange()">
+        <option value="">All Types</option>
+        <option value="STANDARD">Standard</option>
+        <option value="PREMIUM">Premium</option>
+        <option value="VAN">Van</option>
+        <option value="MOTORCYCLE">Motorcycle</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select" [(ngModel)]="locationFilter" (change)="onLocationFilterChange()">
+        <option value="">All Areas</option>
+        <option value="CITY_CENTER">City Center</option>
+        <option value="SUBURBS">Suburbs</option>
+        <option value="AIRPORT">Airport</option>
+        <option value="SHOPPING">Shopping</option>
+      </select>
+    </div>
+    <div class="col-md-3 text-end">
+      <button class="btn btn-primary me-2" (click)="refreshData()" [disabled]="isUpdating">
+        <i class="fas fa-sync-alt me-2" [class.fa-spin]="isUpdating"></i>
+        {{ isUpdating ? 'Updating...' : 'Refresh' }}
+      </button>
+      <button class="btn btn-outline-secondary" (click)="toggleHeatmap()">
+        <i class="fas fa-fire me-2"></i>Heatmap
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Row -->
+  <div class="row">
+    <!-- Map Column -->
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">
+            <i class="fas fa-map me-2"></i>Live Fleet Map
+            <small class="text-muted ms-2">Real-time GPS tracking</small>
+          </h4>
+          <div id="mapContainer" #mapContainer style="height: 600px; width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Data Column -->
+    <div class="col-xl-4">
+      <!-- Active Taxis -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-taxi me-2 text-primary"></i>Active Taxis
+            <span class="badge bg-primary ms-2">{{ activeTaxis.length }}</span>
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height: 300px;">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Taxi</th>
+                  <th>Status</th>
+                  <th>Location</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let taxi of activeTaxis.slice(0, 10)">
+                  <td>
+                    <div>
+                      <strong>{{ taxi.numero_taxi }}</strong>
+                      <br>
+                      <small class="text-muted">{{ taxi.nom }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(taxi.taxiStatus)">
+                      {{ getStatusText(taxi.taxiStatus) }}
+                    </span>
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      {{ taxi.latitude | number:'1.4-4' }}, {{ taxi.longitude | number:'1.4-4' }}
+                    </small>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" 
+                            (click)="openTaxiDetailsModal(taxiDetailsModal, taxi)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Rides -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-route me-2 text-success"></i>Active Rides
+            <span class="badge bg-success ms-2">{{ activeRides.length }}</span>
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height: 300px;">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Ride</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let ride of activeRides.slice(0, 10)">
+                  <td>
+                    <div>
+                      <strong>
+                        {{ isRideRequest(ride) ? 'Request' : 'Offer' }} #{{ ride.id }}
+                      </strong>
+                      <br>
+                      <small class="text-muted">
+                        {{ getRidePhone(ride) }}
+                      </small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(ride.status)">
+                      {{ getStatusText(ride.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" 
+                            (click)="openRideDetailsModal(rideDetailsModal, ride)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fleet Status Summary -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-pie me-2 text-info"></i>Fleet Status
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-success">{{ realTimeStats.availableTaxis }}</h4>
+                <p class="text-muted mb-0">Available</p>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-warning">{{ realTimeStats.busyTaxis }}</h4>
+                <p class="text-muted mb-0">Busy</p>
+              </div>
+            </div>
+          </div>
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-secondary">{{ realTimeStats.offlineTaxis }}</h4>
+                <p class="text-muted mb-0">Offline</p>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3">
+                <h4 class="text-danger">{{ realTimeStats.totalTaxis - realTimeStats.activeTaxis - realTimeStats.offlineTaxis }}</h4>
+                <p class="text-muted mb-0">Maintenance</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fleet Locations Table -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-list me-2"></i>Fleet Locations
+            <span class="badge bg-primary ms-2">{{ fleetLocations.length }}</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-centered table-nowrap table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Taxi</th>
+                  <th>Driver</th>
+                  <th>Status</th>
+                  <th>Location</th>
+                  <th>Last Update</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let location of fleetLocations">
+                  <td>
+                    <div>
+                      <strong>{{ location.taxiNumber }}</strong>
+                      <br>
+                      <small class="text-muted">{{ location.telephone }}</small>
+                    </div>
+                  </td>
+                  <td>{{ location.driverName || 'N/A' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(location.status)">
+                      {{ getStatusText(location.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div>
+                      <strong>{{ location.latitude | number:'1.4-4' }}, {{ location.longitude | number:'1.4-4' }}</strong>
+                      <br>
+                      <small class="text-muted">Coordinates only</small>
+                    </div>
+                  </td>
+                  <td>{{ location.lastUpdate | date:'short' }}</td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <button class="btn btn-sm btn-outline-primary" 
+                              (click)="openLocationDetailsModal(locationDetailsModal, location)">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-info" 
+                              (click)="onTaxiMarkerClick(location)">
+                        <i class="fas fa-map-marker-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Taxi Details Modal -->
+<ng-template #taxiDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Taxi Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedTaxi">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Taxi Information</h6>
+        <p><strong>Number:</strong> {{ selectedTaxi.numero_taxi }}</p>
+        <p><strong>Model:</strong> {{ selectedTaxi.constructeur || 'N/A' }}</p>
+        <p><strong>Year:</strong> N/A</p>
+        <p><strong>Color:</strong> N/A</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Driver Information</h6>
+        <p><strong>Name:</strong> {{ selectedTaxi.nom }}</p>
+        <p><strong>Phone:</strong> {{ selectedTaxi.telephone }}</p>
+        <p><strong>License:</strong> {{ selectedTaxi.numero_cin || 'N/A' }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedTaxi.taxiStatus)">
+            {{ getStatusText(selectedTaxi.taxiStatus) }}
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Location Details Modal -->
+<ng-template #locationDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Location Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedLocation">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Taxi Information</h6>
+        <p><strong>Number:</strong> {{ selectedLocation.taxiNumber }}</p>
+        <p><strong>Driver:</strong> {{ selectedLocation.driverName || 'N/A' }}</p>
+        <p><strong>Phone:</strong> {{ selectedLocation.telephone || 'N/A' }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedLocation.status)">
+            {{ getStatusText(selectedLocation.status) }}
+          </span>
+        </p>
+      </div>
+      <div class="col-md-6">
+        <h6>Location Information</h6>
+        <p><strong>Latitude:</strong> {{ selectedLocation.latitude | number:'1.6-6' }}</p>
+        <p><strong>Longitude:</strong> {{ selectedLocation.longitude | number:'1.6-6' }}</p>
+        <p><strong>Address:</strong> Coordinates only</p>
+        <p><strong>Last Update:</strong> {{ selectedLocation.lastUpdate | date:'medium' }}</p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-12">
+        <h6>Map View</h6>
+        <div id="modalMap" style="height: 300px; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Ride Details Modal -->
+<ng-template #rideDetailsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ride Details</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedRide">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Ride Information</h6>
+        <p><strong>Type:</strong> {{ isRideRequest(selectedRide) ? 'Request' : 'Offer' }}</p>
+        <p><strong>ID:</strong> #{{ selectedRide.id }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [ngClass]="getStatusBadgeClass(selectedRide.status)">
+            {{ getStatusText(selectedRide.status) }}
+          </span>
+        </p>
+        <p><strong>Created:</strong> {{ selectedRide.dateCreated | date:'medium' }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Contact Information</h6>
+        <p><strong>Phone:</strong> {{ getRidePhone(selectedRide) }}</p>
+        <p><strong>Name:</strong> {{ isRideRequest(selectedRide) ? 'Client' : 'Taxi Driver' }}</p>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <h6>Location Details</h6>
+        <p><strong>Pickup:</strong> {{ selectedRide.pickupLocation }}</p>
+        <p><strong>Dropoff:</strong> {{ selectedRide.dropoffLocation }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Additional Info</h6>
+        <p><strong>Notes:</strong> {{ getRideNotes(selectedRide) }}</p>
+        <p *ngIf="getRidePrice(selectedRide) !== null">
+          <strong>Price:</strong> ${{ (getRidePrice(selectedRide) || 0) | number:'1.2-2' }}
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-template>

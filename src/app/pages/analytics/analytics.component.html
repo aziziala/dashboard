@@ -1,0 +1,384 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 font-size-18">
+          <i class="fas fa-chart-bar me-2"></i>Analytics & Performance Reports
+        </h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
+            <li class="breadcrumb-item active">Analytics</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Period Selection and Export Controls -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="d-flex align-items-center">
+        <label class="form-label me-3 mb-0">Period:</label>
+        <select class="form-select me-3" style="width: auto;" [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly" selected>Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+        <select class="form-select" style="width: auto;" [(ngModel)]="selectedYear" (change)="onYearChange()">
+          <option *ngFor="let year of [2020, 2021, 2022, 2023, 2024]" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-6 text-end">
+      <div class="btn-group" role="group">
+        <button class="btn btn-outline-secondary" (click)="exportReport('csv')">
+          <i class="fas fa-download me-2"></i>Export CSV
+        </button>
+        <button class="btn btn-outline-secondary" (click)="exportReport('pdf')">
+          <i class="fas fa-file-pdf me-2"></i>Export PDF
+        </button>
+        <button class="btn btn-outline-secondary" (click)="exportReport('excel')">
+          <i class="fas fa-file-excel me-2"></i>Export Excel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Performance Indicators -->
+  <div class="row mb-4">
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Revenue</p>
+              <h4 class="mb-0 text-primary">${{ totalRevenue | number:'1.0-0' }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-dollar-sign font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Rides</p>
+              <h4 class="mb-0 text-success">{{ totalRides | number:'1.0-0' }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-route font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Avg Rating</p>
+              <h4 class="mb-0 text-warning">{{ averageRating | number:'1.1-1' }}★</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-star font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Clients</p>
+              <h4 class="mb-0 text-info">{{ totalClients | number:'1.0-0' }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-info align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-users font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Taxis</p>
+              <h4 class="mb-0 text-secondary">{{ totalTaxis | number:'1.0-0' }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-secondary align-self-center mini-stat-icon">
+                <span class="avatar-title">
+                  <i class="fas fa-taxi font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Success Rate</p>
+              <h4 class="mb-0" [ngClass]="getPerformanceColor(successRate)">{{ successRate | number:'1.1-1' }}%</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle" [ngClass]="'bg-' + (successRate >= 90 ? 'success' : successRate >= 75 ? 'warning' : 'danger')">
+                <span class="avatar-title">
+                  <i class="fas fa-chart-line font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue and Performance Charts -->
+  <div class="row mb-4">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Revenue & Profit Trends</h4>
+        </div>
+        <div class="card-body">
+          <apx-chart [series]="revenueChartOptions.series" [chart]="revenueChartOptions.chart"
+                     [colors]="revenueChartOptions.colors" [dataLabels]="revenueChartOptions.dataLabels"
+                     [stroke]="revenueChartOptions.stroke" [fill]="revenueChartOptions.fill"
+                     [xaxis]="revenueChartOptions.xaxis" [yaxis]="revenueChartOptions.yaxis"
+                     [tooltip]="revenueChartOptions.tooltip">
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Ride Performance</h4>
+        </div>
+        <div class="card-body">
+          <apx-chart [series]="performanceChartOptions.series" [chart]="performanceChartOptions.chart"
+                     [colors]="performanceChartOptions.colors" [dataLabels]="performanceChartOptions.dataLabels"
+                     [xaxis]="performanceChartOptions.xaxis" [yaxis]="performanceChartOptions.yaxis">
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ride Frequency and Top Performers -->
+  <div class="row mb-4">
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">24-Hour Ride Frequency</h4>
+        </div>
+        <div class="card-body">
+          <apx-chart [series]="rideFrequencyChartOptions.series" [chart]="rideFrequencyChartOptions.chart"
+                     [colors]="rideFrequencyChartOptions.colors" [dataLabels]="rideFrequencyChartOptions.dataLabels"
+                     [stroke]="rideFrequencyChartOptions.stroke" [xaxis]="rideFrequencyChartOptions.xaxis"
+                     [yaxis]="rideFrequencyChartOptions.yaxis">
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Top Performing Taxis</h4>
+        </div>
+        <div class="card-body">
+          <apx-chart [series]="topPerformersChartOptions.series" [chart]="topPerformersChartOptions.chart"
+                     [labels]="topPerformersChartOptions.labels" [colors]="topPerformersChartOptions.colors"
+                     [legend]="topPerformersChartOptions.legend" [plotOptions]="topPerformersChartOptions.plotOptions">
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Performers Tables -->
+  <div class="row mb-4">
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="card-title mb-0">Top Performing Taxis</h4>
+          <button class="btn btn-sm btn-outline-primary" (click)="openDetailedReport('taxi', 'taxi')">
+            View All
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0">
+              <thead>
+                <tr>
+                  <th>Taxi</th>
+                  <th>Driver</th>
+                  <th>Revenue</th>
+                  <th>Rides</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let taxi of topTaxis">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-light rounded-circle me-3">
+                        <span class="avatar-title text-primary font-weight-bold">
+                          <i class="fas fa-taxi"></i>
+                        </span>
+                      </div>
+                      <div>
+                        <strong>{{ taxi.name }}</strong>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ taxi.driver }}</td>
+                  <td class="text-success">${{ taxi.revenue | number:'1.0-0' }}</td>
+                  <td>{{ taxi.rides }}</td>
+                  <td>
+                    <span class="text-warning">{{ getRatingStars(taxi.rating) }}</span>
+                    <small class="text-muted ms-1">({{ taxi.rating }})</small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="card-title mb-0">Top Clients</h4>
+          <button class="btn btn-sm btn-outline-primary" (click)="openDetailedReport('client', 'client')">
+            View All
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Phone</th>
+                  <th>Rides</th>
+                  <th>Total Spent</th>
+                  <th>Last Ride</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let client of topClients">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-light rounded-circle me-3">
+                        <span class="avatar-title text-info font-weight-bold">
+                          <i class="fas fa-user"></i>
+                        </span>
+                      </div>
+                      <div>
+                        <strong>{{ client.name }}</strong>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ client.phone }}</td>
+                  <td>{{ client.rides }}</td>
+                  <td class="text-success">${{ client.totalSpent | number:'1.0-0' }}</td>
+                  <td>{{ client.lastRide | date:'short' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Analytics Cards -->
+  <div class="row mb-4">
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Geographic Distribution</h4>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-4">
+            <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Geographic Analytics</h5>
+            <p class="text-muted">Map-based analysis of ride distribution</p>
+            <button class="btn btn-outline-primary">View Map</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Peak Hours Analysis</h4>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-4">
+            <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Peak Hours</h5>
+            <p class="text-muted">Analysis of busiest hours and demand patterns</p>
+            <button class="btn btn-outline-primary">View Details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Customer Satisfaction</h4>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-4">
+            <i class="fas fa-smile fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Satisfaction Metrics</h5>
+            <p class="text-muted">Customer feedback and satisfaction analysis</p>
+            <button class="btn btn-outline-primary">View Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
