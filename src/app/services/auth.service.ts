@@ -16,7 +16,7 @@ export interface User {
 })
 export class AuthService {
   
-  private baseUrl = 'http://localhost:8666/api'; // JWT service port
+  private baseUrl = 'http://41.225.11.231:8666/api'; // JWT service port
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
   
