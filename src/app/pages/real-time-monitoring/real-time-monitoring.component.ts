@@ -93,7 +93,7 @@ export class RealTimeMonitoringComponent implements OnInit, OnDestroy, AfterView
       this.loadFleetLocations(),
       this.loadActiveTaxis(),
       this.loadActiveRides(),
-      this.loadRealTimeStatistics()
+    
     ]).finally(() => {
       this.isLoading = false;
     });
@@ -142,28 +142,6 @@ export class RealTimeMonitoringComponent implements OnInit, OnDestroy, AfterView
     }
   }
 
-  loadRealTimeStatistics(): Promise<void> {
-    return new Promise((resolve) => {
-      this.fleetService.getFleetStatistics().subscribe({
-        next: (stats) => {
-          this.realTimeStats = {
-            ...this.realTimeStats,
-            totalTaxis: stats.totalTaxis,
-            activeTaxis: stats.activeTaxis,
-            busyTaxis: stats.busyTaxis,
-            availableTaxis: stats.activeTaxis - stats.busyTaxis,
-            offlineTaxis: stats.totalTaxis - stats.activeTaxis,
-            coverageArea: stats.coverageArea
-          };
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error loading real-time statistics:', error);
-          resolve();
-        }
-      });
-    });
-  }
 
   startRealTimeUpdates(): void {
     // Update fleet locations every 10 seconds

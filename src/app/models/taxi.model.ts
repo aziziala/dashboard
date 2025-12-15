@@ -6,10 +6,10 @@ export interface Taxi {
   latitude?: number;
   longitude?: number;
   nom?: string;
-  numero_matricule?: string;
-  numero_cin?: string;
+  numeroMatricule?: string;
+  numeroCin: string;
   constructeur?: string;
-  numero_taxi?: string;
+  numeroTaxi?: string;
   masquerNumero?: boolean;
   email?: string;
   sms_winek?: boolean;
@@ -32,9 +32,9 @@ export enum TaxiStatus {
 }
 
 export enum PhoneType {
-  ANDROID = 'ANDROID',
-  IPHONE = 'IPHONE',
-  OTHER = 'OTHER'
+  gsm = 'GSM',
+  smartphone = 'SMART',
+
 }
 
 export interface TaxiLocation {

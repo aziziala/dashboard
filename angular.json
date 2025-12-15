@@ -71,6 +71,7 @@
           "configurations": {
             "production": {
               "buildTarget": "sms-taxi-admin:build:production"
+              
             },
             "development": {
               "buildTarget": "sms-taxi-admin:build:development"
@@ -81,6 +82,8 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
+            "host": "0.0.0.0",
+            "allowedHosts": ["sms-taxi.tn"],
             "browserTarget": "sms-taxi-admin:build"
           }
         },

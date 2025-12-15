@@ -26,6 +26,13 @@ export class TopbarComponent {
   toggleRightbar(): void {
     this.ui.toggleRightbar();
   }
+toggleSidebar(): void {
+  this.ui.toggleSidebar();
+}
+
+
+
+  
 }
 
 

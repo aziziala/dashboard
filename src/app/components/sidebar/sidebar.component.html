@@ -1,4 +1,6 @@
-<div class="vertical-menu">
+<div class="vertical-menu" [class.open]="isOpen" [class.collapsed]="isCollapsed">
+
+
   <div data-simplebar class="h-100">
     <div id="sidebar-menu">
       <ul class="metismenu list-unstyled" id="side-menu">
@@ -6,7 +8,7 @@
         <li [class.mm-active]="activeUrl.startsWith('/dashboard')">
           <a routerLink="/dashboard" class="waves-effect" [class.active]="activeUrl.startsWith('/dashboard')">
             <i class="bx bx-home-circle"></i>
-            <span key="t-dashboards">Acceuil</span>
+            <span key="t-dashboards">Tableau de bord</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/taxis')">
@@ -30,19 +32,19 @@
         <li [class.mm-active]="activeUrl.startsWith('/fleet')">
           <a routerLink="/fleet" [class.active]="activeUrl.startsWith('/fleet')">
             <i class="bx bx-map"></i>
-            <span key="t-fleet">Géolocalisation</span>
+            <span key="t-fleet">Gestion des flottes</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/analytics')">
           <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')">
             <i class="bx bx-bar-chart"></i>
-            <span key="t-analytics">Analyse de données</span>
+            <span key="t-analytics">Analyse des données</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/rides')">
           <a routerLink="/rides" [class.active]="activeUrl.startsWith('/rides')">
             <i class="bx bx-navigation"></i>
-            <span key="t-rides">Suivi de course </span>
+            <span key="t-rides">Suivi des courses </span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/sms-gateway')">
@@ -55,10 +57,12 @@
     </div>
   </div>
 
-  <div class="sidebar-logo">
+<div class="sidebar-logo">
+   <a href="https://smstaxi.tn/" target="_blank">
     <img src="assets/logoY.png" alt="Logo Y">
+   </a>
 
-  </div>
+</div>
 
 </div>
 

@@ -25,16 +25,19 @@ export interface FleetLocation {
   insuranceExpiry?: Date;
   lastMaintenance?: Date;
   nextMaintenance?: Date;
+  waitingCount:number;
+  inProgressCount:number;
+  totalTaxis: number;
 }
 
 export enum FleetStatus {
-  ACTIVE = 'ACTIVE',
-  BUSY = 'BUSY',
+  ACTIVE = 'LIBRE',
+  BUSY = 'OCCUPÉ',
   OFFLINE = 'OFFLINE',
   MAINTENANCE = 'MAINTENANCE',
   SUSPENDED = 'SUSPENDED',
   BREAK = 'BREAK',
-  EN_ROUTE = 'EN_ROUTE',
+  EN_ROUTE = 'En approche',
   ARRIVED = 'ARRIVED'
 }
 

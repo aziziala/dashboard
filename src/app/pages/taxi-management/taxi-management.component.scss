@@ -1,183 +1,333 @@
-.page-title-box {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  margin-bottom: 1.5rem;
-}
-
-.breadcrumb {
-  background: transparent;
-  padding: 0;
-  margin: 0;
-  
-  .breadcrumb-item {
-    font-size: 0.875rem;
-    
-    a {
-      color: #6c757d;
-      text-decoration: none;
-      
-      &:hover {
-        color: #495057;
-      }
-    }
-    
-    &.active {
-      color: #495057;
-      font-weight: 500;
-    }
-  }
-}
-
-.card {
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  
-  .card-body {
-    padding: 1.5rem;
-  }
-}
-
-.table {
-  th {
-    background-color: #f8f9fa;
-    border-top: none;
-    font-weight: 600;
-    color: #495057;
-    padding: 1rem 0.75rem;
-  }
-  
-  td {
-    padding: 1rem 0.75rem;
-    vertical-align: middle;
-  }
-  
-  tbody tr {
-    &:hover {
-      background-color: #f8f9fa;
-    }
-  }
-}
-
-.badge {
-  font-size: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-}
-
-.btn-group {
-  .btn {
-    margin-right: 0.25rem;
-    
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-}
-
-.pagination {
-  .page-link {
-    border: none;
-    color: #6c757d;
-    padding: 0.5rem 0.75rem;
-    margin: 0 0.125rem;
-    border-radius: 0.375rem;
-    
-    &:hover {
-      background-color: #e9ecef;
-      color: #495057;
-    }
-  }
-  
-  .page-item.active .page-link {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-    color: white;
-  }
-  
-  .page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    background-color: transparent;
-  }
-}
-
 .modal-content {
   border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.4s ease;
+
   .modal-header {
-    border-bottom: 1px solid #dee2e6;
-    padding: 1.5rem;
-    
+    border-bottom: none;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #211F54, #4B4BAF);
+    color: #fff;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
     .modal-title {
       font-weight: 600;
-      color: #495057;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
     }
-  }
-  
-  .modal-body {
-    padding: 1.5rem;
-  }
-  
-  .modal-footer {
-    border-top: 1px solid #dee2e6;
-    padding: 1.5rem;
-  }
-}
-
-.form-label {
-  font-weight: 500;
-  color: #495057;
-  margin-bottom: 0.5rem;
-}
-
-.form-control, .form-select {
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  
-  &:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-  }
-}
-
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .page-title-box {
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .card .card-body {
-    padding: 1rem;
-  }
-  
-  .table-responsive {
-    font-size: 0.875rem;
-  }
-  
-  .btn-group {
-    display: flex;
-    flex-direction: column;
-    
-    .btn {
-      margin-right: 0;
-      margin-bottom: 0.25rem;
-      
-      &:last-child {
-        margin-bottom: 0;
+    .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+      &:hover {
+        opacity: 1;
       }
     }
   }
+
+  .modal-body {
+    padding: 2rem;
+    .form-modern {
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem 1.5rem;
+      }
+
+      .form-floating {
+        label {
+          color: #6c757d;
+        }
+
+        .form-control, .form-select {
+          border: 1px solid #dee2e6;
+          border-radius: 0.5rem;
+          background-color: rgba(255, 255, 255, 0.9);
+          transition: all 0.3s ease;
+
+          &:focus {
+            border-color: #211F54;
+            box-shadow: 0 0 0 0.25rem rgba(33, 31, 84, 0.25);
+            background-color: #fff;
+          }
+        }
+      }
+    }
+  }
+
+  .modal-footer {
+    border-top: none;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+}
+
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #211F54, #4B4BAF);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 31, 84, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   
 }
+
+.page-title {
+  font-weight: 700;
+  font-size: 1.5rem; // bigger, more prominent
+  text-transform: uppercase; // modern feel
+  letter-spacing: 0.05em;
+  color: #211F54;
+  display: flex;
+  align-items: center;
+
+  .taxi-icon {
+    color: #FFD700; // bright yellow taxi
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: rotate(15deg) scale(1.2); // playful hover effect
+    }
+  }
+}
+
+.page-title-right ol.breadcrumb {
+  li.breadcrumb-item {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #4B4BAF;
+
+    a {
+      color: #4B4BAF;
+      text-decoration: none;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #211F54;
+      }
+    }
+
+    &.active {
+      color: #495057;
+    }
+
+    &:not(:last-child)::after {
+      content: ">";
+      margin: 0 0.5rem;
+      color: #211F54;
+    }
+  }
+}
+
+// Optional: subtle background gradient for header
+.page-title-box {
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(33, 31, 84, 0.05), rgba(75, 75, 175, 0.05));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+/* Apply pointer to all pagination links */
+.pagination .page-link {
+  cursor: pointer;
+}
+
+/* Optional: visual feedback on hover */
+.pagination .page-link:hover {
+  background-color: #f0f0f0; /* light hover effect */
+}
+.modal-content {
+  border: none;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.4s ease;
+
+  .modal-header {
+    border-bottom: none;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #211F54, #4B4BAF);
+    color: #fff;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+
+    .modal-title {
+      font-weight: 600;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 2rem;
+
+    .form-modern {
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem 1.5rem;
+      }
+
+      .form-floating {
+        label {
+          color: #6c757d;
+        }
+
+        .form-control, .form-select {
+          border: 1px solid #dee2e6;
+          border-radius: 0.5rem;
+          background-color: rgba(255, 255, 255, 0.9);
+          transition: all 0.3s ease;
+
+          &:focus {
+            border-color: #211F54;
+            box-shadow: 0 0 0 0.25rem rgba(33, 31, 84, 0.25);
+            background-color: #fff;
+          }
+        }
+      }
+    }
+  }
+
+  .modal-footer {
+    border-top: none;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+}
+
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #211F54, #4B4BAF);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 31, 84, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-title {
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #211F54;
+  display: flex;
+  align-items: center;
+
+  .taxi-icon {
+    color: #FFD700;
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: rotate(15deg) scale(1.2);
+    }
+  }
+}
+
+.page-title-right ol.breadcrumb {
+  li.breadcrumb-item {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #4B4BAF;
+
+    a {
+      color: #4B4BAF;
+      text-decoration: none;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #211F54;
+      }
+    }
+
+    &.active {
+      color: #495057;
+    }
+
+    &:not(:last-child)::after {
+      content: ">";
+      margin: 0 0.5rem;
+      color: #211F54;
+    }
+  }
+}
+
+.pagination .page-link {
+  cursor: pointer;
+}
+
+.pagination .page-link:hover {
+  background-color: #f0f0f0;
+}
+
+

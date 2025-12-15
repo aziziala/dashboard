@@ -1,80 +1,45 @@
 <div class="container-fluid">
   <!-- Page Title -->
   <div class="row">
-    <div class="col-12">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0 font-size-18">
-          <i class="fas fa-map-marker-alt me-2"></i>Fleet Management & Real-time Tracking
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between enhanced-title-box">
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-satellite me-2 fleet-icon"></i>Gestion des Flottes
         </h4>
-        <div class="page-title-right">
+        <div class="page-title-right d-none d-md-block">
           <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
-            <li class="breadcrumb-item active">Fleet</li>
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Gestion des Flottes</li>
           </ol>
         </div>
       </div>
     </div>
   </div>
 
+
+
   <!-- Fleet Statistics Cards -->
-  <div class="row mb-4">
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
+  <div class="row mb-4 justify-content-center g-3">
+    <div
+      class="col-md-2"
+      *ngFor="let stat of [
+        {label: 'Nb. taxis', value: fleetStats.totalTaxis, color: '#211F54'},
+        {label: 'Taxis occupés', value: fleetStats.busyTaxis, color: '#198754'},
+        {label: 'Taxis libres', value: fleetStats.activeTaxis, color: '#FF0000'}
+      ]"
+    >
+      <div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
         <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Taxis</p>
-              <h4 class="mb-0">{{ fleetStats.totalTaxis }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-taxi font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
+          <h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
+          <p class="card-text display-6" [ngStyle]="{'color': stat.color}">{{ stat.value }}</p>
         </div>
       </div>
     </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Active</p>
-              <h4 class="mb-0 text-success">{{ fleetStats.activeTaxis }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-circle font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Busy</p>
-              <h4 class="mb-0 text-warning">{{ fleetStats.busyTaxis }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-clock font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  </div>
+
+
+  
+   <!--
     <div class="col-xl-2 col-md-4">
       <div class="card mini-stats-wid">
         <div class="card-body">
@@ -94,6 +59,7 @@
         </div>
       </div>
     </div>
+
     <div class="col-xl-2 col-md-4">
       <div class="card mini-stats-wid">
         <div class="card-body">
@@ -134,12 +100,13 @@
     </div>
   </div>
 
-  <!-- Charts Row -->
+  -->
+  <!-- 
   <div class="row mb-4">
     <div class="col-xl-6">
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Fleet Status Distribution</h4>
+          <h4 class="card-title">Répartition du statut de la flotte</h4>
         </div>
         <div class="card-body">
           <apx-chart [series]="fleetChartOptions.series" [chart]="fleetChartOptions.chart" 
@@ -152,7 +119,7 @@
     <div class="col-xl-6">
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Monthly Revenue Trend</h4>
+          <h4 class="card-title">Évolution du chiffre d'affaires mensuel </h4>
         </div>
         <div class="card-body">
           <apx-chart [series]="revenueChartOptions.series" [chart]="revenueChartOptions.chart"
@@ -164,24 +131,32 @@
       </div>
     </div>
   </div>
-
+-->
   <!-- Map and Controls Row -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 class="card-title mb-0">
-            <i class="fas fa-map me-2"></i>Real-time Fleet Map
-          </h4>
-          <div class="btn-group" role="group">
-            <button class="btn btn-outline-primary" (click)="toggleMapView()">
-              <i class="fas fa-map me-2"></i>{{ showMap ? 'Hide Map' : 'Show Map' }}
-            </button>
-            <button class="btn btn-outline-success" (click)="loadFleetData()">
-              <i class="fas fa-sync-alt me-2"></i>Refresh
-            </button>
-          </div>
-        </div>
+<div class="card-header d-flex justify-content-between align-items-center">
+  <h4 class="card-title mb-0">
+    <i class="fas fa-map me-2"></i>Carte de la flotte en temps réel
+  </h4>
+  <!--<div class="btn-group" role="group">
+    <button class="btn btn-outline-primary" (click)="toggleMapView()">
+      <i class="fas fa-map me-2"></i>{{ showMap ? 'Masquer la carte' : 'Afficher la carte' }}
+    </button>
+    <button class="btn btn-outline-success" (click)="loadFleetData()">
+      <i class="fas fa-sync-alt me-2"></i>Actualiser
+    </button>
+  </div>-->
+</div>
+
+<!-- Map container -->
+<div *ngIf="showMap">
+  <div id="map-container">
+    <!-- Map code goes here -->
+  </div>
+</div>
+
         <div class="card-body p-0">
           <div *ngIf="showMap" class="map-container" style="height: 500px;">
             <!-- Leaflet Map Integration -->
@@ -190,18 +165,19 @@
             <!-- Map Legend -->
             <div class="map-legend">
               <div class="d-flex justify-content-center">
-                <span class="badge bg-success me-3">
-                  <i class="fas fa-circle me-1"></i>Active
+               <span class="badge bg-success text-dark me-3">
+                  <i class="fas fa-check me-1"></i>Taxi occupé
+               </span>
+               <span class="badge bg-warning text-dark me-3">
+                  <i class="fas fa-spinner me-1"></i>Taxi en approche
+               </span>
+                <span class="badge bg-danger text-dark me-3">
+                  <i class="fas fa-times me-1"></i>Taxi libre
                 </span>
-                <span class="badge bg-warning me-3">
-                  <i class="fas fa-circle me-1"></i>Busy
-                </span>
-                <span class="badge bg-secondary me-3">
-                  <i class="fas fa-circle me-1"></i>Offline
-                </span>
-                <span class="badge bg-info">
+
+               <!-- <span class="badge bg-info">
                   <i class="fas fa-circle me-1"></i>Maintenance
-                </span>
+                </span>-->
               </div>
             </div>
           </div>
@@ -214,7 +190,7 @@
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search taxis..." 
+        <input type="text" class="form-control" placeholder="Rechercher des taxis..." 
                [(ngModel)]="searchTerm" (input)="filterFleet()">
         <button class="btn btn-outline-secondary" type="button">
           <i class="fas fa-search"></i>
@@ -223,16 +199,16 @@
     </div>
     <div class="col-md-3">
       <select class="form-select" [(ngModel)]="statusFilter" (change)="filterFleet()">
-        <option value="">All Status</option>
-        <option value="ACTIVE">Active</option>
-        <option value="BUSY">Busy</option>
-        <option value="OFFLINE">Offline</option>
-        <option value="MAINTENANCE">Maintenance</option>
+        <option value="">Tous les statuts</option>
+        <option value="ACTIVE">Taxi libre</option>
+        <option value="BUSY">Taxi Occupé</option>
+        <option value="OFFLINE">Taxi en approche </option>
+        <option value="MAINTENANCE">gris</option>
       </select>
     </div>
     <div class="col-md-3 text-end">
       <button class="btn btn-primary" (click)="loadFleetData()">
-        <i class="fas fa-sync-alt me-2"></i>Refresh Data
+        <i class="fas fa-sync-alt me-2"></i>Actualiser les données
       </button>
     </div>
   </div>
@@ -244,11 +220,11 @@
         <table class="table table-centered table-nowrap mb-0">
           <thead>
             <tr>
-              <th>Taxi</th>
-              <th>Driver</th>
-              <th>Status</th>
-              <th>Location</th>
-              <th>Last Update</th>
+              <th>Matriculation</th>
+              <th>Conducteur(trice)</th>
+              <th>Statut</th>
+              <th>Coordonnées</th>
+              <th>N.Téléphone</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -289,7 +265,7 @@
                 <span *ngIf="location.lastUpdate" class="text-muted">
                   {{ location.lastUpdate | date:'short' }}
                 </span>
-                <span *ngIf="!location.lastUpdate" class="text-muted">Never</span>
+                <span *ngIf="!location.lastUpdate" class="text-muted">{{ location.telephone }}</span>
               </td>
               <td>
                 <div class="btn-group" role="group">
@@ -308,7 +284,7 @@
             <tr *ngIf="paginatedFleet.length === 0">
               <td colspan="6" class="text-center py-4">
                 <i class="fas fa-taxi fa-3x text-muted mb-3"></i>
-                <p class="text-muted">No fleet data found</p>
+                <p class="text-muted">Aucune donnée de flotte trouvée</p>
               </td>
             </tr>
           </tbody>
@@ -322,7 +298,7 @@
             <ul class="pagination justify-content-center">
               <li class="page-item" [class.disabled]="currentPage === 1">
                 <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
-                  Previous
+                  Précédent
                 </a>
               </li>
               <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalItems / itemsPerPage)); let i = index"
@@ -333,7 +309,7 @@
               </li>
               <li class="page-item" [class.disabled]="currentPage === Math.ceil(totalItems / itemsPerPage)">
                 <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
-                  Next
+                  Suivant
                 </a>
               </li>
             </ul>
@@ -346,7 +322,7 @@
   <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden">En cours de chargement...</span>
     </div>
   </div>
 </div>
@@ -354,16 +330,16 @@
 <!-- Location Details Modal -->
 <ng-template #locationModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">Taxi Location Details</h5>
+    <h5 class="modal-title">Détails de localisation du taxi</h5>
     <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body" *ngIf="selectedLocation">
     <div class="row">
       <div class="col-md-6">
-        <h6>Taxi Information</h6>
-        <p><strong>Taxi Number:</strong> {{ selectedLocation.taxiNumber }}</p>
-        <p><strong>Driver:</strong> {{ selectedLocation.driverName }}</p>
-        <p><strong>Phone:</strong> {{ selectedLocation.telephone }}</p>
+        <h6>Informations sur le taxi</h6>
+        <p><strong>N.Taxi:</strong> {{ selectedLocation.taxiNumber }}</p>
+        <p><strong>Conducteur(trise):</strong> {{ selectedLocation.driverName }}</p>
+        <p><strong>N.téléphone:</strong> {{ selectedLocation.telephone }}</p>
         <p><strong>Status:</strong> 
           <span class="badge" [ngClass]="getStatusBadgeClass(selectedLocation.status)">
             {{ selectedLocation.status }}
@@ -371,8 +347,8 @@
         </p>
       </div>
       <div class="col-md-6">
-        <h6>Location Information</h6>
-        <p><strong>Coordinates:</strong> 
+        <h6>Informations sur la localisation</h6>
+        <p><strong>Coordonnées:</strong> 
           <span *ngIf="selectedLocation.latitude && selectedLocation.longitude">
             {{ selectedLocation.latitude | number:'1.6-6' }}, {{ selectedLocation.longitude | number:'1.6-6' }}
           </span>
@@ -388,12 +364,12 @@
     
     <!-- Mini Map in Modal -->
     <div class="mt-3">
-      <h6>Location on Map</h6>
+      <h6>Localisation sur la carte</h6>
       <div class="mini-map bg-light rounded" style="height: 200px;">
         <div class="d-flex align-items-center justify-content-center h-100">
           <div class="text-center text-muted">
             <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-            <p>Map view of taxi location</p>
+            <p>Vue de la carte de la localisation du taxi</p>
           </div>
         </div>
       </div>

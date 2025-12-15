@@ -4,10 +4,22 @@
   "description": "Admin Dashboard for SMS Taxi Application",
   "scripts": {
     "ng": "ng",
+    
     "start": "ng serve --host 0.0.0.0 --port 4100",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "nginx:setup": "sudo bash setup-nginx.sh",
+    "nginx:install": "sudo bash install-and-setup-nginx.sh",
+    "nginx:fix": "sudo bash fix-nginx-install.sh",
+    "nginx:minimal-fix": "sudo bash nginx-minimal-fix.sh",
+    "nginx:test": "sudo nginx -t",
+    "nginx:reload": "sudo systemctl reload nginx",
+    "nginx:restart": "sudo systemctl restart nginx",
+    "nginx:status": "sudo systemctl status nginx",
+    "nginx:stop": "sudo systemctl stop nginx",
+    "nginx:start": "sudo systemctl start nginx",
+    "nginx:logs": "sudo tail -f /var/log/nginx/error.log"
   },
   "dependencies": {
     "@angular/animations": "^17.3.0",

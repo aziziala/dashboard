@@ -53,10 +53,6 @@ export class FleetService {
     return this.http.get<FleetLocation[]>(`${this.baseUrl}/inactive-fleet`);
   }
 
-  // Fleet Statistics
-  getFleetStatistics(): Observable<FleetStatistics> {
-    return this.http.get<FleetStatistics>(`${this.baseUrl}/fleet-statistics`);
-  }
 
   getFleetStatisticsByDateRange(startDate: string, endDate: string): Observable<FleetStatistics> {
     return this.http.get<FleetStatistics>(`${this.baseUrl}/fleet-statistics-range`, {

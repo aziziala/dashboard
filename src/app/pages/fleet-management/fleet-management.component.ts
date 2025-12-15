@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FleetService } from '../../services/fleet.service';
 import { TaxiService } from '../../services/taxi.service';
@@ -145,7 +145,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
       maintenanceCosts: 0
     }
   };
-  
+
   // Real-time updates
   private locationUpdateInterval: any;
   
@@ -157,21 +157,48 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     private modalService: NgbModal,
     private fleetService: FleetService,
     private taxiService: TaxiService,
+    private ngZone: NgZone,
     private wsService: WebsocketService // Injected WebSocketService
   ) { }
 
+  private taxiSubscription: any;
+
   ngOnInit(): void {
-    this.loadFleetData(); // Keep existing HTTP call
-    this.loadFleetStatistics();
+    //this.loadFleetData(); // Keep existing HTTP call
     this.initializeCharts();
     this.startRealTimeUpdates();
     this.initFleetWebSocket(); // Initialize WebSocket
+  
   }
 
   ngAfterViewInit(): void {
     this.initializeMap();
   }
 
+  initializeMap(): void {
+    if (this.mapContainer && this.mapContainer.nativeElement) {
+      // Initialize the map centered on Tunisia
+      this.map = L.map(this.mapContainer.nativeElement, {
+        center: [34.0, 9.0], // Tunisia approximate center
+        zoom: 6,
+        zoomControl: false // Disable default top-left control
+      });
+
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.map);
+
+      // Add zoom control at top-right
+      L.control.zoom({ position: 'topright' }).addTo(this.map);
+
+      // Add map click event
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        this.onMapClick(e);
+      });
+    }
+  }
+ 
   ngOnDestroy(): void {
     if (this.locationUpdateInterval) {
       clearInterval(this.locationUpdateInterval);
@@ -196,31 +223,20 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     });
   }
 
-  loadFleetStatistics(): void {
-    this.fleetService.getFleetStatistics().subscribe({
-      next: (stats) => {
-        this.fleetStats = stats;
-        this.updateCharts();
-      },
-      error: (error) => {
-        console.error('Error loading fleet statistics:', error);
-      }
-    });
-  }
-
-  startRealTimeUpdates(): void {
+ startRealTimeUpdates(): void {
     // Update fleet locations every 30 seconds
     this.locationUpdateInterval = setInterval(() => {
       this.loadFleetData();
     }, 30000);
   }
-
+  
   updateMapCenter(): void {
     if (this.fleetLocations.length > 0) {
       const avgLat = this.fleetLocations.reduce((sum, loc) => sum + (loc.latitude || 0), 0) / this.fleetLocations.length;
       const avgLng = this.fleetLocations.reduce((sum, loc) => sum + (loc.longitude || 0), 0) / this.fleetLocations.length;
       this.mapCenter = { lat: avgLat, lng: avgLng };
     }
+
   }
 
   filterFleet(): void {
@@ -241,7 +257,6 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     this.fleetService.updateFleetStatus(taxiId, newStatus).subscribe({
       next: () => {
         this.loadFleetData();
-        this.loadFleetStatistics();
       },
       error: (error) => {
         console.error('Error updating taxi status:', error);
@@ -252,13 +267,13 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   getStatusBadgeClass(status: FleetStatus): string {
     switch (status) {
       case FleetStatus.ACTIVE:
-        return 'bg-success';
+        return 'bg-danger';
       case FleetStatus.BUSY:
+        return 'bg-success';
+      case FleetStatus.EN_ROUTE:
         return 'bg-warning';
-      case FleetStatus.OFFLINE:
-        return 'bg-secondary';
-      case FleetStatus.MAINTENANCE:
-        return 'bg-info';
+      //case FleetStatus.MAINTENANCE:
+        //return 'bg-info';
       default:
         return 'bg-secondary';
     }
@@ -267,18 +282,18 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   getStatusIcon(status: FleetStatus): string {
     switch (status) {
       case FleetStatus.ACTIVE:
-        return 'fas fa-circle text-success';
+        return 'fas fa-times fa-lg me-1 text-dark';
       case FleetStatus.BUSY:
-        return 'fas fa-circle text-warning';
+        return 'fas fa-check fa-lg me-1 text-dark';
       case FleetStatus.OFFLINE:
-        return 'fas fa-circle text-secondary';
-      case FleetStatus.MAINTENANCE:
-        return 'fas fa-circle text-info';
+        return 'fas fa-spinner fa-lg me-1 text-dark';
+      //case FleetStatus.MAINTENANCE:
+       // return 'fas fa-circle text-white';
       default:
-        return 'fas fa-circle text-secondary';
+        return 'fas fa-circle text-dark';
     }
   }
-
+/*
   initializeMap(): void {
     if (this.mapContainer && this.mapContainer.nativeElement) {
       // Initialize the map centered on Tunisia
@@ -298,7 +313,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
       });
     }
   }
-
+*/
   private initFleetWebSocket(): void {
     this.wsService.connect(true);
     this.wsService.onConnected().subscribe((connected) => {
@@ -314,41 +329,50 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   private handleFleetLocationsFromSocket(message: any): void {
+  this.ngZone.run(() => {
     console.log('[FleetManagement] Received fleet locations via WS:', message);
-    try {
-      const body: Array<{
-        taxiId: number;
-        taxiNumber: string;
-        latitude: number;
-        longitude: number;
-        rideStatus: 'WAITING' | 'IN_PROGRESS' | 'TERMINATED' | string;
-        driverName?: string;
-        phone?: string;
-      }> = JSON.parse(message.body);
 
-      this.fleetLocations = body.map((taxi) => ({
+    try {
+      const body = JSON.parse(message.body);
+
+      if (!Array.isArray(body) || body.length === 0) {
+        console.warn('[FleetManagement] Empty fleet array received.');
+        return;
+      }
+
+      this.fleetLocations = body.map(taxi => ({
         taxiId: taxi.taxiId,
         taxiNumber: taxi.taxiNumber,
         driverName: taxi.driverName || '',
         telephone: taxi.phone || '',
         latitude: taxi.latitude,
         longitude: taxi.longitude,
-        status: (() => {
-          const s = (taxi.rideStatus || '').toUpperCase();
-          if (s === 'IN_PROGRESS' || s === 'TERMINATED') {
-            return FleetStatus.BUSY;
-          }
-          return FleetStatus.ACTIVE;
-        })(),
+        totalTaxis : taxi.totalTaxis,
+        inProgressCount : taxi.inProgressCount,
+        waitingCount : taxi.waitingCount,
+        status: ['IN_PROGRESS','TERMINATED'].includes(taxi.rideStatus?.toUpperCase())
+          ? FleetStatus.BUSY
+          : FleetStatus.ACTIVE,
         isOnline: true
-      })) as FleetLocation[];
+      }));
 
       this.totalItems = this.fleetLocations.length;
+
+      // ✔ Replace the whole object (mandatory for Angular to detect change)
+     this.fleetStats = {
+  ...this.fleetStats,  // keep existing fields
+  totalTaxis: Math.max(...body.map(t => t.totalTaxis)),
+  activeTaxis: Math.max(...body.map(t => t.waitingCount)),
+  busyTaxis: Math.max(...body.map(t => t.inProgressCount)),
+};
+
       this.updateMapCenter();
       this.updateMapMarkers();
     } catch (e) {
       console.error('[FleetManagement] Failed to parse WS fleet locations:', e);
     }
+  });
+
   }
 
   updateMapMarkers(): void {
@@ -497,4 +521,5 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     this.mapCenter = { lat: location.latitude || 0, lng: location.longitude || 0 };
     this.mapZoom = 15;
   }
+
 }

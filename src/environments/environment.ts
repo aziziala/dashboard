@@ -1,15 +1,16 @@
 export const environment = {
   production: false,
   apiUrls: {
-    smsTaxi: 'http://41.225.11.231:8084/api',
-    smsOut: 'http://41.225.11.231:8091/api',
-    fleet: 'http://192.168.100.134:8981/api',
-    discovery: 'http://41.225.11.231:8761',
-    apiGateway: 'http://41.225.11.231:8444'
+    // Using relative paths to go through Nginx reverse proxy
+    smsTaxi: '/taxi-client/api',
+    smsOut: '/sms-api',
+    fleet: '/fleet-api/api',
+    discovery: '/discovery',
+    apiGateway: '/api-gateway'
   },
-  // WebSocket endpoints for fleet-service on local IP 192.168.100.134:8981
-  wsBaseUrl: 'http://192.168.100.134:8981/ws',
-  adminWsBaseUrl: 'http://192.168.100.134:8981/admin-ws',
+  // WebSocket endpoints through Nginx reverse proxy
+  wsBaseUrl: '/fleet-ws',
+  adminWsBaseUrl: '/fleet-admin-ws',
   appName: 'SMS Taxi Admin Dashboard',
   version: '1.0.0',
   googleMaps: {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Taxi, TaxiStatus } from '../models/taxi.model';
 import { environment } from '../../environments/environment';
+import { PagedTaxisResponse } from '../models/paged-taxis-response';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,12 @@ export class TaxiService {
   constructor(private http: HttpClient) { }
 
   // Basic CRUD Operations
-  getTaxis(): Observable<Taxi[]> {
-    return this.http.get<Taxi[]>(`${this.baseUrl}/get-taxi`);
-  }
+ 
+  getTaxis(page: number = 0, size: number = 5): Observable<PagedTaxisResponse> {
+  return this.http.get<PagedTaxisResponse>(
+    `${this.baseUrl}/get-all-taxis?page=${page}&size=${size}`
+  );
+}
 
   getTaxiById(id: number): Observable<Taxi> {
     return this.http.get<Taxi>(`${this.baseUrl}/get-taxis/${id}`);
@@ -30,7 +34,7 @@ export class TaxiService {
   }
 
   addTaxi(taxi: Taxi): Observable<Taxi> {
-    return this.http.post<Taxi>(`${this.baseUrl}/add-taxi`, taxi);
+    return this.http.post<Taxi>(`${this.baseUrl}/add-taxis`, taxi);
   }
 
   addTaxiAdmin(taxi: Taxi): Observable<Taxi> {
@@ -41,8 +45,8 @@ export class TaxiService {
     return this.http.post<Taxi>(`${this.baseUrl}/add-taxigps`, taxi);
   }
 
-  updateTaxi(id: number, taxi: Taxi): Observable<Taxi> {
-    return this.http.put<Taxi>(`${this.baseUrl}/update-taxi`, taxi);
+ updateTaxi(id: number, taxi: Taxi): Observable<Taxi> {
+    return this.http.patch<Taxi>(`${this.baseUrl}/update-taxi/${id}`, taxi);  
   }
 
   updateTaxiByPhone(phone: string, taxi: Taxi): Observable<Taxi> {

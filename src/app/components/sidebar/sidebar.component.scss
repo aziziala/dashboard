@@ -1,15 +1,51 @@
 .vertical-menu {
   width: 250px;
+  height: 100%;
   position: fixed;
-  top: 70px;
-  bottom: 0;
-  left: 0;
+  top: 0;
+  left: -250px;     // default: hidden (needed for sliding animation)
   background: #211F54;
   color: #c7d1da;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease, left 0.3s ease;
+  z-index: 1000;
 
-  // Scrollable area
+  &.open {
+    left: 0;        // slide in
+  }
+
+  &.collapsed {
+    width: 70px;
+  }
+  
+  &.no-transition {
+    transition: none !important;   // prevents initial slide
+  }
+
+/* Mobile does NOT need special logic now — sliding works automatically */
+
+
+  /* Hide text when collapsed */
+  &.collapsed .metismenu li a span {
+    display: none;
+  }
+
+  /* Center icons when collapsed */
+  &.collapsed .metismenu li a {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  &.collapsed .metismenu li a i {
+    font-size: 20px;
+  }
+
+  &.collapsed .sidebar-logo img {
+    max-width: 40px;
+  }
+
+  /* Scroll area */
   .h-100 {
     flex: 1;
     overflow-y: auto;
@@ -22,10 +58,6 @@
     padding: 10px 16px;
     color: inherit;
     text-decoration: none !important;
-
-    i, span {
-      text-decoration: none !important;
-    }
 
     &.active,
     &:hover {
@@ -41,7 +73,7 @@
     opacity: .6;
   }
 
-  // 🔻 Logo at the bottom
+  /* Logo */
   .sidebar-logo {
     padding: 16px;
     text-align: center;
@@ -49,8 +81,7 @@
 
     img {
       max-width: 100%;
-      height: auto;
-      max-height: 50px; // Adjust as needed
+      max-height: 50px;
       opacity: 0.85;
       transition: opacity 0.3s ease;
 
@@ -58,5 +89,20 @@
         opacity: 1;
       }
     }
+  }
+
+  #sidebar-menu {
+    padding-top: 7%;
+  }
+}
+
+/* 🔥 Mobile behavior override */
+@media (max-width: 992px) {
+  .vertical-menu {
+    left: -250px;        // closed by default on mobile
+  }
+
+  .vertical-menu.open {
+    left: 0;             // slide in on toggle
   }
 }

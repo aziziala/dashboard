@@ -47,11 +47,11 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     // Load taxi statistics
-    this.taxiService.getTaxis().subscribe(taxis => {
+    /*this.taxiService.getTaxis().subscribe(taxis => {
       this.totalTaxis = taxis.length;
       this.activeTaxis = taxis.filter(t => t.taxiStatus === 'APPROVED').length;
     });
-    
+    */
     // Load SMS statistics
     this.smsService.getTotalSmsCount().subscribe(count => {
       this.totalSmsSent = count;
@@ -73,10 +73,10 @@ export class DashboardComponent implements OnInit {
 
   loadRecentActivities(): void {
     // Load recent taxis
-    this.taxiService.getTaxis().subscribe(taxis => {
+    /*this.taxiService.getTaxis().subscribe(taxis => {
       this.recentTaxis = taxis.slice(0, 5);
     });
-    
+    */
     // Load recent clients
     this.clientService.getClients().subscribe(clients => {
       this.recentClients = clients.slice(0, 5);
