@@ -1,0 +1,94 @@
+.affectation-client-page {
+  .card {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+  }
+}
+
+.affectation-map-container {
+  width: 100%;
+  height: 420px;
+  border-radius: 0 0 0.5rem 0.5rem;
+  overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+  .affectation-map-container {
+    height: 320px;
+  }
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-pickup {
+  background-color: #198754;
+}
+
+.legend-destination {
+  background-color: #dc3545;
+}
+
+// Custom marker styles
+::ng-deep {
+  .custom-pickup-marker,
+  .custom-destination-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .marker-pickup {
+    width: 32px;
+    height: 32px;
+    background-color: #28a745;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    position: relative;
+    
+    &::after {
+      content: 'P';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1;
+    }
+  }
+
+  .marker-destination {
+    width: 32px;
+    height: 32px;
+    background-color: #dc3545;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    position: relative;
+    
+    &::after {
+      content: 'D';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1;
+    }
+  }
+}
+
+
+
+
+

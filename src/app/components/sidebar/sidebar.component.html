@@ -35,6 +35,12 @@
             <span key="t-fleet">Gestion des flottes</span>
           </a>
         </li>
+        <li [class.mm-active]="activeUrl.startsWith('/affectation-client')">
+          <a routerLink="/affectation-client" [class.active]="activeUrl.startsWith('/affectation-client')">
+            <i class="bx bx-user-pin"></i>
+            <span>Affectation Client</span>
+          </a>
+        </li>
         <li [class.mm-active]="activeUrl.startsWith('/analytics')">
           <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')">
             <i class="bx bx-bar-chart"></i>

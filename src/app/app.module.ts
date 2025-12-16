@@ -24,6 +24,7 @@ import { TaxiManagementComponent } from './pages/taxi-management/taxi-management
 import { ClientManagementComponent } from './pages/client-management/client-management.component';
 import { SmsManagementComponent } from './pages/sms-management/sms-management.component';
 import { FleetManagementComponent } from './pages/fleet-management/fleet-management.component';
+import { AffectationClientComponent } from './pages/affectation-client/affectation-client.component';
 import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { RideManagementComponent } from './pages/ride-management/ride-management.component';
 import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-time-monitoring.component';
@@ -68,6 +69,7 @@ import { RightSidebarComponent } from './components/right-sidebar/right-sidebar.
     ClientManagementComponent,
     SmsManagementComponent,
     FleetManagementComponent,
+    AffectationClientComponent,
     AnalyticsComponent,
     RideManagementComponent,
     RealTimeMonitoringComponent,

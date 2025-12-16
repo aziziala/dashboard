@@ -1,0 +1,103 @@
+<div class="row affectation-client-page">
+  <div class="col-12 col-lg-7 mb-3 mb-lg-0">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Affectation Client</h5>
+        <button class="btn btn-sm btn-outline-secondary" type="button" (click)="resetPoints()">
+          Réinitialiser les points
+        </button>
+      </div>
+      <div class="card-body p-0">
+        <div #affectationMap class="affectation-map-container"></div>
+      </div>
+      <div class="card-footer d-flex flex-wrap justify-content-between align-items-center small text-muted">
+        <div class="d-flex align-items-center mb-1 mb-sm-0">
+          <span class="legend-dot legend-pickup me-1"></span> Point de prise en charge
+          <span class="mx-2">•</span>
+          <span class="legend-dot legend-destination me-1"></span> Destination
+        </div>
+        <div>
+          Cliquez d’abord pour définir le départ, puis une seconde fois pour la destination.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="mb-0">Détails de la course</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <label class="form-label d-block">Tarif</label>
+          <div class="btn-group w-100" role="group">
+            <button
+              type="button"
+              class="btn"
+              [ngClass]="selectedTariff === 'T1' ? 'btn-primary' : 'btn-outline-primary'"
+              (click)="selectTariff('T1')">
+              T1
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [ngClass]="selectedTariff === 'T2' ? 'btn-primary' : 'btn-outline-primary'"
+              (click)="selectTariff('T2')">
+              T2
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [ngClass]="selectedTariff === 'T3' ? 'btn-primary' : 'btn-outline-primary'"
+              (click)="selectTariff('T3')">
+              T3
+            </button>
+          </div>
+          <small class="text-muted d-block mt-1">
+            T1 → TGPS1, T2 → TGPS2, T3 → TGPS3
+          </small>
+        </div>
+
+        <form [formGroup]="affectationForm" (ngSubmit)="submit()">
+          <div class="mb-3">
+            <label for="clientPhone" class="form-label">Téléphone du client</label>
+            <input
+              type="text"
+              id="clientPhone"
+              formControlName="clientPhone"
+              class="form-control"
+              [class.is-invalid]="affectationForm.get('clientPhone')?.invalid && affectationForm.get('clientPhone')?.touched"
+              placeholder="Numéro de téléphone">
+            <div class="invalid-feedback" *ngIf="affectationForm.get('clientPhone')?.errors?.['required']">
+              Le numéro de téléphone est requis.
+            </div>
+            <div class="invalid-feedback" *ngIf="affectationForm.get('clientPhone')?.errors?.['pattern']">
+              Numéro invalide (8 à 15 chiffres).
+            </div>
+          </div>
+
+          <div class="alert alert-info d-flex align-items-start mb-3" role="alert">
+            <i class="bx bx-info-circle me-2 mt-1"></i>
+            <div>
+              Les points de départ et d’arrivée sont toujours définis à partir de la carte. Aucun champ de saisie manuelle n’est utilisé pour les coordonnées.
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-100"
+            [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Injecter la demande
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
