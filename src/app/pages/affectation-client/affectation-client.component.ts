@@ -171,6 +171,8 @@ export class AffectationClientComponent implements OnInit, AfterViewInit, OnDest
           isOnline: true,
           waitingCount: taxi.waitingCount || 0,
           inProgressCount: taxi.inProgressCount || 0,
+          startedRide: taxi.startedRide || 0,
+          feesOption: taxi.feesOption ?? 0,
           totalTaxis: taxi.totalTaxis || 0
         }));
 

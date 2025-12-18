@@ -1,3 +1,7 @@
+/* =========================
+   MODAL
+========================= */
+
 .modal-content {
   border: none;
   border-radius: 1rem;
@@ -6,6 +10,8 @@
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2);
   animation: modalFadeIn 0.4s ease;
 
+
+  /* ===== Modal Header ===== */
   .modal-header {
     border-bottom: none;
     padding: 1.5rem 2rem;
@@ -13,24 +19,34 @@
     color: #fff;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
+
     .modal-title {
       font-weight: 600;
       font-size: 1.25rem;
       display: flex;
       align-items: center;
+
+      .taxi-icon {
+        font-size: 1.3rem;
+        margin-right: 0.5rem;
+      }
     }
+
     .btn-close {
       filter: invert(1);
       opacity: 0.8;
       transition: opacity 0.2s ease;
+
       &:hover {
         opacity: 1;
       }
     }
   }
 
+  /* ===== Modal Body ===== */
   .modal-body {
     padding: 2rem;
+
     .form-modern {
       .form-grid {
         display: grid;
@@ -43,7 +59,8 @@
           color: #6c757d;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
           border: 1px solid #dee2e6;
           border-radius: 0.5rem;
           background-color: rgba(255, 255, 255, 0.9);
@@ -59,6 +76,7 @@
     }
   }
 
+  /* ===== Modal Footer ===== */
   .modal-footer {
     border-top: none;
     padding: 1.5rem 2rem;
@@ -67,6 +85,10 @@
     gap: 1rem;
   }
 }
+
+/* =========================
+   BUTTONS
+========================= */
 
 .btn-gradient-primary {
   background: linear-gradient(135deg, #211F54, #4B4BAF);
@@ -88,189 +110,9 @@
   }
 }
 
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  
-}
-
-.page-title {
-  font-weight: 700;
-  font-size: 1.5rem; // bigger, more prominent
-  text-transform: uppercase; // modern feel
-  letter-spacing: 0.05em;
-  color: #211F54;
-  display: flex;
-  align-items: center;
-
-  .taxi-icon {
-    color: #FFD700; // bright yellow taxi
-    font-size: 1.5rem;
-    margin-right: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease;
-    
-    &:hover {
-      transform: rotate(15deg) scale(1.2); // playful hover effect
-    }
-  }
-}
-
-.page-title-right ol.breadcrumb {
-  li.breadcrumb-item {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: #4B4BAF;
-
-    a {
-      color: #4B4BAF;
-      text-decoration: none;
-      transition: color 0.3s ease;
-
-      &:hover {
-        color: #211F54;
-      }
-    }
-
-    &.active {
-      color: #495057;
-    }
-
-    &:not(:last-child)::after {
-      content: ">";
-      margin: 0 0.5rem;
-      color: #211F54;
-    }
-  }
-}
-
-// Optional: subtle background gradient for header
-.page-title-box {
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(33, 31, 84, 0.05), rgba(75, 75, 175, 0.05));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-/* Apply pointer to all pagination links */
-.pagination .page-link {
-  cursor: pointer;
-}
-
-/* Optional: visual feedback on hover */
-.pagination .page-link:hover {
-  background-color: #f0f0f0; /* light hover effect */
-}
-.modal-content {
-  border: none;
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2);
-  animation: modalFadeIn 0.4s ease;
-
-  .modal-header {
-    border-bottom: none;
-    padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, #211F54, #4B4BAF);
-    color: #fff;
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
-
-    .modal-title {
-      font-weight: 600;
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-    }
-
-    .btn-close {
-      filter: invert(1);
-      opacity: 0.8;
-      transition: opacity 0.2s ease;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-  }
-
-  .modal-body {
-    padding: 2rem;
-
-    .form-modern {
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 1rem 1.5rem;
-      }
-
-      .form-floating {
-        label {
-          color: #6c757d;
-        }
-
-        .form-control, .form-select {
-          border: 1px solid #dee2e6;
-          border-radius: 0.5rem;
-          background-color: rgba(255, 255, 255, 0.9);
-          transition: all 0.3s ease;
-
-          &:focus {
-            border-color: #211F54;
-            box-shadow: 0 0 0 0.25rem rgba(33, 31, 84, 0.25);
-            background-color: #fff;
-          }
-        }
-      }
-    }
-  }
-
-  .modal-footer {
-    border-top: none;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-}
-
-.btn-gradient-primary {
-  background: linear-gradient(135deg, #211F54, #4B4BAF);
-  border: none;
-  color: #fff;
-  padding: 0.6rem 1.4rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(33, 31, 84, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: none;
-  }
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* =========================
+   PAGE TITLE
+========================= */
 
 .page-title {
   font-weight: 700;
@@ -287,47 +129,363 @@
     margin-right: 0.5rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
-    
+
     &:hover {
       transform: rotate(15deg) scale(1.2);
     }
   }
 }
 
-.page-title-right ol.breadcrumb {
-  li.breadcrumb-item {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: #4B4BAF;
+/* ===== Breadcrumb ===== */
 
-    a {
+.page-title-right {
+  ol.breadcrumb {
+    li.breadcrumb-item {
+      font-weight: 500;
+      font-size: 0.875rem;
       color: #4B4BAF;
-      text-decoration: none;
-      transition: color 0.3s ease;
 
-      &:hover {
+      a {
+        color: #4B4BAF;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: #211F54;
+        }
+      }
+
+      &.active {
+        color: #495057;
+      }
+
+      &:not(:last-child)::after {
+        content: ">";
+        margin: 0 0.5rem;
         color: #211F54;
       }
-    }
-
-    &.active {
-      color: #495057;
-    }
-
-    &:not(:last-child)::after {
-      content: ">";
-      margin: 0 0.5rem;
-      color: #211F54;
     }
   }
 }
 
-.pagination .page-link {
-  cursor: pointer;
+/* =========================
+   PAGE TITLE BOX
+========================= */
+
+.page-title-box {
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(33, 31, 84, 0.05),
+    rgba(75, 75, 175, 0.05)
+  );
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.pagination .page-link:hover {
-  background-color: #f0f0f0;
+/* =========================
+   PAGINATION
+========================= */
+
+.pagination {
+  .page-link {
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.form-control.is-invalid,
+.form-select.is-invalid {
+  animation: shake 0.3s ease-in-out;
+  border-color: #dc3545;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+/* View modal info box */
+.info-box {
+  background: rgba(33, 31, 84, 0.05);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+
+  span {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  strong {
+    font-size: 0.95rem;
+    color: #211F54;
+  }
+}
+/* Delete confirmation icon */
+.delete-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* =========================
+   REALTIME VALIDATION
+========================= */
+
+.validation-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  pointer-events: none;
+  animation: fadeInScale 0.25s ease;
+}
+
+.validation-icon.success {
+  color: #198754;
+}
+
+.validation-icon.error {
+  color: #dc3545;
+}
+
+.form-control.is-valid {
+  border-color: #198754;
+  padding-right: 2.5rem;
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+  padding-right: 2.5rem;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+.modal-header-enriched {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-bottom: none;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  color: #fff;
+  animation: headerFadeIn 0.5s ease;
+
+  &.view-modal {
+    background: linear-gradient(135deg, #4B4BAF, #211F54);
+  }
+
+  background: linear-gradient(135deg, #211F54, #4B4BAF);
+
+  .header-avatar {
+    width: 3rem;
+    height: 3rem;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    color: #FFD700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: rotate(15deg) scale(1.2);
+    }
+  }
+
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+@keyframes headerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+//dark mode baby
+body.dark-mode {
+  background-color: #1e1e2f;
+  color: #e0e0e0;
+
+  .page-title-box {
+    background: linear-gradient(135deg, rgba(33,31,54,0.2), rgba(75,75,175,0.2));
+  }
+
+  .table {
+    color: #e0e0e0;
+
+    th {
+      background-color: #2c2c3c;
+      color: #fff;
+    }
+
+    td {
+      background-color: #23232f;
+    }
+
+    tr:hover {
+      background-color: #2a2a3a;
+    }
+  }
+
+  .badge {
+    background-color: #4444aa;
+    color: #fff;
+  }
+
+  .btn-gradient-primary {
+    background: linear-gradient(135deg, #4B4BAF, #211F54);
+    color: #fff;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+  }
+
+  .form-control,
+  .form-select {
+    background-color: #2a2a3a;
+    border-color: #4444aa;
+    color: #fff;
+
+    &:focus {
+      background-color: #23232f;
+      border-color: #FFD700;
+      box-shadow: 0 0 0 0.25rem rgba(255,215,0,0.25);
+    }
+  }
+
+  .modal-content {
+    background: rgba(30, 30, 47, 0.95);
+    color: #e0e0e0;
+    box-shadow: 0 0.75rem 2rem rgba(0,0,0,0.7);
+  }
+
+  .modal-header-enriched {
+    color: #fff;
+
+    .header-avatar {
+      background: rgba(255,255,255,0.1);
+      color: #FFD700;
+    }
+  }
+}
+body.dark-mode {
+  .btn-outline-secondary {
+    border-color: #555;
+    color: #e0e0e0;
+
+    &:hover {
+      background-color: #444;
+    }
+  }
+
+  .btn-outline-danger {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+
+    &:hover {
+      background-color: #661111;
+      color: #fff;
+    }
+  }
+
+  .input-group .form-control {
+    background-color: #2a2a3a;
+    color: #fff;
+  }
+
+  .input-group-text {
+    background-color: #444;
+    color: #fff;
+  }
+}
+body.dark-mode {
+  .modal-header-enriched {
+    background: linear-gradient(135deg, #2c2c5a, #3a3ab0);
+
+    .header-avatar {
+      background: rgba(255, 215, 0, 0.2);
+      color: #FFD700;
+    }
+
+    .modal-title {
+      color: #fff;
+    }
+  }
+
+  .modal-body {
+    .form-control, .form-select {
+      background-color: #2a2a3a;
+      color: #fff;
+    }
+
+    label {
+      color: #ccc;
+    }
+  }
+}
+$shadow: 0 2px 6px rgba(0,0,0,0.2);
+  .card {
+  border-radius: 0.5rem;
+  box-shadow: $shadow;
+  transition: transform 0.2s;
+  &:hover { transform: translateY(-2px); }
+
+  .card-title { font-weight: 600; }
+  .card-text { font-size: 2rem; font-weight: bold; }
 }
 
 

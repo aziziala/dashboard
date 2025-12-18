@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaxiService } from '../../services/taxi.service';
@@ -45,7 +45,13 @@ export class TaxiManagementComponent implements OnInit {
   confirmationForm: FormGroup;
   taxiForm: FormGroup;
   isEditing = false;
+  isDarkMode = false;
   editingTaxiId: number | null = null;
+  verifyForm!: FormGroup;
+  passwordTaxiId!: number;
+@ViewChild('confirmationCodeModal') confirmationCodeModal!: any;
+@ViewChild('changePasswordModal') changePasswordModal!: any;
+
 
   constructor(
     private modalService: NgbModal,
@@ -54,10 +60,10 @@ export class TaxiManagementComponent implements OnInit {
   ) {
     this.taxiForm = this.fb.group({
       nomPrenom: ['', Validators.required],
-      cin: [''],
-      immatricule: [''],
+      cin: ['', Validators.required],
+      immatricule: ['', Validators.required],
       plaqueTaxi: ['', Validators.required],
-      modeleVoiture: [''],
+      modeleVoiture: ['', Validators.required],
       taxiStatus: [TaxiStatus.PENDING, Validators.required],
       typeTel: [PhoneType.gsm, Validators.required],
       numTel: ['', Validators.required],
@@ -74,6 +80,12 @@ export class TaxiManagementComponent implements OnInit {
     this.confirmationForm = this.fb.group({
       confirmationCode: ['', [Validators.required, Validators.pattern(/^\d{4}$/)]]
     });
+
+    this.verifyForm = this.fb.group({
+  email: ['', [Validators.required, Validators.email]],
+  telephone: ['', Validators.required]
+});
+
   }
   // Open the password change modal
   openChangePasswordModal(content: any) {
@@ -88,12 +100,23 @@ export class TaxiManagementComponent implements OnInit {
 
 
     // This method will be triggered when the password form is submitted
-  submitPasswordChange() {
-    if (this.passwordForm.valid) {
-      // Handle the password change logic here (e.g., call a service to update the password)
-      console.log('Password changed');
-    }
-  }
+submitPasswordChange() {
+  if (this.passwordForm.invalid) return;
+
+  const payload = {
+    taxiId: this.passwordTaxiId,
+    newPassword: this.passwordForm.value.newPassword
+  };
+
+  this.taxiService.resetPassword(payload).subscribe({
+    next: () => {
+      this.modalService.dismissAll();
+      alert('Mot de passe changé avec succès');
+    },
+    error: err => console.error('Erreur changement mot de passe', err)
+  });
+}
+
 
   ngOnInit(): void {
     this.loadTaxis(this.currentPage);
@@ -180,7 +203,7 @@ openEditModal(content: any, taxi: Taxi): void {
 }
 
 
-saveTaxi(): void {
+saveTaxi() {
   if (this.taxiForm.invalid) {
     this.taxiForm.markAllAsTouched();
     return;
@@ -237,6 +260,17 @@ saveTaxi(): void {
       });
     }
   }
+  selectedTaxiId!: number;
+
+openDeleteModal(content: any, taxiId: number) {
+  this.selectedTaxiId = taxiId;
+  this.modalService.open(content, { centered: true });
+}
+
+confirmDelete() {
+  this.deleteTaxi(this.selectedTaxiId);
+}
+
 
   updateTaxiStatus(taxiId: number, status: TaxiStatus): void {
     this.taxiService.updateTaxiStatus(taxiId, status).subscribe({
@@ -729,4 +763,77 @@ input[type="text"]:focus, select:focus {
     document.body.removeChild(tempDiv);
   }).catch(err => console.error('Error generating PDF:', err));
 }
+
+submitConfirmationCode(modal: any) {
+  const code = Object.values(this.confirmationForm.value).join('');
+
+  this.taxiService.verifyResetCode({
+    taxiId: this.passwordTaxiId,
+    code
+  }).subscribe({
+    next: () => {
+      modal.close();
+      this.modalService.open(this.changePasswordModal, {
+        centered: true,
+        backdrop: 'static'
+      });
+    },
+    error: () => alert('Code incorrect')
+  });
+}
+
+
+  moveFocus(event: any, index: number) {
+    const input = event.target;
+    const value = input.value;
+
+    if (value.length > 1) {
+      input.value = value.slice(0, 1);
+    }
+
+    if (value.length === 1 && index < 3) {
+      const nextInput = input.parentElement.children[index + 1];
+      nextInput.focus();
+    }
+
+    if (value.length === 0 && index > 0) {
+      const prevInput = input.parentElement.children[index - 1];
+      prevInput.focus();
+    }
+  }
+
+  openVerifyIdentityModal(content: any, taxi: Taxi) {
+  this.passwordTaxiId = taxi.id!;
+
+  this.verifyForm.patchValue({
+    email: taxi.email,
+    telephone: taxi.telephone
+  });
+
+  this.modalService.open(content, {
+    centered: true,
+    backdrop: 'static'
+  });
+}
+sendVerificationCode(modal: any) {
+  if (this.verifyForm.invalid) return;
+
+  const payload = {
+    taxiId: this.passwordTaxiId,
+    email: this.verifyForm.value.email,
+    telephone: this.verifyForm.value.telephone
+  };
+
+  this.taxiService.sendPasswordResetCode(payload).subscribe({
+    next: () => {
+      modal.close();
+      this.modalService.open(this.confirmationCodeModal, {
+        centered: true,
+        backdrop: 'static'
+      });
+    },
+    error: err => console.error('Erreur envoi code', err)
+  });
+}
+
 }

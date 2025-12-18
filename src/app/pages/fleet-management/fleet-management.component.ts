@@ -126,6 +126,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     totalTaxis: 0,
     activeTaxis: 0,
     busyTaxis: 0,
+    enrouteTaxis: 0,
     offlineTaxis: 0,
     totalRevenue: 0,
     averageRating: 0,
@@ -166,7 +167,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   ngOnInit(): void {
     //this.loadFleetData(); // Keep existing HTTP call
     this.initializeCharts();
-    this.startRealTimeUpdates();
+    //this.startRealTimeUpdates();
     this.initFleetWebSocket(); // Initialize WebSocket
   
   }
@@ -223,13 +224,13 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     });
   }
 
- startRealTimeUpdates(): void {
+ /*startRealTimeUpdates(): void {
     // Update fleet locations every 30 seconds
     this.locationUpdateInterval = setInterval(() => {
       this.loadFleetData();
     }, 30000);
   }
-  
+  */
   updateMapCenter(): void {
     if (this.fleetLocations.length > 0) {
       const avgLat = this.fleetLocations.reduce((sum, loc) => sum + (loc.latitude || 0), 0) / this.fleetLocations.length;
@@ -285,7 +286,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
         return 'fas fa-times fa-lg me-1 text-dark';
       case FleetStatus.BUSY:
         return 'fas fa-check fa-lg me-1 text-dark';
-      case FleetStatus.OFFLINE:
+      case FleetStatus.EN_ROUTE:
         return 'fas fa-spinner fa-lg me-1 text-dark';
       //case FleetStatus.MAINTENANCE:
        // return 'fas fa-circle text-white';
@@ -349,6 +350,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
         longitude: taxi.longitude,
         totalTaxis : taxi.totalTaxis,
         inProgressCount : taxi.inProgressCount,
+        startedRide : taxi.startedRide,
         waitingCount : taxi.waitingCount,
         status: ['IN_PROGRESS','TERMINATED'].includes(taxi.rideStatus?.toUpperCase())
           ? FleetStatus.BUSY
@@ -363,7 +365,8 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   ...this.fleetStats,  // keep existing fields
   totalTaxis: Math.max(...body.map(t => t.totalTaxis)),
   activeTaxis: Math.max(...body.map(t => t.waitingCount)),
-  busyTaxis: Math.max(...body.map(t => t.inProgressCount)),
+  busyTaxis: Math.max(...body.map(t => t.startedRide)),
+  enrouteTaxis: Math.max(...body.map(t => t.inProgressCount)),
 };
 
       this.updateMapCenter();
@@ -430,12 +433,12 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   initializeCharts(): void {
     // Fleet Status Chart
     this.fleetChartOptions = {
-      series: [this.fleetStats.activeTaxis, this.fleetStats.busyTaxis, this.fleetStats.offlineTaxis],
+      series: [this.fleetStats.activeTaxis, this.fleetStats.busyTaxis, this.fleetStats.enrouteTaxis],
       chart: {
         type: 'donut',
         height: 300
       },
-      labels: ['Active', 'Busy', 'Offline'],
+      labels: ['Active', 'Busy', 'En approche'],
       colors: ['#28a745', '#ffc107', '#6c757d'],
       legend: {
         position: 'bottom'
@@ -496,7 +499,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     this.fleetChartOptions.series = [
       this.fleetStats.activeTaxis, 
       this.fleetStats.busyTaxis, 
-      this.fleetStats.offlineTaxis
+      this.fleetStats.enrouteTaxis
     ];
   }
 

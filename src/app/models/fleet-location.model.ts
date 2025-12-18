@@ -27,6 +27,7 @@ export interface FleetLocation {
   nextMaintenance?: Date;
   waitingCount:number;
   inProgressCount:number;
+  startedRide:number;
   totalTaxis: number;
 }
 
@@ -44,6 +45,7 @@ export enum FleetStatus {
 export interface FleetStatistics {
   totalTaxis: number;
   activeTaxis: number;
+  enrouteTaxis: number;
   busyTaxis: number;
   offlineTaxis: number;
   totalRevenue: number;

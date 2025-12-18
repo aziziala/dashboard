@@ -25,7 +25,9 @@
       *ngFor="let stat of [
         {label: 'Nb. taxis', value: fleetStats.totalTaxis, color: '#211F54'},
         {label: 'Taxis occupés', value: fleetStats.busyTaxis, color: '#198754'},
+        {label: 'Taxis en approche', value: fleetStats.enrouteTaxis, color: '#FFA500'},
         {label: 'Taxis libres', value: fleetStats.activeTaxis, color: '#FF0000'}
+        
       ]"
     >
       <div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
@@ -202,7 +204,7 @@
         <option value="">Tous les statuts</option>
         <option value="ACTIVE">Taxi libre</option>
         <option value="BUSY">Taxi Occupé</option>
-        <option value="OFFLINE">Taxi en approche </option>
+        <option value="EN_ROUTE">Taxi en approche </option>
         <option value="MAINTENANCE">gris</option>
       </select>
     </div>

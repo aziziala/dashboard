@@ -1,4 +1,5 @@
-<div class="container-fluid">
+<div class="container-fluid" [ngClass]="{'dark-mode': isDarkMode}">
+  <!-- Page Title -->
   <div class="row">
     <div class="col-12 my-3">
       <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -15,72 +16,62 @@
     </div>
   </div>
 
-<div class="row mb-4 justify-content-center g-3">
-  <div class="col-md-2" *ngFor="let stat of [
-      {label: 'Total', value: taxiStats.total, color: '#211F54'},
-      {label: 'Approuvé', value: taxiStats.approved, color: '#198754'},
-      {label: 'En Attente', value: taxiStats.pending, color: '#FFC900'},
-      {label: 'Rejeté', value: taxiStats.rejected, color: '#FF0000'}
-    ]">
-    <div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
-      <div class="card-body">
-        <h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
-        <p class="card-text display-6" [ngStyle]="{'color': stat.color}">{{ stat.value }}</p>
+  <!-- Stats Cards -->
+  <div class="row mb-4 justify-content-center g-3">
+    <div class="col-md-2" *ngFor="let stat of [
+        {label: 'Total', value: taxiStats.total, color: '#211F54'},
+        {label: 'Approuvé', value: taxiStats.approved, color: '#198754'},
+        {label: 'En Attente', value: taxiStats.pending, color: '#FFC900'},
+        {label: 'Rejeté', value: taxiStats.rejected, color: '#FF0000'}
+      ]">
+      <div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
+        <div class="card-body">
+          <h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
+          <p class="card-text display-6" [ngStyle]="{'color': stat.color}">{{ stat.value }}</p>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
   <!-- Search, Filter & Add Button -->
-<div class="row align-items-center mb-4 gx-3">
-  <!-- Search Input -->
-  <div class="col-md-4 mb-2 mb-md-0">
-    <div class="input-group shadow-sm rounded">
-      <span class="input-group-text bg-gradient-primary text-white border-0">
-        <i class="fas fa-search"></i>
-      </span>
-      <input 
-        type="text" 
-        class="form-control border-0 bg-white" 
-        placeholder="Rechercher..." 
-        [(ngModel)]="searchTerm" 
-        (input)="filterTaxis()"
-      >
+  <div class="row align-items-center mb-4 gx-3">
+    <div class="col-md-4 mb-2 mb-md-0">
+      <div class="input-group shadow-sm rounded">
+        <span class="input-group-text bg-gradient-primary text-white border-0">
+          <i class="fas fa-search"></i>
+        </span>
+        <input type="text" class="form-control border-0 bg-white" placeholder="Rechercher..."
+               [(ngModel)]="searchTerm" (input)="filterTaxis()">
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-2 mb-md-0">
+      <select class="form-select shadow-sm rounded border-0"
+              [(ngModel)]="statusFilter" (change)="filterTaxis()">
+        <option value="">Tous les statuts</option>
+        <option *ngFor="let status of [TaxiStatus.APPROVED, TaxiStatus.PENDING, TaxiStatus.REJECTED]"
+                [value]="status">{{ status }}</option>
+      </select>
+    </div>
+
+    <div class="col-md-3 text-end mb-2 mb-md-0">
+      <button class="btn btn-outline-success me-1 shadow-sm" (click)="exportData('excel')">
+        <i class="fas fa-file-excel me-1"></i>Excel
+      </button>
+      <button class="btn btn-outline-info me-1 shadow-sm" (click)="exportData('csv')">
+        <i class="fas fa-file-csv me-1"></i>CSV
+      </button>
+      <button class="btn btn-outline-danger me-1 shadow-sm" (click)="exportData('pdf')">
+        <i class="fas fa-file-pdf me-1"></i>PDF
+      </button>
+    </div>
+
+    <div class="col-md-2 text-md-end">
+      <button class="btn btn-gradient-primary shadow-sm" (click)="openAddModal(addEditModal)">
+        <i class="fas fa-plus me-1"></i>Ajouter un taxi
+      </button>
     </div>
   </div>
-
-  <!-- Status Filter -->
-  <div class="col-md-3 mb-2 mb-md-0">
-    <select 
-      class="form-select shadow-sm rounded border-0"
-      [(ngModel)]="statusFilter" 
-      (change)="filterTaxis()"
-    >
-      <option value="">Tous les statuts</option>
-      <option *ngFor="let status of [TaxiStatus.APPROVED, TaxiStatus.PENDING, TaxiStatus.REJECTED]" [value]="status">{{ status }}</option>
-    </select>
-  </div>
-
-  <!-- Export Buttons -->
-  <div class="col-md-3 text-end mb-2 mb-md-0">
-    <button class="btn btn-outline-success me-1 shadow-sm" (click)="exportData('excel')">
-      <i class="fas fa-file-excel me-1"></i>Excel
-    </button>
-    <button class="btn btn-outline-info me-1 shadow-sm" (click)="exportData('csv')">
-      <i class="fas fa-file-csv me-1"></i>CSV
-    </button>
-    <button class="btn btn-outline-danger me-1 shadow-sm" (click)="exportData('pdf')">
-      <i class="fas fa-file-pdf me-1"></i>PDF
-    </button>
-  </div>
-
-  <!-- Add Taxi Button -->
-  <div class="col-md-2 text-md-end">
-    <button class="btn btn-gradient-primary shadow-sm" (click)="openAddModal(addEditModal)">
-      <i class="fas fa-plus me-1"></i>Ajouter un taxi
-    </button>
-  </div>
-</div>
 
   <!-- Taxi Table -->
   <div class="table-responsive" id="contentToExport">
@@ -109,203 +100,393 @@
           <td>{{ taxi.constructeur }}</td>
           <td>{{ taxi.type }}</td>
           <td>{{ taxi.telephone }}</td>
+          <td><span class="badge" [ngClass]="getStatusBadgeClass(taxi.taxiStatus)">{{ taxi.taxiStatus }}</span></td>
           <td>
-            <span class="badge" [ngClass]="getStatusBadgeClass(taxi.taxiStatus)">{{ taxi.taxiStatus }}</span>
+            <div class="btn-group-actions">
+              <button class="btn btn-sm btn-info me-1" (click)="openDetailsModal(viewModal, taxi)">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning me-1" (click)="openEditModal(addEditModal, taxi)">
+                <i class="fas fa-edit"></i>
+              </button>
+             <button class="btn btn-sm btn-danger"
+        (click)="openDeleteModal(deleteConfirmModal, taxi.id!)">
+  <i class="fas fa-trash"></i>
+</button>
+
+            </div>
           </td>
-          <td> <div class="btn-group-actions">
-            <button class="btn btn-sm btn-info me-1" (click)="openDetailsModal(viewModal, taxi)">
-              <i class="fas fa-eye"></i></button>
-            <button class="btn btn-sm btn-warning me-1" (click)="openEditModal(addEditModal, taxi)">
-               <i class="fas fa-edit"></i></button>
-            <button class="btn btn-sm btn-danger" (click)="deleteTaxi(taxi.id!)">
-               <i class="fas fa-trash"></i></button>
-          </div></td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <!-- Pagination -->
-<nav aria-label="Page navigation" class="mt-3">
-  <ul class="pagination justify-content-center">
-    <li class="page-item" [class.disabled]="currentPage === 1">
-      <a class="page-link" (click)="onPageChange(currentPage - 1)">Précédent</a>
-    </li>
+  <nav aria-label="Page navigation" class="mt-3">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" (click)="onPageChange(currentPage - 1)">Précédent</a>
+      </li>
+      <li class="page-item" *ngFor="let page of pages" [class.active]="currentPage === page">
+        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link" (click)="onPageChange(currentPage + 1)">Suivant</a>
+      </li>
+    </ul>
+  </nav>
 
-    <li class="page-item"
-        *ngFor="let page of pages"
-        [class.active]="currentPage === page">
-      <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
-    </li>
-
-    <li class="page-item" [class.disabled]="currentPage === totalPages">
-      <a class="page-link" (click)="onPageChange(currentPage + 1)">Suivant</a>
-    </li>
-  </ul>
-</nav>
-
-<!-- Add/Edit Modal -->
+  <!-- Add/Edit Modal -->
   <ng-template #addEditModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">
-      <i class="bi bi-taxi-front me-2"></i>
-      {{ isEditing ? 'Éditer le taxi' : 'Ajouter un taxi' }}
-    </h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    <div class="modal-content">
+      <div class="modal-header modal-header-enriched">
+        <div class="header-avatar">    <i
+      class="me-2"
+      [ngClass]="isEditing ? 'fas fa-edit' : 'fas fa-plus'">
+    </i>
   </div>
-
-  <div class="modal-body">
-    <form [formGroup]="taxiForm" class="form-modern">
-      <div class="form-grid">
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="nomPrenom" id="nomPrenom" class="form-control"
-                 [class.is-invalid]="taxiForm.get('nomPrenom')?.invalid && taxiForm.get('nomPrenom')?.touched"
-                 placeholder="Nom et Prénom">
-          <label for="nomPrenom">Nom et Prénom</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="cin" id="cin" class="form-control" placeholder="CIN">
-          <label for="cin">CIN</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="immatricule" id="immatricule" class="form-control" placeholder="Immatriculation">
-          <label for="immatricule">Immatriculation</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="plaqueTaxi" id="plaqueTaxi" class="form-control"
-                 [class.is-invalid]="taxiForm.get('plaqueTaxi')?.invalid && taxiForm.get('plaqueTaxi')?.touched"
-                 placeholder="Plaque Taxi">
-          <label for="plaqueTaxi">Plaque Taxi</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="modeleVoiture" id="modeleVoiture" class="form-control" placeholder="Modèle Voiture">
-          <label for="modeleVoiture">Modèle Voiture</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <select formControlName="taxiStatus" id="taxiStatus" class="form-select">
-            <option *ngFor="let status of [TaxiStatus.APPROVED, TaxiStatus.PENDING, TaxiStatus.REJECTED]" [value]="status">
-              {{ status }}
-            </option>
-          </select>
-          <label for="taxiStatus">Statut</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <select formControlName="typeTel" id="typeTel" class="form-select">
-            <option *ngFor="let type of [PhoneType.gsm, PhoneType.smartphone]" [value]="type">
-              {{ type }}
-            </option>
-          </select>
-          <label for="typeTel">Type de Téléphone</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="numTel" id="numTel" class="form-control"
-                 [class.is-invalid]="taxiForm.get('numTel')?.invalid && taxiForm.get('numTel')?.touched"
-                 placeholder="Numéro de Téléphone">
-          <label for="numTel">Numéro de Téléphone</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="email" formControlName="email" id="email" class="form-control"
-                 [class.is-invalid]="taxiForm.get('email')?.invalid && taxiForm.get('email')?.touched"
-                 placeholder="Email">
-          <label for="email">Email</label>
-        </div>
+        <h5 class="modal-title">{{ isEditing ? 'Éditer le taxi' : 'Ajouter un taxi' }}</h5>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
       </div>
-    </form>
-  </div>
 
-  <div class="modal-footer">
-    <button class="btn btn-outline-danger" *ngIf="isEditing" (click)="openChangePasswordModal(changePasswordModal)">
-     <i class="bi bi-x-circle me-1"></i> Changer mot de passe
-    </button>
-    <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
-      <i class="bi bi-x-circle me-1"></i> Annuler
-    </button>
-    <button class="btn btn-gradient-primary" (click)="saveTaxi()">
-      <i class="bi bi-save me-1"></i> Enregistrer
-    </button>
-  </div>
-</ng-template>
+      <div class="modal-body">
+        <form [formGroup]="taxiForm" class="form-modern">
+          <div class="form-grid">
+            <!-- Nom et Prénom -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="text" formControlName="nomPrenom" id="nomPrenom" class="form-control"
+                     placeholder="Nom et Prénom"
+                     [class.is-invalid]="taxiForm.get('nomPrenom')?.invalid && taxiForm.get('nomPrenom')?.touched"
+                     [class.is-valid]="taxiForm.get('nomPrenom')?.valid && taxiForm.get('nomPrenom')?.touched">
+              <label for="nomPrenom">Nom et Prénom</label>
+            </div>
+
+            <!-- CIN -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="text" formControlName="cin" id="cin" class="form-control"
+                     placeholder="CIN"
+                     [class.is-invalid]="taxiForm.get('cin')?.invalid && taxiForm.get('cin')?.touched"
+                     [class.is-valid]="taxiForm.get('cin')?.valid && taxiForm.get('cin')?.touched">
+              <label for="cin">CIN</label>
+            </div>
+
+            <!-- Immatriculation -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="text" formControlName="immatricule" id="immatricule" class="form-control"
+                     placeholder="Immatriculation"
+                     [class.is-invalid]="taxiForm.get('immatricule')?.invalid && taxiForm.get('immatricule')?.touched"
+                     [class.is-valid]="taxiForm.get('immatricule')?.valid && taxiForm.get('immatricule')?.touched">
+              <label for="immatricule">Immatriculation</label>
+            </div>
+
+            <!-- Plaque Taxi -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="text" formControlName="plaqueTaxi" id="plaqueTaxi" class="form-control"
+                     placeholder="Plaque Taxi"
+                     [class.is-invalid]="taxiForm.get('plaqueTaxi')?.invalid && taxiForm.get('plaqueTaxi')?.touched"
+                     [class.is-valid]="taxiForm.get('plaqueTaxi')?.valid && taxiForm.get('plaqueTaxi')?.touched">
+              <label for="plaqueTaxi">Plaque Taxi</label>
+            </div>
+
+            <!-- Modèle Voiture -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="text" formControlName="modeleVoiture" id="modeleVoiture" class="form-control"
+                     placeholder="Modèle Voiture"
+                     [class.is-invalid]="taxiForm.get('modeleVoiture')?.invalid && taxiForm.get('modeleVoiture')?.touched"
+                     [class.is-valid]="taxiForm.get('modeleVoiture')?.valid && taxiForm.get('modeleVoiture')?.touched">
+              <label for="modeleVoiture">Modèle Voiture</label>
+            </div>
+
+            <!-- Statut -->
+            <div class="form-floating mb-3 position-relative">
+              <select formControlName="taxiStatus" id="taxiStatus" class="form-select"
+                      [class.is-invalid]="taxiForm.get('taxiStatus')?.invalid && taxiForm.get('taxiStatus')?.touched"
+                      [class.is-valid]="taxiForm.get('taxiStatus')?.valid && taxiForm.get('taxiStatus')?.touched">
+                <option value="" disabled>Sélectionner un statut</option>
+                <option *ngFor="let status of [TaxiStatus.APPROVED, TaxiStatus.PENDING, TaxiStatus.REJECTED]" [value]="status">
+                  {{ status }}
+                </option>
+              </select>
+              <label for="taxiStatus">Statut</label>
+            </div>
+
+            <!-- Type Téléphone -->
+            <div class="form-floating mb-3 position-relative">
+              <select formControlName="typeTel" id="typeTel" class="form-select"
+                      [class.is-invalid]="taxiForm.get('typeTel')?.invalid && taxiForm.get('typeTel')?.touched"
+                      [class.is-valid]="taxiForm.get('typeTel')?.valid && taxiForm.get('typeTel')?.touched">
+                <option value="" disabled>Sélectionner le type</option>
+                <option *ngFor="let type of [PhoneType.gsm, PhoneType.smartphone]" [value]="type">{{ type }}</option>
+              </select>
+              <label for="typeTel">Type de Téléphone</label>
+            </div>
+
+            <!-- Numéro Téléphone -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="text" formControlName="numTel" id="numTel" class="form-control"
+                     placeholder="Numéro de Téléphone"
+                     [class.is-invalid]="taxiForm.get('numTel')?.invalid && taxiForm.get('numTel')?.touched"
+                     [class.is-valid]="taxiForm.get('numTel')?.valid && taxiForm.get('numTel')?.touched">
+              <label for="numTel">Numéro de Téléphone</label>
+            </div>
+
+            <!-- Email -->
+            <div class="form-floating mb-3 position-relative">
+              <input type="email" formControlName="email" id="email" class="form-control"
+                     placeholder="Email"
+                     [class.is-invalid]="taxiForm.get('email')?.invalid && taxiForm.get('email')?.touched"
+                     [class.is-valid]="taxiForm.get('email')?.valid && taxiForm.get('email')?.touched">
+              <label for="email">Email</label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+       <!-- <button class="btn btn-outline-danger" *ngIf="isEditing" (click)="openChangePasswordModal(changePasswordModal)">
+          <i class="bi bi-key me-1"></i> Changer mot de passe
+        </button>-->
+<button class="btn btn-outline-danger"
+  *ngIf="selectedTaxi"
+  (click)="openVerifyIdentityModal(verifyIdentityModal, selectedTaxi)">
+  <i class="bi bi-key me-1"></i> Changer mot de passe
+</button>
 
 
-<!-- View Modal -->
-<ng-template #viewModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">Détails du Taxi</h5>
-    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
-  </div>
-
-  <div class="modal-body" id="detailsContent">
-    <div *ngIf="selectedTaxi">
-      <p><strong>ID :</strong> {{ selectedTaxi.id }}</p>
-      <p><strong>Nom :</strong> {{ selectedTaxi.nom }}</p>
-      <p><strong>CIN :</strong> {{ selectedTaxi.numeroCin }}</p>
-      <p><strong>Immatriculation :</strong> {{ selectedTaxi.numeroMatricule }}</p>
-      <p><strong>Plaque :</strong> {{ selectedTaxi.numeroTaxi }}</p>
-      <p><strong>Modèle :</strong> {{ selectedTaxi.constructeur }}</p>
-      <p><strong>Statut :</strong> {{ selectedTaxi.taxiStatus }}</p>
-      <p><strong>Type Téléphone :</strong> {{ selectedTaxi.type }}</p>
-      <p><strong>Téléphone :</strong> {{ selectedTaxi.telephone }}</p>
-      <p><strong>Email :</strong> {{ selectedTaxi.email }}</p>
-      
+        <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
+          <i class="bi bi-x-circle me-1"></i> Annuler
+        </button>
+        <button class="btn btn-gradient-primary" (click)="saveTaxi()">
+          <i class="bi bi-save me-1"></i> Enregistrer
+        </button>
+      </div>
     </div>
-  </div>
+  </ng-template>
 
-  <div class="modal-footer">
-    <button class="btn btn-outline-secondary" (click)="printDetails()">🖨️ Imprimer</button>
-    <button class="btn btn-outline-danger" (click)="downloadDetailsPDF()">📄 PDF</button>
-    <button class="btn btn-secondary" (click)="modal.dismiss()">Fermer</button>
+  <ng-template #viewModal let-modal>
+  <div class="modal-content">
+
+    <!-- Header avec badge -->
+
+          <div class="modal-header modal-header-enriched">
+        <div class="header-avatar">
+          <i class="fas fa-eye taxi-icon"></i>
+  </div>
+        <h5 class="modal-title">Détails du Taxi</h5>
+        <span class="badge ms-3"
+            [ngClass]="getStatusBadgeClass(selectedTaxi?.taxiStatus)">
+        {{ selectedTaxi?.taxiStatus }}
+      </span>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+      </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <div class="row g-3" *ngIf="selectedTaxi">
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>ID</span>
+            <strong>{{ selectedTaxi.id }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>Nom</span>
+            <strong>{{ selectedTaxi.nom }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>CIN</span>
+            <strong>{{ selectedTaxi.numeroCin }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>Immatriculation</span>
+            <strong>{{ selectedTaxi.numeroMatricule }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>Plaque</span>
+            <strong>{{ selectedTaxi.numeroTaxi }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>Modèle</span>
+            <strong>{{ selectedTaxi.constructeur }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>Téléphone</span>
+            <strong>{{ selectedTaxi.telephone }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="info-box">
+            <span>Email</span>
+            <strong>{{ selectedTaxi.email }}</strong>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn btn-outline-secondary" (click)="printDetails()">
+        <i class="bi bi-printer me-1"></i> Imprimer
+      </button>
+      <button class="btn btn-outline-danger" (click)="downloadDetailsPDF()">
+        <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+      </button>
+      <button class="btn btn-gradient-primary" (click)="modal.dismiss()">
+        Fermer
+      </button>
+    </div>
+
   </div>
 </ng-template>
 
-<!-- Password Change Modal -->
-<ng-template #changePasswordModal let-modal>
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title">
-      <i class="fas fa-key me-2 taxi-icon"></i>
-      Changer le mot de passe
-    </h5>
-    <button
-      type="button"
-      class="btn-close"
-      aria-label="Close"
-      (click)="modal.dismiss()">
-    </button>
-  </div>
+  <!-- Password Change Modal -->
+  <ng-template #changePasswordModal let-modal>
+    <div class="modal-content">
+      <div class="modal-header modal-header-enriched">
+        <div class="header-avatar"><i class="fas fa-key"></i></div>
+        <h5 class="modal-title">Changer le mot de passe</h5>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+      </div>
 
+      <div class="modal-body">
+        <form [formGroup]="passwordForm" class="form-modern">
+          <div class="form-grid">
+            <div class="form-floating mb-3">
+              <input type="password" formControlName="newPassword" id="newPassword" class="form-control" placeholder="Nouveau mot de passe">
+              <label for="newPassword">Nouveau mot de passe</label>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input type="password" formControlName="confirmPassword" id="confirmPassword" class="form-control" placeholder="Confirmer le mot de passe">
+              <label for="confirmPassword">Confirmer le mot de passe</label>
+            </div>
+
+            <div class="form-floating mb-3">
+              <button type="button" class="btn btn-gradient-primary" (click)="submitPasswordChange()">Envoyer</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ================= DELETE CONFIRMATION MODAL ================= -->
+<ng-template #deleteConfirmModal let-modal>
+  <div class="modal-content">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="fas fa-triangle-exclamation text-danger taxi-icon"></i>
+        Confirmation de suppression
+      </h5>
+      <button class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body text-center">
+      <div class="delete-icon mb-3">
+        <i class="fas fa-taxi"></i>
+      </div>
+
+      <p class="mb-1">
+        Voulez-vous vraiment supprimer ce taxi ?
+      </p>
+      <strong class="text-danger">
+        Cette action est irréversible.
+      </strong>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer justify-content-center">
+      <button class="btn btn-outline-secondary me-2"
+              (click)="modal.dismiss()">
+        Annuler
+      </button>
+
+      <button class="btn btn-danger"
+              (click)="confirmDelete(); modal.close()">
+        <i class="fas fa-trash me-1"></i> Supprimer
+      </button>
+    </div>
+
+  </div>
+</ng-template>
+
+<!-- 4-Digit Confirmation Modal -->
+<!-- 4-Digit Confirmation Modal with 4 boxes -->
+<ng-template #confirmationCodeModal let-modal>
+  <div class="modal-content">
+    <div class="modal-header modal-header-enriched">
+      <h5 class="modal-title">Confirmer votre email</h5>
+      <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
 
     <div class="modal-body">
-      <form [formGroup]="passwordForm" class="form-modern">
-        <div class="form-grid">
-          <!-- New Password -->
-          <div class="form-floating mb-3">
-            <input type="password" formControlName="newPassword" id="newPassword" class="form-control" placeholder="Nouveau mot de passe">
-            <label for="newPassword">Nouveau mot de passe</label>
-          </div>
+      <form [formGroup]="confirmationForm" class="d-flex justify-content-center gap-2">
+        <input type="text" maxlength="1" class="form-control text-center" formControlName="code1" (input)="moveFocus($event, 0)">
+        <input type="text" maxlength="1" class="form-control text-center" formControlName="code2" (input)="moveFocus($event, 1)">
+        <input type="text" maxlength="1" class="form-control text-center" formControlName="code3" (input)="moveFocus($event, 2)">
+        <input type="text" maxlength="1" class="form-control text-center" formControlName="code4" (input)="moveFocus($event, 3)">
+      </form>
 
-          <!-- Confirm Password -->
-          <div class="form-floating mb-3">
-            <input type="password" formControlName="confirmPassword" id="confirmPassword" class="form-control" placeholder="Confirmer le mot de passe">
-            <label for="confirmPassword">Confirmer le mot de passe</label>
-          </div>
+      <div class="text-center mt-3">
+        <button type="button" class="btn btn-gradient-primary" (click)="submitConfirmationCode(modal)">Envoyer</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
 
-          <!-- Submit Button -->
-          <div class="form-floating mb-3">
-            <button type="button" class="btn btn-gradient-primary" (click)="submitPasswordChange()">Envoyer</button>
-          </div>
+<!-- Identity Verification Modal -->
+<ng-template #verifyIdentityModal let-modal>
+  <div class="modal-content">
+    <div class="modal-header modal-header-enriched">
+      <div class="header-avatar"><i class="fas fa-envelope"></i></div>
+      <h5 class="modal-title">Vérification d’identité</h5>
+      <button class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="verifyForm" class="form-modern">
+        <div class="form-floating mb-3">
+          <input type="email" class="form-control" formControlName="email" readonly>
+          <label>Email</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control" formControlName="telephone" readonly>
+          <label>Téléphone</label>
         </div>
       </form>
     </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline-secondary" (click)="modal.dismiss()">Annuler</button>
+      <button class="btn btn-gradient-primary" (click)="sendVerificationCode(modal)">
+        Envoyer
+      </button>
+    </div>
   </div>
 </ng-template>
 
-  
 </div>

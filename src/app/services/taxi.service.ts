@@ -209,4 +209,30 @@ export class TaxiService {
       params: { startDate, endDate }
     });
   }
+  // 📧 Send reset code
+sendPasswordResetCode(payload: {
+  taxiId: number;
+  email: string;
+  telephone: string;
+}) {
+  return this.http.post('/api/auth/send-reset-code', payload);
+}
+
+// 🔢 Verify code
+verifyResetCode(payload: {
+  taxiId: number;
+  code: string;
+}) {
+  return this.http.post('/api/auth/verify-reset-code', payload);
+}
+
+// 🔐 Reset password
+resetPassword(payload: {
+  taxiId: number;
+  newPassword: string;
+}) {
+  return this.http.post('/api/auth/reset-password', payload);
+}
+
+
 }
