@@ -78,7 +78,7 @@ export class DashboardComponent implements OnInit {
     });
     */
     // Load recent clients
-    this.clientService.getClients().subscribe(clients => {
+    this.clientService.getAllClients().subscribe(clients => {
       this.recentClients = clients.slice(0, 5);
     });
     

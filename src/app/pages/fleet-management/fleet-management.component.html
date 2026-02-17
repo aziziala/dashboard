@@ -4,11 +4,11 @@
     <div class="col-12 my-3">
       <div class="page-title-box d-flex align-items-center justify-content-between enhanced-title-box">
         <h4 class="mb-0 page-title">
-          <i class="fas fa-satellite me-2 fleet-icon"></i>Gestion des Flottes
+          <i class="fas fa-map me-2 fleet-icon"></i>Gestion des Flottes
         </h4>
         <div class="page-title-right d-none d-md-block">
           <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
             <li class="breadcrumb-item active">Gestion des Flottes</li>
           </ol>
         </div>
@@ -19,17 +19,16 @@
 
 
   <!-- Fleet Statistics Cards -->
+  
+
   <div class="row mb-4 justify-content-center g-3">
-    <div
-      class="col-md-2"
-      *ngFor="let stat of [
-        {label: 'Nb. taxis', value: fleetStats.totalTaxis, color: '#211F54'},
-        {label: 'Taxis occupés', value: fleetStats.busyTaxis, color: '#198754'},
-        {label: 'Taxis en approche', value: fleetStats.enrouteTaxis, color: '#FFA500'},
-        {label: 'Taxis libres', value: fleetStats.activeTaxis, color: '#FF0000'}
+    <div class="col-md-2" *ngFor="let stat of [
+        {label: 'Total', value: fleetStats.totalTaxis, color: '#211F54'},
+        {label: 'Occupé', value: fleetStats.busyTaxis, color: '#198754'},
+        {label: 'En approche', value: fleetStats.enrouteTaxis, color: '#FFA500'},
+        {label: 'Libre', value: fleetStats.activeTaxis, color: '#FF0000'}
         
-      ]"
-    >
+      ]">
       <div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
         <div class="card-body">
           <h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
@@ -38,7 +37,6 @@
       </div>
     </div>
   </div>
-
 
   
    <!--

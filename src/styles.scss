@@ -3,6 +3,7 @@
 @import '~boxicons/css/boxicons.min.css';
 @import '~@mdi/font/css/materialdesignicons.min.css';
 
+
 // Global variables
 :root {
   --primary-color: #3498db;
@@ -16,6 +17,12 @@
   --border-radius: 15px;
   --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
+  --topbar-height: 42px;
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 70px;
+  --primary-bg: #211F54;
+  --accent: #FFC900;
+  --text-muted: #c7d1da;
 }
 
 // Global styles
@@ -249,3 +256,73 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* MAIN TOAST */
+.toast {
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18) !important;
+  padding: 14px 18px !important;
+  font-weight: 500;
+  backdrop-filter: blur(6px);
+}
+
+/* SUCCESS */
+.toast-success {
+  background: linear-gradient(135deg, #00c853, #43a047) !important;
+}
+
+/* ERROR */
+.toast-error {
+  background: linear-gradient(135deg, #ff5252, #d32f2f) !important;
+}
+
+/* WARNING */
+.toast-warning {
+  background: linear-gradient(135deg, #ffb300, #ff8f00) !important;
+}
+
+/* INFO */
+.toast-info {
+  background: linear-gradient(135deg, #2979ff, #1565c0) !important;
+}
+
+/* TITLE */
+.toast-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* MESSAGE */
+.toast-message {
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+/* PROGRESS BAR */
+.toast-progress {
+  height: 4px !important;
+  opacity: 0.85;
+}
+.toast-container {
+  z-index: 999999 !important;
+}
+
+.toast-container.toast-bottom-center {
+  bottom: 40px !important;
+}
+
+.toast {
+  animation: slideUp 0.35s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+

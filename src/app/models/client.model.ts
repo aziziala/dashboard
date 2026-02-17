@@ -23,10 +23,11 @@ export interface Client {
   demandes?: any[];
 }
 
+
 export enum PhoneType {
-  ANDROID = 'ANDROID',
-  IPHONE = 'IPHONE',
-  OTHER = 'OTHER'
+  gsm = 'GSM',
+  smartphone = 'SMART',
+
 }
 
 export interface ClientLocation {
@@ -57,11 +58,11 @@ export interface ClientRide {
 }
 
 export enum RideStatus {
-  PENDING = 'PENDING',
-  ASSIGNED = 'ASSIGNED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+  WAITING = 'WAITING',  //~
+  EXPIRED = 'EXPIRED', //-
+  IN_PROGRESS = 'IN_PROGRESS', //+
+  //COMPLETED = 'COMPLETED',
+  //CANCELLED = 'CANCELLED'
 }
 
 export interface ClientExpense {

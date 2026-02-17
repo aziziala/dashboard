@@ -69,4 +69,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.sub.unsubscribe(); // unsubscribes from ALL
   }
+    toggleMobileMenu(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.isOpen = !this.isOpen;
+  }
+
+  toggleCollapse(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
 }

@@ -15,6 +15,7 @@ import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { RideManagementComponent } from './pages/ride-management/ride-management.component';
 import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-time-monitoring.component';
 import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sms-gateway-monitoring.component';
+import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
 
 
 const routes: Routes = [
@@ -33,6 +34,7 @@ const routes: Routes = [
   { path: 'rides', component: RideManagementComponent },
   { path: 'monitoring', component: RealTimeMonitoringComponent },
   { path: 'sms-gateway', component: SmsGatewayMonitoringComponent },
+  { path: 'reclamations', component: ReclamationsComponent },
   { path: '**', redirectTo: '/dashboard' }
 ];
 

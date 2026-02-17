@@ -31,6 +31,7 @@ export enum TaxiStatus {
   REJECTED = 'REJECTED'
 }
 
+
 export enum PhoneType {
   gsm = 'GSM',
   smartphone = 'SMART',

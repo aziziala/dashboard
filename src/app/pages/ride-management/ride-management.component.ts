@@ -146,7 +146,7 @@ export class RideManagementComponent implements OnInit {
   }
 
   loadAvailableClients(): void {
-    this.clientService.getClients().subscribe({
+    this.clientService.getAllClients().subscribe({
       next: (clients) => {
         this.availableClients = clients;
       },

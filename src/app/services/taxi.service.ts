@@ -1,25 +1,28 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { forkJoin,Observable } from 'rxjs';
 import { Taxi, TaxiStatus } from '../models/taxi.model';
 import { environment } from '../../environments/environment';
 import { PagedTaxisResponse } from '../models/paged-taxis-response';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaxiService {
   private baseUrl = `${environment.apiUrls.smsTaxi}`;
-
+  private authUrl = environment.apiUrls.smsTaxidelete;
+  private auth = environment.apiUrls.smsAuth;
   constructor(private http: HttpClient) { }
 
   // Basic CRUD Operations
  
-  getTaxis(page: number = 0, size: number = 5): Observable<PagedTaxisResponse> {
+getTaxis(page: number = 0, size: number = 5): Observable<PagedTaxisResponse> {
   return this.http.get<PagedTaxisResponse>(
     `${this.baseUrl}/get-all-taxis?page=${page}&size=${size}`
   );
 }
+
 
   getTaxiById(id: number): Observable<Taxi> {
     return this.http.get<Taxi>(`${this.baseUrl}/get-taxis/${id}`);
@@ -33,9 +36,55 @@ export class TaxiService {
     return this.http.get<Taxi>(`${this.baseUrl}/taxi_byphone/${phone}`);
   }
 
-  addTaxi(taxi: Taxi): Observable<Taxi> {
+  /*addTaxi(taxi: Taxi): Observable<Taxi> {
     return this.http.post<Taxi>(`${this.baseUrl}/add-taxis`, taxi);
-  }
+  }*/
+ /*addTaxiWithUser(taxi: Taxi): Observable<any> {
+  const taxiRequest = this.http.post<Taxi>(
+    `${this.baseUrl}/add-taxis`,
+    taxi
+  );
+
+  const signupPayload = {
+    username: taxi.nom,                 // or any logic you want
+    email: taxi.email,
+    role: ['ROLE_USER'],
+    password: '123456',           // ⚠️ example only
+    phone: taxi.telephone
+  };
+
+  const signupRequest = this.http.post(
+    `${this.auth}/jwt-authentication/api/auth/signup`,
+    signupPayload
+  );
+
+  // Execute both requests
+  return forkJoin({
+    taxi: taxiRequest,
+    user: signupRequest
+  });
+}
+*/
+
+addTaxiWithUser(taxi: Taxi, password: string) {
+  const taxiRequest = this.http.post(
+    `${this.baseUrl}/add-taxis`,
+    taxi
+  );
+
+  const signupRequest = this.http.post(
+    `${this.auth}/jwt-authentication/api/auth/signup`,
+    {
+      username: taxi.nom,
+      email: taxi.email,
+      role: ['ROLE_USER'],
+      password: password,
+      phone: taxi.telephone
+    }
+  );
+
+  return forkJoin([taxiRequest, signupRequest]);
+}
 
   addTaxiAdmin(taxi: Taxi): Observable<Taxi> {
     return this.http.post<Taxi>(`${this.baseUrl}/add-taxi-admin`, taxi);
@@ -45,16 +94,49 @@ export class TaxiService {
     return this.http.post<Taxi>(`${this.baseUrl}/add-taxigps`, taxi);
   }
 
- updateTaxi(id: number, taxi: Taxi): Observable<Taxi> {
+ /*updateTaxi(id: number, taxi: Taxi): Observable<Taxi> {
     return this.http.patch<Taxi>(`${this.baseUrl}/update-taxi/${id}`, taxi);  
   }
+*/
+updateTaxiAndUser(taxi: Taxi) {
+  const updateTaxi$ = this.http.patch(
+    `${this.baseUrl}/update-taxi/${taxi.id}`,
+    taxi
+  );
 
-  updateTaxiByPhone(phone: string, taxi: Taxi): Observable<Taxi> {
+  const updateUser$ = this.http.patch(
+    `${this.auth}/jwt-authentication/api/auth/users-update/${taxi.telephone}`,
+    {
+      username: taxi.nom,
+      email: taxi.email,
+      phone: taxi.telephone
+    }
+  );
+
+ return forkJoin({
+  taxi: updateTaxi$,
+  user: updateUser$
+});
+
+}
+
+
+
+  /*updateTaxiByPhone(phone: string, taxi: Taxi): Observable<Taxi> {
     return this.http.put<Taxi>(`${this.baseUrl}/update_taxi_byphone/${phone}`, taxi);
   }
-
+*/
   deleteTaxi(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/delete-taxi/${id}`);
+  }
+
+  deleteAccount(phone: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.authUrl}/jwt-authentication/api/auth/delete-account`,
+      {
+        params: { phone }
+      }
+    );
   }
 
   // Taxi Status Management
@@ -150,11 +232,33 @@ export class TaxiService {
   }
 
   // Search and Filter
-  searchTaxis(query: string): Observable<Taxi[]> {
+  /*searchTaxis(query: string): Observable<Taxi[]> {
     return this.http.get<Taxi[]>(`${this.baseUrl}/search-taxis`, {
       params: { q: query }
     });
+  }*/
+ searchTaxis(
+    page: number,
+    size: number,
+    phone?: string,
+    name?: string
+  ): Observable<any> {
+
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    if (phone) {
+      params = params.set('phone', phone);
+    }
+
+    if (name) {
+      params = params.set('name', name);
+    }
+
+    return this.http.get(`${this.baseUrl}/get-all-taxis-criteria`, { params });
   }
+
 
   filterTaxis(filters: any): Observable<Taxi[]> {
     return this.http.post<Taxi[]>(`${this.baseUrl}/filter-taxis`, filters);
@@ -209,30 +313,39 @@ export class TaxiService {
       params: { startDate, endDate }
     });
   }
-  // 📧 Send reset code
-sendPasswordResetCode(payload: {
+/*sendPasswordResetCode(payload: {
   taxiId: number;
   email: string;
   telephone: string;
 }) {
-  return this.http.post('/api/auth/send-reset-code', payload);
-}
+  return this.http.post(
+    `${this.auth}/jwt-authentication/api/auth/forgot-password-admin`,
+    payload
+  );
+}*/
 
-// 🔢 Verify code
-verifyResetCode(payload: {
-  taxiId: number;
-  code: string;
+sendPasswordResetCode(payload: {
+  email: string;
+  phone: string;
 }) {
-  return this.http.post('/api/auth/verify-reset-code', payload);
+  return this.http.post<any>(
+    `${this.auth}/jwt-authentication/api/auth/forgot-password-admin`,
+    payload
+  );
 }
 
-// 🔐 Reset password
-resetPassword(payload: {
-  taxiId: number;
-  newPassword: string;
-}) {
-  return this.http.post('/api/auth/reset-password', payload);
+
+verifyResetCode(token: string) {
+  const url = `${this.auth}/jwt-authentication/api/auth/password-reset/validate-token`;
+
+  return this.http.post<any>(url, { token });
 }
 
+resetPassword(token: string, payload: { password: string }) {
+  return this.http.post(
+    `${this.auth}/jwt-authentication/api/auth/reset-password?token=${token}`,
+    payload
+  );
+}
 
 }

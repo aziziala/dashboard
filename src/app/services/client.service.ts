@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { forkJoin,Observable } from 'rxjs';
 import { Client } from '../models/client.model';
 import { environment } from '../../environments/environment';
 
@@ -8,13 +8,14 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ClientService {
-  private baseUrl = `${environment.apiUrls.smsTaxi}`;
-
+  private baseUrl = `${environment.apiUrls.smsClient}`;
+  private auth = `${environment.apiUrls.smsAuth}`;
+    private authUrl = environment.apiUrls.smsTaxidelete;
   constructor(private http: HttpClient) { }
 
   // Basic CRUD Operations
-  getClients(): Observable<Client[]> {
-    return this.http.get<Client[]>(`${this.baseUrl}/get-client`);
+  getAllClients(): Observable<Client[]> {
+    return this.http.get<Client[]>(`${this.baseUrl}/get-allClients`);
   }
 
   getClientById(id: number): Observable<Client> {
@@ -29,9 +30,34 @@ export class ClientService {
     return this.http.get<Client>(`${this.baseUrl}/get-Clientby-phone/${phone}`);
   }
 
-  addClient(client: Client): Observable<void> {
+  /*addClient(client: Client): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/add-client`, client);
-  }
+  }*/
+addClientWithUser(client: Client, password: string) {
+
+  const signupPayload = {
+    username: client.nom,
+    email: client.email,
+    roles: ['ROLE_USER'],
+    password: password,
+    phone: client.telephone
+  };
+
+  console.log("REAL signup payload:", signupPayload);
+
+  const signupRequest = this.http.post(
+    `${this.auth}/jwt-authentication/api/auth/signup`,
+    signupPayload
+  );
+
+  const clientRequest = this.http.post(
+    `${this.baseUrl}/add-client`,
+    client
+  );
+
+  return forkJoin([clientRequest, signupRequest]);
+}
+
 
   addClientGPS(client: Client): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/add-clientgps`, client);
@@ -41,18 +67,52 @@ export class ClientService {
     return this.http.post<void>(`${this.baseUrl}/add_client_gps`, client);
   }
 
-  updateClient(id: number, client: Client): Observable<Client> {
+  /*updateClient(id: number, client: Client): Observable<Client> {
     return this.http.put<Client>(`${this.baseUrl}/update-client/${id}`, client);
-  }
+  }*/
+ updateClient(client: Client) {
+   const updateClient$ = this.http.patch(
+     `${this.baseUrl}/update-client/${client.id}`,
+     client
+   );
+ 
+   const updateUser$ = this.http.patch(
+     `${this.auth}/jwt-authentication/api/auth/users-update/${client.telephone}`,
+     {
+       username: client.nom,
+       email: client.email,
+       phone: client.telephone
+     }
+   );
+ 
+  return forkJoin({
+   client: updateClient$,
+   user: updateUser$
+ });
+ 
+ }
 
   updateClientByPhone(phone: string, client: Client): Observable<Client> {
     return this.http.put<Client>(`${this.baseUrl}/update_client_phone/${phone}`, client);
   }
 
-  deleteClient(id: number): Observable<Client> {
+  /*deleteClient(id: number): Observable<Client> {
     return this.http.delete<Client>(`${this.baseUrl}/delete-client/${id}`);
   }
+*/
 
+  deleteClient(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/delete-client/${id}`);
+  }
+
+  deleteAccount(phone: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.authUrl}/jwt-authentication/api/auth/delete-account`,
+      {
+        params: { phone }
+      }
+    );
+  }
   // Client Location Management
   updateClientLocation(phone: string, latitude: number, longitude: number): Observable<Client> {
     return this.http.put<Client>(`${this.baseUrl}/update-client-location/${phone}`, {

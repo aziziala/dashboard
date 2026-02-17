@@ -1,14 +1,75 @@
-.dashboard-container {
-  padding: 2rem;
-  background-color: #f8f9fa;
-  min-height: 100vh;
+.container-fluid{
+  margin-top: -4% !important;
+  margin-bottom: 3%;
 }
 
+.page-title {
+  font-weight: 700;
+  color: #211F54;
+
+  .taxi-icon {
+    color: #FFC900;
+  }
+}
+.page-title-box {
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(33, 31, 84, 0.05),
+    rgba(75, 75, 175, 0.05)
+  );
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+
+  .page-title {
+    font-size: 1.25rem;
+
+    @media (max-width: 576px) { font-size: 1rem; }
+  }
+
+  .page-title-right {
+    margin-top: 0.5rem;
+
+    @media (max-width: 576px) { width: 100%; }
+  }
+}
+/* ===== Breadcrumb ===== */
+
+.page-title-right {
+  ol.breadcrumb {
+    li.breadcrumb-item {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: #4B4BAF;
+
+      a {
+        color: #4B4BAF;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: #211F54;
+        }
+      }
+
+      &.active {
+        color: #495057;
+      }
+
+      &:not(:last-child)::after {
+        content: ">";
+        margin: 0 0.5rem;
+        color: #211F54;
+      }
+    }
+  }
+}
 .dashboard-header {
   margin-bottom: 2rem;
   
   h1 {
-    color: #2c3e50;
+    color: #502c41;
     font-weight: 600;
     margin-bottom: 0.5rem;
     

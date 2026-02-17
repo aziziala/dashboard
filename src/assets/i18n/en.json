@@ -1,0 +1,15 @@
+{
+  "TAXI": {
+    "TITLE": "Taxi Management",
+    "DASHBOARD": "Dashboard",
+    "TOTAL": "Total",
+    "APPROVED": "Approved",
+    "PENDING": "Pending",
+    "REJECTED": "Rejected",
+    "SEARCH": "Search...",
+    "ADD": "Add taxi",
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "NO_DATA": "No taxi found"
+  }
+}

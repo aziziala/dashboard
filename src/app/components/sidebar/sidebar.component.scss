@@ -1,8 +1,19 @@
+.disabled,
+.disabled-link {
+  color: #9e9e9e;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.disabled i {
+  color: #9e9e9e;
+}
+
 .vertical-menu {
   width: 250px;
-  height: 100%;
+  height: calc(100% - 42px);
   position: fixed;
-  top: 0;
+  top: 42px;
   left: -250px;     // default: hidden (needed for sliding animation)
   background: #211F54;
   color: #c7d1da;
@@ -75,10 +86,10 @@
 
   /* Logo */
   .sidebar-logo {
-    padding: 16px;
+    padding: sticky;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-
+    bottom: 0;
     img {
       max-width: 100%;
       max-height: 50px;
@@ -96,13 +107,40 @@
   }
 }
 
-/* 🔥 Mobile behavior override */
+.metismenu li a.active {
+  position: relative;
+}
+
+.metismenu li a.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #FFC900;
+  border-radius: 0 4px 4px 0;
+}
+
+.metismenu li a span {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.vertical-menu.collapsed .metismenu li a span {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+
 @media (max-width: 992px) {
   .vertical-menu {
-    left: -250px;        // closed by default on mobile
+    top: 40px;
+    height: calc(100% - 40px);
+    left: -250px;
   }
 
   .vertical-menu.open {
-    left: 0;             // slide in on toggle
+    left: 0;
   }
 }
+

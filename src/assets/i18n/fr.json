@@ -1,0 +1,15 @@
+{
+  "TAXI": {
+    "TITLE": "Gestion des Taxis",
+    "DASHBOARD": "Tableau de bord",
+    "TOTAL": "Total",
+    "APPROVED": "Approuvé",
+    "PENDING": "En attente",
+    "REJECTED": "Rejeté",
+    "SEARCH": "Rechercher...",
+    "ADD": "Ajouter un taxi",
+    "PREVIOUS": "Précédent",
+    "NEXT": "Suivant",
+    "NO_DATA": "Aucun taxi trouvé"
+  }
+}

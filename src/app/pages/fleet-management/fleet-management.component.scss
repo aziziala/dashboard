@@ -1,6 +1,74 @@
 
-
 /* GLOBAL CADRE AROUND THE BLOCK */
+.container-fluid{
+  margin-top: -4% !important;
+  margin-bottom: 3%;
+}
+
+
+.page-title {
+  font-weight: 700;
+  color: #211F54;
+
+  .fleet-icon {
+    color: #FFC900;
+  }
+}
+.page-title-box {
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(33, 31, 84, 0.05),
+    rgba(75, 75, 175, 0.05)
+  );
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+
+  .page-title {
+    font-size: 1.25rem;
+
+    @media (max-width: 576px) { font-size: 1rem; }
+  }
+
+  .page-title-right {
+    margin-top: 0.5rem;
+
+    @media (max-width: 576px) { width: 100%; }
+  }
+}
+/* ===== Breadcrumb ===== */
+
+.page-title-right {
+  ol.breadcrumb {
+    li.breadcrumb-item {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: #4B4BAF;
+
+      a {
+        color: #4B4BAF;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: #211F54;
+        }
+      }
+
+      &.active {
+        color: #495057;
+      }
+
+      &:not(:last-child)::after {
+        content: ">";
+        margin: 0 0.5rem;
+        color: #211F54;
+      }
+    }
+  }
+}
+
 .stats-wrapper {
   border: 3px solid #d1d1d1;
   border-radius: 12px;
@@ -10,29 +78,16 @@
 }
 
 /* CARDS */
-.stats-row {
-  .stats-card {
-    border-width: 2px;
-    border-radius: 10px;
-    background: #ffffff;
-    transition: transform .2s ease-in-out, box-shadow .2s;
+$shadow: 0 2px 6px rgba(0,0,0,0.2);
+.card {
+  border-radius: 0.5rem;
+  box-shadow: $shadow;
+  transition: transform 0.2s;
 
-    &:hover {
-      transform: scale(1.03);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-    }
+  &:hover { transform: translateY(-2px); }
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .card-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-top: .5rem;
-    }
-  }
+  .card-title { font-weight: 600; font-size: 1rem; }
+  .card-text { font-size: 2rem; font-weight: bold; }
 }
 
 .breadcrumb {
@@ -160,7 +215,6 @@
 /* Optional: gradient icon color helper */
 .text-gradient-primary {
   background: linear-gradient(135deg, #211F54, #4B4BAF);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
   .card-body {
@@ -396,58 +450,6 @@ apx-chart {
   
   &.text-info {
     color: #17a2b8 !important;
-  }
-}
-/* Page Title Styling */
-.page-title {
-  font-weight: 700;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #211F54;
-  display: flex;
-  align-items: center;
-
-  .fleet-icon {
-    color: #00BFFF; // bright blue for fleet/satellite
-    font-size: 1.5rem;
-    margin-right: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease, color 0.3s ease;
-
-    &:hover {
-      transform: rotate(20deg) scale(1.2);
-      color: #1E90FF; // slightly darker blue on hover
-    }
-  }
-}
-
-/* Breadcrumb Styling */
-.page-title-right ol.breadcrumb {
-  li.breadcrumb-item {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: #4B4BAF;
-
-    a {
-      color: #4B4BAF;
-      text-decoration: none;
-      transition: color 0.3s ease;
-
-      &:hover {
-        color: #211F54;
-      }
-    }
-
-    &.active {
-      color: #495057;
-    }
-
-    &:not(:last-child)::after {
-      content: ">";
-      margin: 0 0.5rem;
-      color: #211F54;
-    }
   }
 }
 

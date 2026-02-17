@@ -224,13 +224,13 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     });
   }
 
- /*startRealTimeUpdates(): void {
+ startRealTimeUpdates(): void {
     // Update fleet locations every 30 seconds
     this.locationUpdateInterval = setInterval(() => {
       this.loadFleetData();
     }, 30000);
   }
-  */
+  
   updateMapCenter(): void {
     if (this.fleetLocations.length > 0) {
       const avgLat = this.fleetLocations.reduce((sum, loc) => sum + (loc.latitude || 0), 0) / this.fleetLocations.length;

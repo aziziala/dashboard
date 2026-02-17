@@ -1,49 +1,122 @@
+
+
 #page-topbar {
-  background-color: #211F54;
+  background-color: #211F54; // main topbar color
   color: #FFC900;
+  height: 42px;
+  font-weight: 600;
+
   .navbar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 12px;
     background-color: inherit;
   }
 
-  .header-item {
-    color: #FFC900 !important;
+  .navbar-brand-box {
+    background-color: inherit;
 
-    i, .bx, .fa {
-      color: #FFC900 !important;
-    }
-
-    &:hover,
-    &:focus {
-      color: #FFD633 !important;
+    img {
+      max-height: 18px; // shrunk logo
     }
   }
+
+  .header-item {
+  position: relative;
+}
+
+.header-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: #FFC900;
+}
+
 
   .btn.header-item {
-    background-color: transparent;
+    background-color: transparent !important;
     border: none;
+    color:#FFC900;
+    padding: 0 6px;
   }
 
-  .app-search .bx {
-    color: #211F54 !important;
-    margin-left: 70%;
-  }
+  .app-search {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    input.form-control {
+      background-color: #211F54; // match topbar
+      border: 1px solid #FFC900;
+      color: #FFC900;
+      font-weight: 600;
+      height: 28px;
+      padding: 0 8px;
 
-  .app-search input.form-control {
-    
-    color: #000000;
-    width: 150%;
-    margin-left: 70%;
-    
-    &::placeholder {
-      color: #211F54;
-      opacity: 0.7;
+      &::placeholder {
+        color: #FFC900;
+        opacity: 0.7;
+        font-weight: 600;
+      }
+    }
+
+    .bx {
+      color: #FFC900 !important;
+      margin-left: -24px; // overlap input nicely
     }
   }
 
-  .navbar-brand-box img {
-    max-height: 24px;
+  .header-item i {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.header-item:hover i {
+  transform: scale(1.15);
+  opacity: 0.9;
+}
+
+
+  // Responsive tweaks
+  @media (max-width: 1200px) {
+    .app-search {
+      display: none;
+    }
+
+    .header-item i {
+      font-size: 15px;
+    }
   }
 
+  @media (max-width: 768px) {
+    height: 40px;
 
+    .header-item {
+      font-size: 13px;
+      line-height: 40px;
+    }
+
+    .navbar-brand-box img {
+      max-height: 16px;
+    }
+  }
+  
   
 }
+.header-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+
+.header-item i {
+  font-size: 20px;
+}
+
+
+
+

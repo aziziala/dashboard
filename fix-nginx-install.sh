@@ -224,7 +224,7 @@ echo ""
 echo "Next steps:"
 echo "1. Check Nginx status: sudo systemctl status nginx"
 echo "2. View error logs if issues persist: sudo tail -f /var/log/nginx/error.log"
-echo "3. Access your app through: http://192.168.100.37:4200"
+echo "3. Access your app through: http://192.168.2.2:4200"
 echo ""
 
 

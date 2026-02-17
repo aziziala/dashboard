@@ -1,52 +1,64 @@
-<header id="page-topbar" >
+
+<header id="page-topbar">
   <div class="navbar-header">
-    <div class="d-flex">
-      <div class="navbar-brand-box">
-        <a routerLink="/" class="logo logo-dark">
-          <span class="logo-sm">
-            <!--<img src="assets/images/logo.svg" alt="" height="22">-->
-          </span>
-          <span class="logo-lg">
-            <!--<img src="assets/images/logo-dark.png" alt="" height="17">-->
-          </span>
-        </a>
-        <a routerLink="/" class="logo logo-light">
-          <span class="logo-sm">
-            <!--<img src="assets/images/logo-light.svg" alt="" height="22">-->
-          </span>
-          <span class="logo-lg">
-            <!--<img src="assets/images/logo-light.png" alt="" height="19">-->
-          </span>
-        </a>
-      </div>
- <button
-  type="button"
-  class="btn btn-sm px-3 font-size-16 header-item d-xl-none" 
-  id="vertical-menu-btn"
-  (click)="toggleMobileMenu($event)">
-  <i class="fa fa-fw fa-bars"></i>
-</button>
 
-      <form class="app-search d-none d-xl-block">
-       <!-- <div class="position-relative">
-          <input type="text" class="form-control" placeholder="Search">
-          <span class="bx bx-search-alt"></span>
-        </div>-->
-      </form>
+    <div class="d-flex align-items-center">
+      <button
+        class="btn header-item d-xl-none"
+        (click)="toggleMobileMenu($event)">
+        <i class="fa fa-bars"></i>
+      </button>
     </div>
-    <div class="d-flex">
-      <div class="dropdown d-none d-lg-inline-block ms-1">
-        <button type="button" class="btn header-item noti-icon" data-toggle="fullscreen" (click)="fullscreen()">
-          <i class="bx bx-fullscreen"></i>
-        </button>
-      </div>
 
-     <!-- <div class="dropdown d-inline-block">
-        <button type="button" class="btn header-item noti-icon right-bar-toggle" (click)="toggleRightbar()">
-          <i class="bx bx-cog bx-spin"></i>
-        </button>
-      </div>-->
-    </div>
+    <div class="d-flex align-items-center gap-1">
+      <a
+        href="https://webmail.smstaxi.tn"
+        target="_blank"
+        class="btn header-item"
+        title="Webmail">
+        <i class="bx bx-envelope"></i>
+      </a>
+
+      <button class="btn header-item" (click)="fullscreen()">
+        <i class="bx bx-fullscreen"></i>
+      </button>  
+      
+<div class="dropdown">
+  <button
+    class="btn header-item d-flex align-items-center justify-content-center"
+    type="button"
+    id="langDropdown"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    <img
+      [src]="currentLangFlag"
+      alt="Language"
+      width="22"
+      height="16"
+    />
+  </button>
+
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+    <li>
+      <a class="dropdown-item d-flex align-items-center gap-2" href="#" (click)="switchLanguage('ar')">
+        <img src="assets/flags/ar.png" width="20" /> العربية
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center gap-2" href="#" (click)="switchLanguage('fr')">
+        <img src="assets/flags/fr.png" width="20" /> Français
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center gap-2" href="#" (click)="switchLanguage('en')">
+        <img src="assets/flags/eng.png" width="20" /> English
+      </a>
+    </li>
+  </ul>
+</div>
+
+</div>
+
   </div>
 </header>
-

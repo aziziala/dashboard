@@ -1,64 +1,70 @@
 <div class="vertical-menu" [class.open]="isOpen" [class.collapsed]="isCollapsed">
 
-
   <div data-simplebar class="h-100">
     <div id="sidebar-menu">
       <ul class="metismenu list-unstyled" id="side-menu">
         
         <li [class.mm-active]="activeUrl.startsWith('/dashboard')">
-          <a routerLink="/dashboard" class="waves-effect" [class.active]="activeUrl.startsWith('/dashboard')">
+          <a routerLink="/dashboard" class="waves-effect" [class.active]="activeUrl.startsWith('/dashboard')" title="Tableau de bord">
             <i class="bx bx-home-circle"></i>
             <span key="t-dashboards">Tableau de bord</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/taxis')">
-          <a routerLink="/taxis" [class.active]="activeUrl.startsWith('/taxis')">
+          <a routerLink="/taxis" [class.active]="activeUrl.startsWith('/taxis')" title="Gestion des taxis">
             <i class="bx bx-taxi"></i>
             <span key="t-taxis">Gestion des Taxis</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/clients')">
-          <a routerLink="/clients" [class.active]="activeUrl.startsWith('/clients')">
+          <a routerLink="/clients" [class.active]="activeUrl.startsWith('/clients')" title="Gestion des clients">
             <i class="bx bx-user"></i>
             <span key="t-clients">Gestion des clients</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/sms')">
-          <a routerLink="/sms" [class.active]="activeUrl.startsWith('/sms')">
+          <a routerLink="/sms" [class.active]="activeUrl.startsWith('/sms')" title="Gestion des SMS">
             <i class="bx bx-message"></i>
             <span key="t-sms">Gestion des SMS</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/fleet')">
-          <a routerLink="/fleet" [class.active]="activeUrl.startsWith('/fleet')">
+          <a routerLink="/fleet" [class.active]="activeUrl.startsWith('/fleet')" title="Gestion des flottes">
             <i class="bx bx-map"></i>
             <span key="t-fleet">Gestion des flottes</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/affectation-client')">
-          <a routerLink="/affectation-client" [class.active]="activeUrl.startsWith('/affectation-client')">
-            <i class="bx bx-user-pin"></i>
-            <span>Affectation Client</span>
+          <a routerLink="/affectation-client" [class.active]="activeUrl.startsWith('/affectation-client')" title="Affectation Client">
+            <i class="bx bx-transfer"></i>
+            <span>Gestion des réservations</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/analytics')">
-          <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')">
+          <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')" title="Analyse des données">
             <i class="bx bx-bar-chart"></i>
-            <span key="t-analytics">Analyse des données</span>
+            <span key="t-analytics">Gestion des statistiques</span>
           </a>
         </li>
         <li [class.mm-active]="activeUrl.startsWith('/rides')">
-          <a routerLink="/rides" [class.active]="activeUrl.startsWith('/rides')">
+          <a routerLink="/rides" [class.active]="activeUrl.startsWith('/rides')" title="Suivi des courses">
             <i class="bx bx-navigation"></i>
             <span key="t-rides">Suivi des courses </span>
           </a>
         </li>
+        <li class="disabled" [class.mm-active]="activeUrl.startsWith('/reclamations')">
+          <a routerLink="/reclamations" class="disabled-link" [class.active]="activeUrl.startsWith('/reclamations')" title="Coming Soon...">
+            <i class="bx bx-support"></i>
+            <span key="t-rides">Gestion des réclamations</span>
+          </a>
+        </li>  <!--
         <li [class.mm-active]="activeUrl.startsWith('/sms-gateway')">
-          <a routerLink="/sms-gateway" [class.active]="activeUrl.startsWith('/sms-gateway')">
+          <a routerLink="/sms-gateway" [class.active]="activeUrl.startsWith('/sms-gateway')" title="SMS Gateway">
             <i class="bx bx-broadcast"></i>
             <span key="t-sms-gateway">SMS Gateway</span>
           </a>
         </li>
+        -->
       </ul>
     </div>
   </div>
@@ -71,4 +77,6 @@
 </div>
 
 </div>
+
+
 
