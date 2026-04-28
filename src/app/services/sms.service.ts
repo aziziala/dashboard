@@ -9,13 +9,14 @@ import { environment } from '../../environments/environment';
 })
 export class SmsService {
   private baseUrl = `${environment.apiUrls.smsOut}`;
-
+  private smsTaxi = `${environment.apiUrls.smsTaxi}`;
   constructor(private http: HttpClient) { }
 
   // SMS Records Management - Based on SMSout backend API
-  getSmsRecords(): Observable<SmsRecord[]> {
-    return this.http.get<SmsRecord[]>(`${this.baseUrl}/get-listSMS_out`);
-  }
+getSmsRecords(): Observable<SmsRecord[]> {
+  return this.http.get<SmsRecord[]>(`${this.smsTaxi}/get-all`);
+}
+
 
   getSmsRecordById(id: number): Observable<SmsRecord> {
     return this.http.get<SmsRecord>(`${this.baseUrl}/get-sms-record/${id}`);
@@ -42,9 +43,13 @@ export class SmsService {
   }
 
   // SMS Statistics - Based on SMSout backend API
-  getTotalSmsCount(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/nbr-NbrSMSOut`);
-  }
+ getTotalSmsCount(): Observable<number> {
+  return this.http.get<number>(`${this.smsTaxi}/nbr-sms`);
+}
+
+getUntreatedSms(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.smsTaxi}/get-listSMSnonTraites`);
+}
 
   getSmsByMonth(month: number, year: number): Observable<SmsRecord[]> {
     return this.http.get<SmsRecord[]>(`${this.baseUrl}/listSMS_out_ParMois/${month}/${year}`);

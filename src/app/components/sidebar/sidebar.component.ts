@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { UiService } from '../../services/ui.service';
 import { filter, Subscription } from 'rxjs';
+import { TaxiService } from '../../services/taxi.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,10 +13,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
   activeUrl = '';
   isOpen = false;
   isCollapsed = false;
+  currentApp: 'SMSTaxi' | 'TaxiSelect' = 'SMSTaxi';
   private sub = new Subscription(); // manage all subscriptions here
 
-  constructor(private router: Router, private ui: UiService) {
-    this.activeUrl = this.router.url;
+  constructor(
+  private router: Router,
+  private ui: UiService,
+  private taxiService: TaxiService   ) {  this.activeUrl = this.router.url;
     this.router.events.pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => {
         this.activeUrl = e.urlAfterRedirects;
@@ -24,6 +28,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Prevent initial animation
+
+    // ✅ Load saved app (refresh case)
+const savedApp = localStorage.getItem('currentApp') as 'SMSTaxi' | 'TaxiSelect';
+if (savedApp) {
+  this.currentApp = savedApp;
+}
+
+// ✅ Listen to live switch changes
+this.sub.add(
+  this.taxiService.appChanged$.subscribe(app => {
+    this.currentApp = app;
+  })
+);
+
     const menu = document.querySelector('.vertical-menu');
     menu?.classList.add('no-transition');
 

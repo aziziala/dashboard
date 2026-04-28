@@ -40,18 +40,19 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   showMap = true;
 
   // Car icons from assets
-  private activeCarIcon = L.icon({
-    iconUrl: 'assets/car_icon.png',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
+private createModernIcon(color: 'green' | 'red' | 'yellow'): L.DivIcon {
+  return L.divIcon({
+    className: 'modern-marker',
+    html: `
+  <div class="marker ${color}">
+    <span class="pulse"></span>
+    <i class="fas fa-car"></i>
+  </div>
+`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20]
   });
-
-  private busyCarIcon = L.icon({
-    iconUrl: 'assets/car-booked.png',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
-  });
-  
+}
   // Map styles for a modern look
   mapStyles = [
     {
@@ -329,7 +330,7 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     });
   }
 
-  private handleFleetLocationsFromSocket(message: any): void {
+private handleFleetLocationsFromSocket(message: any): void {
   this.ngZone.run(() => {
     console.log('[FleetManagement] Received fleet locations via WS:', message);
 
@@ -341,95 +342,108 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
         return;
       }
 
-      this.fleetLocations = body.map(taxi => ({
-        taxiId: taxi.taxiId,
-        taxiNumber: taxi.taxiNumber,
-        driverName: taxi.driverName || '',
-        telephone: taxi.phone || '',
-        latitude: taxi.latitude,
-        longitude: taxi.longitude,
-        totalTaxis : taxi.totalTaxis,
-        inProgressCount : taxi.inProgressCount,
-        startedRide : taxi.startedRide,
-        waitingCount : taxi.waitingCount,
-        status: ['IN_PROGRESS','TERMINATED'].includes(taxi.rideStatus?.toUpperCase())
-          ? FleetStatus.BUSY
-          : FleetStatus.ACTIVE,
-        isOnline: true
-      }));
+      // ✅ FIX STATUS MAPPING
+      this.fleetLocations = body.map(taxi => {
+        const rideStatus = taxi.rideStatus?.toUpperCase();
+
+        return {
+          taxiId: taxi.taxiId,
+          taxiNumber: taxi.taxiNumber,
+          driverName: taxi.driverName || '',
+          telephone: taxi.phone || '',
+          latitude: taxi.latitude,
+          longitude: taxi.longitude,
+          totalTaxis: taxi.totalTaxis,
+          inProgressCount: taxi.inProgressCount,
+          startedRide: taxi.startedRide,
+          waitingCount: taxi.waitingCount,
+
+          status:
+            rideStatus === 'IN_PROGRESS'
+              ? FleetStatus.BUSY        // ✅ occupé
+              : rideStatus === 'EN_ROUTE'
+              ? FleetStatus.EN_ROUTE    // ✅ en approche
+              : FleetStatus.ACTIVE,     // ✅ libre
+
+          isOnline: true
+        };
+      });
 
       this.totalItems = this.fleetLocations.length;
 
-      // ✔ Replace the whole object (mandatory for Angular to detect change)
-     this.fleetStats = {
-  ...this.fleetStats,  // keep existing fields
-  totalTaxis: Math.max(...body.map(t => t.totalTaxis)),
-  activeTaxis: Math.max(...body.map(t => t.waitingCount)),
-  busyTaxis: Math.max(...body.map(t => t.startedRide)),
-  enrouteTaxis: Math.max(...body.map(t => t.inProgressCount)),
-};
+      // ✅ FIX STATS (NO MORE Math.max ❌)
+      this.fleetStats = {
+        ...this.fleetStats,
+
+        totalTaxis: body.length,
+
+        activeTaxis: body.filter(t => {
+          const s = t.rideStatus?.toUpperCase();
+          return !s || s === 'WAITING';
+        }).length,
+
+        busyTaxis: body.filter(t =>
+          t.rideStatus?.toUpperCase() === 'IN_PROGRESS'
+        ).length,
+
+        enrouteTaxis: body.filter(t =>
+          t.rideStatus?.toUpperCase() === 'EN_ROUTE'
+        ).length
+      };
 
       this.updateMapCenter();
       this.updateMapMarkers();
+
     } catch (e) {
       console.error('[FleetManagement] Failed to parse WS fleet locations:', e);
     }
   });
-
-  }
-
+}
   updateMapMarkers(): void {
-    // Clear existing markers
-    this.markers.forEach(marker => marker.remove());
-    this.markers = [];
-    
-    // Add new markers for each fleet location
-    this.fleetLocations.forEach(location => {
-      if (location.latitude && location.longitude) {
-        const icon = this.getMarkerIcon(location.status);
-        const marker = L.marker([location.latitude, location.longitude], {
-          icon: icon
-        }).addTo(this.map);
-        
-        // Add popup
-        const popupContent = `
-          <div class="info-window">
-            <h6>${location.taxiNumber}</h6>
-            <p><strong>Driver:</strong> ${location.driverName}</p>
-            <p><strong>Status:</strong> 
-              <span class="badge ${this.getStatusBadgeClass(location.status)}">
-                ${location.status}
-              </span>
-            </p>
-            <p><strong>Phone:</strong> ${location.telephone}</p>
-            <button class="btn btn-sm btn-primary" onclick="document.dispatchEvent(new CustomEvent('openLocationModal', {detail: ${location.id}}))">
-              View Details
-            </button>
-          </div>
-        `;
-        
-        marker.bindPopup(popupContent);
-        
-        // Add click event
-        marker.on('click', () => {
-          this.onMarkerClick(location);
-        });
-        
-        this.markers.push(marker);
-      }
-    });
-  }
-
-  private getMarkerIcon(status: FleetStatus): L.Icon {
-    switch (status) {
-      case FleetStatus.BUSY:
-        return this.busyCarIcon;
-      case FleetStatus.ACTIVE:
-      default:
-        return this.activeCarIcon;
+  // ✅ FULL CLEAN (not only markers array)
+  this.map.eachLayer((layer: any) => {
+    if (layer instanceof L.Marker) {
+      this.map.removeLayer(layer);
     }
-  }
+  });
 
+  this.markers = [];
+
+  // ✅ Add fresh markers
+  this.fleetLocations.forEach(location => {
+    if (location.latitude && location.longitude) {
+      const icon = this.getMarkerIcon(location.status);
+
+      const marker = L.marker([location.latitude, location.longitude], {
+        icon: icon
+      }).addTo(this.map);
+
+      marker.bindPopup(`
+        <div class="info-window">
+          <h6>${location.taxiNumber}</h6>
+          <p><strong>Driver:</strong> ${location.driverName}</p>
+          <p><strong>Status:</strong> ${location.status}</p>
+          <p><strong>Phone:</strong> ${location.telephone}</p>
+        </div>
+      `);
+
+      this.markers.push(marker);
+    }
+  });
+}
+private getMarkerIcon(status: FleetStatus): L.DivIcon {
+  switch (status) {
+    case FleetStatus.BUSY:
+      return this.createModernIcon('green');
+
+    case FleetStatus.EN_ROUTE:
+      return this.createModernIcon('yellow');
+
+    case FleetStatus.ACTIVE:
+    default:
+      return this.createModernIcon('red');
+  }
+}
   initializeCharts(): void {
     // Fleet Status Chart
     this.fleetChartOptions = {

@@ -5,7 +5,7 @@
   <div class="app-body">
     <app-sidebar></app-sidebar>
 
-    <main class="main-content">
+    <main class="main-content" [class.sms-full]="isSmsPage()">
       <router-outlet></router-outlet>
     </main>
   </div>

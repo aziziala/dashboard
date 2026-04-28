@@ -22,22 +22,26 @@
   
 
   <div class="row mb-4 justify-content-center g-3">
-    <div class="col-md-2" *ngFor="let stat of [
-        {label: 'Total', value: fleetStats.totalTaxis, color: '#211F54'},
-        {label: 'Occupé', value: fleetStats.busyTaxis, color: '#198754'},
-        {label: 'En approche', value: fleetStats.enrouteTaxis, color: '#FFA500'},
-        {label: 'Libre', value: fleetStats.activeTaxis, color: '#FF0000'}
-        
-      ]">
-      <div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
-        <div class="card-body">
-          <h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
-          <p class="card-text display-6" [ngStyle]="{'color': stat.color}">{{ stat.value }}</p>
-        </div>
+  <div class="col-md-2" *ngFor="let stat of [
+    {label: 'Total', value: fleetStats.totalTaxis, color: 'primary', icon: 'fa-car'},
+    {label: 'Occupé', value: fleetStats.busyTaxis, color: 'success', icon: 'fa-check'},
+    {label: 'En route', value: fleetStats.enrouteTaxis, color: 'warning', icon: 'fa-clock'},
+    {label: 'Libre', value: fleetStats.activeTaxis, color: 'danger', icon: 'fa-times'}
+  ]">
+
+    <div class="stats-card" [ngClass]="stat.color">
+      <div class="icon">
+        <i class="fas" [ngClass]="stat.icon"></i>
+      </div>
+
+      <div class="content">
+        <span class="label">{{ stat.label }}</span>
+        <h3>{{ stat.value }}</h3>
       </div>
     </div>
-  </div>
 
+  </div>
+</div>
   
    <!--
     <div class="col-xl-2 col-md-4">
@@ -169,7 +173,7 @@
                   <i class="fas fa-check me-1"></i>Taxi occupé
                </span>
                <span class="badge bg-warning text-dark me-3">
-                  <i class="fas fa-spinner me-1"></i>Taxi en approche
+                  <i class="fas fa-spinner me-1"></i>Taxi À proximité
                </span>
                 <span class="badge bg-danger text-dark me-3">
                   <i class="fas fa-times me-1"></i>Taxi libre

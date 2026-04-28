@@ -4,7 +4,7 @@ import { SmsService } from '../../services/sms.service';
 import { FleetService } from '../../services/fleet.service';
 import { ClientService } from '../../services/client.service';
 import { ChartType, revenueChartOptions, smsChartOptions, taxiActivityChartOptions, monthlyEarningChartOptions } from '../../models/chart.model';
-
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -20,7 +20,7 @@ export class DashboardComponent implements OnInit {
   totalSmsReceived: number = 0;
   totalRevenue: number = 0;
   fleetLocations: any[] = [];
-  
+  kannelUrl!: SafeResourceUrl;
   // Chart data
   revenueChartOptions: ChartType = revenueChartOptions;
   smsChartOptions: ChartType = smsChartOptions;
@@ -36,13 +36,21 @@ export class DashboardComponent implements OnInit {
     private taxiService: TaxiService,
     private smsService: SmsService,
     private fleetService: FleetService,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private sanitizer: DomSanitizer 
   ) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
     this.loadRecentActivities();
     this.initializeCharts();
+      this.kannelUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+    'http://localhost:8081'
+  );
+
+  this.loadDashboardData();
+  this.loadRecentActivities();
+  this.initializeCharts();
   }
 
   loadDashboardData(): void {

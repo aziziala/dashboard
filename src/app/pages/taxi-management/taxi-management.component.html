@@ -7,6 +7,10 @@
 <i class="fas fa-taxi me-2 taxi-icon"></i>Gestion des Taxis
 </h4>
 <div class="page-title-right d-none d-md-block">
+
+
+<div class="d-flex align-items-center gap-2">
+
 <ol class="breadcrumb m-0">
 <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
 <li class="breadcrumb-item active">Gestion des Taxis</li>
@@ -17,30 +21,48 @@
 </div>
 <!-- Stats Cards -->
 <div class="row mb-4 justify-content-center g-3">
-<div class="col-md-2" *ngFor="let stat of [
-{label: 'Total', value: taxiStats.total, color: '#211F54'},
-{label: 'Approuvé', value: taxiStats.approved, color: '#198754'},
-{label: 'En Attente', value: taxiStats.pending, color: '#FFC900'},
-{label: 'Rejeté', value: taxiStats.rejected, color: '#FF0000'}
-]">
-<div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
-<div class="card-body">
-<h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
-<p class="card-text display-6" [ngStyle]="{'color': stat.color}">{{ stat.value }}</p>
+
+
+  <div class="stats-row">
+  <div class="stats-card total">
+    <div class="icon"><i class="fas fa-car"></i></div>
+    <div class="info">
+      <span>Total</span>
+      <h3>{{ taxiStats.total }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card approved">
+    <div class="icon"><i class="fas fa-check"></i></div>
+    <div class="info">
+      <span>Approuvé</span>
+      <h3>{{ taxiStats.approved }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card pending">
+    <div class="icon"><i class="fas fa-clock"></i></div>
+    <div class="info">
+      <span>En Attente</span>
+      <h3>{{ taxiStats.pending }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card rejected">
+    <div class="icon"><i class="fas fa-times"></i></div>
+    <div class="info">
+      <span>Rejeté</span>
+      <h3>{{ taxiStats.rejected }}</h3>
+    </div>
+  </div>
 </div>
-</div>
-</div>
+
+
+
 </div>
 <!-- Search, Filter & Add Button -->
 <div class="row align-items-center mb-4 gx-3">
 <div class="col-md-4 mb-2 mb-md-0">
-<!--<div class="input-group shadow-sm rounded">
-<span class="input-group-text bg-gradient-primary text-white border-0">
-<i class="fas fa-search"></i>
-</span>
-<input type="text" class="form-control border-0 bg-white" placeholder="Rechercher..."
-[(ngModel)]="searchTerm" (input)="filterTaxis()">
-</div>-->
 
 <div class="input-group shadow-sm rounded">
 <div class="search-wrapper">
@@ -89,9 +111,7 @@ TaxiStatus.REJECTED]"
 <button class="btn btn-outline-success me-1 shadow-sm" (click)="exportData('excel')">
 <i class="fas fa-file-excel me-1"></i>Excel
 </button>
-<!--<button class="btn btn-outline-info me-1 shadow-sm" (click)="exportData('csv')">
-<i class="fas fa-file-csv me-1"></i>CSV
-</button>-->
+
 <button class="btn btn-outline-danger me-1 shadow-sm" (click)="exportData('pdf')">
 <i class="fas fa-file-pdf me-1"></i>PDF
 </button>
@@ -191,9 +211,7 @@ trouvé.
         <h6 class="modal-title mb-0">
           {{ isEditing ? 'Éditer le taxi' : 'Ajouter un taxi' }}
         </h6>
-        <!--<small class="text-light opacity-75">
-          {{ isEditing ? 'Mise à jour des informations' : 'Création d’un nouveau taxi' }}
-        </small>-->
+
       </div>
 
       <button type="button" class="btn-close btn-close-white ms-auto"
@@ -339,21 +357,16 @@ trouvé.
   (click)="openVerifyIdentityModal(verifyIdentityModal, selectedTaxi)">
   <i class="bi bi-key me-1"></i> Changer mot de passe
 </button>
-      
       <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
         <i class="bi bi-x-circle"></i> Annuler
       </button>
-
       <button class="btn btn-gradient-primary"
               [disabled]="taxiForm.invalid"
               (click)="saveTaxi()">
         <i class="bi bi-save"></i>
         {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
       </button>
-
-
     </div>
-
   </div>
 </ng-template>
 
@@ -428,9 +441,7 @@ trouvé.
 </div>
 <!-- Footer -->
 <div class="modal-footer">
-<!-- <button class="btn btn-outline-secondary" (click)="printDetails()">
-<i class="bi bi-printer me-1"></i> Imprimer
-</button>-->
+
 <button class="btn btn-outline-danger" (click)="downloadDetailsPDF()">
 <i class="bi bi-file-earmark-pdf me-1"></i> PDF
 </button>
@@ -693,10 +704,7 @@ Annuler
 </div>
 <div class="modal-body">
 <form [formGroup]="verifyForm" class="form-modern">
-<!--<div class="form-floating mb-3">
-<input type="email" class="form-control" formControlName="email" readonly>
-<label>Email</label>
-</div>-->
+
 
 <div class="email-wrapper form-floating mb-3">
   <input

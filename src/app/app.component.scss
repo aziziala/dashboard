@@ -2,25 +2,39 @@
   min-height: 100vh;
 }
 
-/* BELOW TOPBAR */
 .app-body {
   display: flex;
-  margin-top: 64px; /* 🔥 same as topbar */
+  height: calc(100vh - 70px); // adjust to your topbar height
 }
 
-/* MAIN CONTENT */
-.main-content {
-  flex: 1;
-  margin-left: 250px;
-  padding: 1.5rem;
-  transition: margin-left 0.35s ease;
+app-sidebar {
+  width: 250px;
+  flex-shrink: 0;
 }
+
+
+
+
 
 /* COLLAPSED SIDEBAR */
 body.sidebar-collapsed {
   .main-content {
     margin-left: 70px;
   }
+}
+
+.main-content {
+  flex: 1;
+  margin: 0 !important;
+  padding: 20px;
+}
+
+/* SMS mode */
+.main-content.sms-full {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #0f172a !important;
+  overflow: hidden;
 }
 
 /* MOBILE */

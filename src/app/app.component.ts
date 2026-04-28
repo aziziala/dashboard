@@ -26,4 +26,9 @@ document:any;
     }
     return route;
   }
+
+  isSmsPage(): boolean {
+  return this.router.url.includes('/sms');
+}
+
 }

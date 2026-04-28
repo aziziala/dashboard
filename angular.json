@@ -75,7 +75,8 @@
               
             },
             "development": {
-              "buildTarget": "sms-taxi-admin:build:development"
+              "buildTarget": "sms-taxi-admin:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

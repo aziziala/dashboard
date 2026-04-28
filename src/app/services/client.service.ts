@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin,Observable } from 'rxjs';
 import { Client } from '../models/client.model';
 import { environment } from '../../environments/environment';
+import { PagedClientsResponse } from '../models/paged-clients-response';
 
 @Injectable({
   providedIn: 'root'
@@ -70,27 +71,33 @@ addClientWithUser(client: Client, password: string) {
   /*updateClient(id: number, client: Client): Observable<Client> {
     return this.http.put<Client>(`${this.baseUrl}/update-client/${id}`, client);
   }*/
- updateClient(client: Client) {
-   const updateClient$ = this.http.patch(
-     `${this.baseUrl}/update-client/${client.id}`,
-     client
-   );
- 
-   const updateUser$ = this.http.patch(
-     `${this.auth}/jwt-authentication/api/auth/users-update/${client.telephone}`,
-     {
-       username: client.nom,
-       email: client.email,
-       phone: client.telephone
-     }
-   );
- 
+updateClient(client: Client, oldTelephone: string) {
+
+  const updateClient$ = this.http.patch(
+    `${this.baseUrl}/update-client/${client.id}`,
+    client
+  );
+
+  const updateUser$ = this.http.patch(
+    `${this.auth}/jwt-authentication/api/auth/users-update/${oldTelephone}`,
+    {
+      username: client.nom,
+      email: client.email,
+      phone: client.telephone
+    }
+  );
+console.log("Payload for user update:", {
+  username: client.nom,
+  email: client.email,
+  phone: client.telephone
+});
+
   return forkJoin({
-   client: updateClient$,
-   user: updateUser$
- });
- 
- }
+    client: updateClient$,
+    user: updateUser$
+  });
+}
+
 
   updateClientByPhone(phone: string, client: Client): Observable<Client> {
     return this.http.put<Client>(`${this.baseUrl}/update_client_phone/${phone}`, client);
@@ -178,11 +185,18 @@ addClientWithUser(client: Client, password: string) {
   }
 
   // Client Search and Filter
-  searchClients(query: string): Observable<Client[]> {
+  /*searchClients(query: string): Observable<Client[]> {
     return this.http.get<Client[]>(`${this.baseUrl}/search-clients`, {
       params: { q: query }
     });
-  }
+  }*/
+
+  searchClientsByPhone(phone: string): Observable<Client> {
+  return this.http.get<Client>(
+    `${this.baseUrl}/get-Clientnumero_telephone/${phone}`
+  );
+}
+
 
   filterClients(filters: any): Observable<Client[]> {
     return this.http.post<Client[]>(`${this.baseUrl}/filter-clients`, filters);
@@ -287,4 +301,11 @@ addClientWithUser(client: Client, password: string) {
   getClientFeedback(clientId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/client-feedback/${clientId}`);
   }
+
+  getClients(page: number = 0, size: number = 5): Observable<PagedClientsResponse> {
+  return this.http.get<PagedClientsResponse>(
+    `${this.baseUrl}/get-all-clients?page=${page}&size=${size}`
+  );
+}
+
 }

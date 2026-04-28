@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SmsService } from '../../services/sms.service';
-import { SmsRecord, SmsStatus, SmsType, SmsStatistics } from '../../models/sms-record.model';
+import { SmsRecord, SmsStatus, SmsType, SmsStatistics, SmsInStatistics } from '../../models/sms-record.model';
 import { ChartType, smsChartOptions } from '../../models/chart.model';
 
 @Component({
@@ -23,10 +23,25 @@ export class SmsManagementComponent implements OnInit {
   itemsPerPage = 15;
   totalItems = 0;
   isEditing = false;
+  totalSmsCount: number = 0;
   
   // Make Math available in template
   Math = Math;
   
+// stats
+
+dailyStats = {
+  today: 0,
+  yesterday: 0,
+  trend: 0
+};
+
+monthlyStats = {
+  thisMonth: 0,
+  lastMonth: 0,
+  trend: 0
+};
+
   // SMS Statistics
   smsStats: SmsStatistics = {
     totalSms: 0,
@@ -42,7 +57,13 @@ export class SmsManagementComponent implements OnInit {
     dailyVolume: [],
     hourlyDistribution: []
   };
-
+  smsStatsIn: SmsInStatistics = {
+  totalSms: 0,
+  processedSms: 0,
+  unprocessedSms: 0,
+  processingRate: 0,
+  monthlyVolume: {}
+};
   // Chart options
   smsChartOptions: ChartType = smsChartOptions;
   
@@ -64,59 +85,94 @@ export class SmsManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadSmsRecords();
     this.loadSmsStatistics();
-    this.loadSmsGatewayStatus();
+    this.loadTotalSmsCount();
   }
-
+loadTotalSmsCount(): void {
+  this.smsService.getTotalSmsCount().subscribe({
+    next: (count) => {
+      this.totalSmsCount = count;
+    },
+    error: (err) => {
+      console.error('Error loading total SMS count', err);
+    }
+  });
+}
   loadSmsRecords(): void {
-    this.isLoading = true;
-    this.smsService.getSmsRecords().subscribe({
-      next: (records) => {
-        this.smsRecords = records;
-        this.filteredSmsRecords = records;
-        this.totalItems = records.length;
-        this.updatePagination();
-        this.calculateStatistics();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading SMS records:', error);
-        this.isLoading = false;
-      }
-    });
-  }
+  this.isLoading = true;
+  this.smsService.getSmsRecords().subscribe({
+    next: (records) => {
+      // Map API response to match template usage
+      this.smsRecords = records.map(record => ({
+        ...record,
+        // Optionally compute extra fields if needed
+        // For example, you can set a default SMS gateway or status text
+        smscId: record['smscId'] || 'Default', // optional
+        // If you want, map traitement to status text
+        statusLabel: record.traitement ? 'Delivered' : 'Pending'
+      }));
+      this.filteredSmsRecords = this.smsRecords;
+      this.totalItems = this.smsRecords.length;
+      this.updatePagination();
+      this.calculateStatistics(records);
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('Error loading SMS records:', error);
+      this.isLoading = false;
+    }
+  });
+}
 
-  loadSmsStatistics(): void {
-    // Load total SMS count from SMSout backend
-    this.smsService.getTotalSmsCount().subscribe({
-      next: (totalCount) => {
-        this.smsStats.totalSms = totalCount;
-        // Calculate other statistics based on loaded records
-        this.calculateStatistics();
-      },
-      error: (error) => {
-        console.error('Error loading SMS statistics:', error);
-        this.calculateStatistics();
-      }
-    });
-  }
 
-  calculateStatistics(): void {
-    const records = this.smsRecords;
-    this.smsStats.deliveredSms = records.filter(r => r.status === SmsStatus.DELIVERED).length;
-    this.smsStats.sentSms = records.filter(r => r.status === SmsStatus.SENT).length;
-    this.smsStats.failedSms = records.filter(r => r.status === SmsStatus.FAILED).length;
-    this.smsStats.pendingSms = records.filter(r => r.status === SmsStatus.PENDING).length;
-    
-    const totalProcessed = this.smsStats.deliveredSms + this.smsStats.sentSms + this.smsStats.failedSms;
-    this.smsStats.successRate = totalProcessed > 0 ? 
-      ((this.smsStats.deliveredSms + this.smsStats.sentSms) / totalProcessed) * 100 : 0;
-  }
+loadSmsStatistics(): void {
+  this.smsService.getSmsRecords().subscribe({
+    next: (records) => {
+      this.calculateStatistics(records);
+      this.startCounters();     // ✅ Perfect location
+      this.buildMonthlyChart();
+      console.log('Records:', records);
+    },
+    error: (error) => {
+      console.error('Error loading SMS statistics:', error);
+    }
+  });
+}
+buildMonthlyChart(): void {
+  const categories = Object.keys(this.smsStatsIn.monthlyVolume).sort();
+  const data = categories.map(key => this.smsStatsIn.monthlyVolume[key]);
 
-  loadSmsGatewayStatus(): void {
-    // Load SMS gateway status information
-    // This would typically come from a monitoring service
-    console.log('Loading SMS gateway status...');
-  }
+  this.smsChartOptions = {
+    ...this.smsChartOptions,
+    series: [{
+      name: 'Incoming SMS',
+      data
+    }],
+    xaxis: {
+      categories
+    }
+  };
+}
+
+  calculateStatistics(records: any[]): void {
+
+  const total = records.length;
+
+  const delivered = records.filter(r => r.traitement === true).length;
+  const pending = records.filter(r => r.traitement === false).length;
+
+  this.smsStats.totalSms = total;
+  this.smsStats.deliveredSms = delivered;
+  this.smsStats.pendingSms = pending;
+
+  // You don't have real sent/failed fields in backend
+  this.smsStats.sentSms = total;        // optional
+  this.smsStats.failedSms = 0;          // unless backend provides
+
+  this.smsStats.successRate =
+    total > 0 ? (delivered / total) * 100 : 0;
+
+  console.log('Calculated Stats:', this.smsStats);
+}
 
   filterSmsRecords(): void {
     this.filteredSmsRecords = this.smsRecords.filter(record => {
@@ -280,4 +336,63 @@ export class SmsManagementComponent implements OnInit {
       }
     });
   }
+
+animatedStats: any = {};
+
+ngAfterViewInit() {
+  setTimeout(() => {
+    this.startCounters();
+  }, 200);
 }
+
+startCounters() {
+   this.animatedStats = {}; 
+  const stats = [
+    { key: 'Total', value: this.smsStats.totalSms },
+    { key: 'Delivered', value: this.smsStats.deliveredSms },
+    { key: 'Sent', value: this.smsStats.sentSms },
+    { key: 'Pending', value: this.smsStats.pendingSms },
+    { key: 'Failed', value: this.smsStats.failedSms },
+    { key: 'Success %', value: this.smsStats.successRate }
+  ];
+
+  stats.forEach(stat => {
+    this.animateValue(stat.key, stat.value, 1000);
+  });
+}
+
+animateValue(key: string, end: number, duration: number) {
+  const start = 0;
+  const startTime = performance.now();
+
+  const update = (currentTime: number) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const value = Math.floor(progress * (end - start) + start);
+
+    this.animatedStats[key] = key === 'Success %'
+      ? value.toFixed(1) + '%'
+      : value;
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  };
+
+  requestAnimationFrame(update);
+}
+
+get statsCards() {
+  return [
+    { label: 'Total', value: this.totalSmsCount || 0, color: '#211F54' },
+    { label: 'Delivered', value: this.smsStats?.deliveredSms || 0, color: '#198754' },
+    //{ label: 'Sent', value: this.smsStats?.sentSms || 0, color: '#4B4BAF' },
+    { label: 'Pending', value: this.smsStats?.pendingSms || 0, color: '#FFC900' },
+    //{ label: 'Failed', value: this.smsStats?.failedSms || 0, color: '#FF0000' },
+    { label: 'Success %', value: (this.smsStats?.successRate || 0).toFixed(1) + '%', color: '#0dcaf0' }
+    
+  ];
+}
+
+}
+

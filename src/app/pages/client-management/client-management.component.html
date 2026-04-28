@@ -58,7 +58,7 @@
   <input
     type="text"
     class="search-input"
-    placeholder="Rechercher par nom ou téléphone..."
+    placeholder="Rechercher téléphone..."
     [(ngModel)]="searchTerm"
     (input)="searchClients()"
   />
@@ -125,14 +125,14 @@
           <div class="btn-group-actions">
             <button
               class="btn btn-sm btn-info me-1"
-              (click)="openViewModal(viewClientModal, client)"
-            >
+               (click)="openDetailsModal(viewModal, client)"
+            disabled>
               <i class="fas fa-eye"></i>
             </button>
             <button
               class="btn btn-sm btn-warning me-1"
               (click)="openEditModal(addEditModal, client)"
-            >
+            disabled>
               <i class="fas fa-edit"></i>
             </button>
             <button
@@ -451,8 +451,11 @@
 
     <!-- FOOTER -->
     <div class="modal-footer compact-footer">
-<button class="btn btn-outline-danger">
-  <i class="bi bi-key me-1"></i> Changer mot de passe
+<button 
+  *ngIf="isEditing"
+  type="button"
+  class="btn btn-outline-danger"
+  (click)="openChangePasswordModal()">
 </button>
       
       <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
@@ -482,10 +485,58 @@
   </div>
 </ng-template>
 
-<!-- View Client Modal -->
-<ng-template #viewClientModal let-modal>
 
+<ng-template #viewModal let-modal>
+<div class="modal-content">
+
+<div class="modal-header modal-header-enriched">
+<div class="header-avatar">
+<i class="fas fa-eye taxi-icon"></i>
+</div>
+<h5 class="modal-title">&ensp;Détails du Taxi</h5>
+<button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+<div class="row g-3" *ngIf="selectedClient">
+<div class="col-md-6">
+</div>
+<div class="col-md-6">
+</div>
+<div class="col-md-6">
+</div>
+<div class="col-md-6">
+</div>
+<div class="col-md-6">
+</div>
+<div class="col-md-6">
+</div>
+<div class="col-md-6">
+<div class="info-box">
+<span>Téléphone</span>
+<strong>{{ selectedClient.telephone }}</strong>
+</div>
+</div>
+<div class="col-md-6">
+<div class="info-box">
+<span>Email</span>
+<strong>{{ selectedClient.email }}</strong>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-outline-danger">
+<i class="bi bi-file-earmark-pdf me-1"></i> PDF
+</button>
+<button class="btn btn-gradient-primary" (click)="modal.dismiss()">
+Fermer
+</button>
+</div>
+</div>
 </ng-template>
+
 
 <!-- Edit Client Modal -->
 

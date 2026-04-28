@@ -11,6 +11,24 @@
     </div>
 
     <div class="d-flex align-items-center gap-1">
+<div class="app-switch">
+  <span class="label left" [class.active]="currentApp === 'SMSTaxi'">
+    SMS
+  </span>
+
+  <label class="switch">
+    <input
+      type="checkbox"
+      [checked]="currentApp === 'TaxiSelect'"
+      (change)="toggleApp($event)"
+    />
+    <span class="slider"></span>
+  </label>
+
+  <span class="label right" [class.active]="currentApp === 'TaxiSelect'">
+    SELECT
+  </span>
+</div>
       <a
         href="https://webmail.smstaxi.tn"
         target="_blank"

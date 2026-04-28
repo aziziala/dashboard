@@ -61,7 +61,7 @@
         <li [class.mm-active]="activeUrl.startsWith('/sms-gateway')">
           <a routerLink="/sms-gateway" [class.active]="activeUrl.startsWith('/sms-gateway')" title="SMS Gateway">
             <i class="bx bx-broadcast"></i>
-            <span key="t-sms-gateway">SMS Gateway</span>
+            <span key="t-sms-gateway">Gestion des parrainages</span>
           </a>
         </li>
         -->
@@ -71,7 +71,11 @@
 
 <div class="sidebar-logo">
    <a href="https://smstaxi.tn/" target="_blank">
-    <img src="assets/logoY.png" alt="Logo Y">
+    <img [src]="currentApp === 'SMSTaxi' 
+    ? 'assets/logoY.png' 
+    : 'assets/logoY0.png'"
+  alt="logo"
+/>
    </a>
 
 </div>

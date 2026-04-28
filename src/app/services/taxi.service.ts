@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin,Observable } from 'rxjs';
+import { forkJoin,Observable,BehaviorSubject,Subject } from 'rxjs';
 import { Taxi, TaxiStatus } from '../models/taxi.model';
 import { environment } from '../../environments/environment';
 import { PagedTaxisResponse } from '../models/paged-taxis-response';
@@ -14,6 +14,7 @@ export class TaxiService {
   private authUrl = environment.apiUrls.smsTaxidelete;
   private auth = environment.apiUrls.smsAuth;
   constructor(private http: HttpClient) { }
+  
 
   // Basic CRUD Operations
  
@@ -346,6 +347,20 @@ resetPassword(token: string, payload: { password: string }) {
     `${this.auth}/jwt-authentication/api/auth/reset-password?token=${token}`,
     payload
   );
+}
+
+// ================= APP SWITCH SYSTEM =================
+
+private appChangedSource = new Subject<'SMSTaxi' | 'TaxiSelect'>();
+appChanged$ = this.appChangedSource.asObservable();
+
+notifyAppChanged(app: 'SMSTaxi' | 'TaxiSelect') {
+  this.appChangedSource.next(app);
+}
+
+// set API base
+setBaseUrl(url: string) {
+  this.baseUrl = url;
 }
 
 }

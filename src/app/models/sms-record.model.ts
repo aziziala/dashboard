@@ -39,6 +39,7 @@ export interface SmsRecord {
   charset?: string;
   boxcId?: string;
   binfo?: string;
+  traitement: boolean;
 }
 
 export enum SmsStatus {
@@ -269,3 +270,11 @@ export interface SmsUsageReport {
     successRate: number[];
   };
 }
+export interface SmsInStatistics {
+  totalSms: number;
+  processedSms: number;
+  unprocessedSms: number;
+  processingRate: number;
+  monthlyVolume: { [month: string]: number };
+}
+

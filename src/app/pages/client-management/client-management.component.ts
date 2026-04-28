@@ -11,6 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 
 
@@ -56,13 +57,10 @@ clientPasswordModalRef?: NgbModalRef;
 addClientModalRef?: NgbModalRef;
 isUpdating = false;
 
-  clientStats = {
-    total: 0,
-    online: 0,
-    offline: 0
-  };
 
-
+clientStats = {
+  total: 0
+};
 
   @ViewChild('changePasswordModal') changePasswordModal!: any;
   // Make Math available in template
@@ -77,9 +75,9 @@ clientForm!: FormGroup;
     private fb: FormBuilder,
   ) { 
        this.clientForm = this.fb.group({
-             nomPrenom: ['', Validators.required],
+             nomPrenom: [''],
              numTel: ['', Validators.required],
-             type: [PhoneType.gsm, Validators.required],
+             type: [null, Validators.required],
              email: ['', [Validators.email]],           
            });
   }
@@ -92,7 +90,6 @@ clientForm!: FormGroup;
 /*******  dd904800-324d-4d2f-b91e-e0974173e467  *******/
   ngOnInit(): void {
     this.loadClients();
-
     this.clientForm = this.fb.group({
     nomPrenom: ['', Validators.required],
     telephone: ['', Validators.required],
@@ -115,7 +112,7 @@ clientForm!: FormGroup;
   });
   }
 
-  loadClients(page: number = 1): void {
+ loadClients(page: number = 1): void {
     this.isLoading = true;
 
     
@@ -165,9 +162,14 @@ clientForm!: FormGroup;
     }
   }
 
-  openViewModal(modal: any, client: Client): void {
+  /*openViewModal(modal: any, client: Client): void {
     this.selectedClient = client;
     this.modalService.open(modal, { size: 'lg' });
+  }*/
+
+    openDetailsModal(content: any, client: Client): void {
+    this.selectedClient = client;
+    this.modalService.open(content, { size: 'lg', backdrop: 'static' });
   }
 /**
  * Called when the client is deleted successfully.
@@ -248,6 +250,10 @@ clientEtatList: string[] = ['WAITING', 'IN_PROGRESS', 'EXPIRED', 'CANCELLED'];
 */
 
  saveClient() {
+console.log('saveClient clicked');
+  console.log('Form valid?', this.clientForm.valid);
+  console.log('Form errors:', this.clientForm.errors);
+  console.log('Controls:', this.clientForm.controls);
 
   if (this.clientForm.invalid) {
     this.clientForm.markAllAsTouched();
@@ -256,7 +262,7 @@ clientEtatList: string[] = ['WAITING', 'IN_PROGRESS', 'EXPIRED', 'CANCELLED'];
 
   const clientData: Client = {
     id: this.editingClientId || 0,
-    nom: this.clientForm.value.nomPrenom,
+    nom: this.isEditing ? this.selectedClient.nom : this.clientForm.value.nomPrenom,
     email: this.clientForm.value.email,
     type: this.clientForm.value.type,
     telephone: this.clientForm.value.telephone,
@@ -290,6 +296,10 @@ clientEtatList: string[] = ['WAITING', 'IN_PROGRESS', 'EXPIRED', 'CANCELLED'];
 openAddModal(content: any) {
   this.isEditing = false;
   this.clientForm.reset();
+
+  this.clientForm.get('nomPrenom')?.setValidators(Validators.required);
+  this.clientForm.get('nomPrenom')?.updateValueAndValidity();
+
   this.addClientModalRef = this.modalService.open(content, {
   size: 'lg',
   backdrop: 'static',
@@ -303,6 +313,10 @@ openEditModal(content: any, client: Client): void {
 
   this.isEditing = true;
   this.editingClientId = client.id;
+
+  this.clientForm.get('nomPrenom')?.clearValidators();
+  this.clientForm.get('nomPrenom')?.updateValueAndValidity();
+
   this.selectedClient = client;
   // Patch form values from selected client
   this.clientForm.patchValue({
@@ -455,13 +469,20 @@ updateClient(clientData: Client) {
 
   if (this.isUpdating) return;
 
+  if (!this.selectedClient) return;
+
   this.isUpdating = true;
+
+  // 🔥 IMPORTANT: garder l'ancien téléphone pour le path
+  const oldTelephone = this.selectedClient.telephone;
 
   console.log('%cStarting client + user update...',
     'color: orange; font-weight: bold;');
   console.log('Client ID:', clientData.id);
+  console.log('Old telephone (PATH):', oldTelephone);
+  console.log('New telephone (BODY):', clientData.telephone);
 
-  this.clientService.updateClient(clientData).pipe(
+  this.clientService.updateClient(clientData, oldTelephone).pipe(
 
     finalize(() => {
       this.isUpdating = false;
@@ -512,7 +533,6 @@ updateClient(clientData: Client) {
 
       switch (err.status) {
 
-        // ⭐ 404
         case 404:
           this.toastr.error(
             backendMessage || 'Client introuvable.',
@@ -520,7 +540,6 @@ updateClient(clientData: Client) {
           );
           break;
 
-        // ⭐ 400
         case 400:
           this.toastr.warning(
             backendMessage,
@@ -528,7 +547,6 @@ updateClient(clientData: Client) {
           );
           break;
 
-        // ⭐ 409 (VERY important for updates)
         case 409:
           this.toastr.error(
             backendMessage || 'Conflit de données.',
@@ -536,7 +554,6 @@ updateClient(clientData: Client) {
           );
           break;
 
-        // ⭐ 500
         case 500:
           this.toastr.error(
             'Erreur interne du serveur. Veuillez réessayer.',
@@ -553,7 +570,6 @@ updateClient(clientData: Client) {
     }
   });
 }
-
 
   passwordMatchValidator(group: FormGroup) {
     const password = group.get('newPassword')?.value;
@@ -857,8 +873,14 @@ getTypeLabel(type: string): string {
 }
 
 searchClients(): void {
-  this.searchSubject.next(this.searchTerm);
+  const term = this.searchTerm.trim();
+  this.currentPage = 1;
+  this.isSearching = /^\d+$/.test(term); // true only if digits
+  this.searchPhone = this.isSearching ? term : undefined;
+  this.loadClients(1);
 }
+
+
 
 
 performSearch(term: string): void {
@@ -889,6 +911,20 @@ clearSearch(): void {
   this.searchName = undefined;
   this.currentPage = 1;
   this.loadClients(this.currentPage);
+}
+
+openChangePasswordModal() {
+  if (!this.selectedClient) return;
+
+  console.log('Opening change password modal...');
+
+  this.clientPasswordModalRef = this.modalService.open(
+    this.changePasswordModal,
+    {
+      centered: true,
+      backdrop: 'static'
+    }
+  );
 }
 
 }

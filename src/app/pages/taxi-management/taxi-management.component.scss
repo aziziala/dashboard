@@ -1,9 +1,10 @@
 /* =========================
    MODAL
 ========================= */
-.container-fluid{
-  margin-top: -4% !important; 
-  margin-bottom: 3%;
+.container-fluid {
+  padding: 20px 24px;
+  background: linear-gradient(180deg, #f8fafc, #eef2ff);
+  min-height: 100%;
 }
 .modal-content {
   border: none;
@@ -115,9 +116,9 @@
   background: linear-gradient(135deg, #211F54, #4B4BAF);
   border: none;
   color: #fff;
-  padding: 0.5rem 1.2rem;   // slightly smaller padding
+  padding: 0.6rem 1.2rem;   // slightly smaller padding
   font-weight: 500;
-  font-size: 0.875rem;     // ↓ text size (14px)
+  font-size: 0.855rem;     // ↓ text size (14px)
   line-height: 1.2;        // keeps height tight
   border-radius: 0.5rem;
   transition: all 0.3s ease;
@@ -505,21 +506,7 @@ body.dark-mode {
   }
 }
 
-/* =========================
-   CARDS
-========================= */
 
-$shadow: 0 2px 6px rgba(0,0,0,0.2);
-.card {
-  border-radius: 0.5rem;
-  box-shadow: $shadow;
-  transition: transform 0.2s;
-
-  &:hover { transform: translateY(-2px); }
-
-  .card-title { font-weight: 600; }
-  .card-text { font-size: 2rem; font-weight: bold; }
-}
 /* Table action buttons */
 .btn-group-actions {
   display: flex;
@@ -891,5 +878,171 @@ $shadow: 0 2px 6px rgba(0,0,0,0.2);
     &:active {
       transform: translateY(-50%) scale(0.96);
     }
+  }
+}
+
+.app-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #211F54;
+  }}
+
+  .toggle-wrapper {
+    position: relative;
+    width: 64px;
+    height: 32px;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #e4e4e7;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+
+      /* subtle shadow */
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+
+      &::before {
+        content: "";
+        position: absolute;
+        height: 26px;
+        width: 26px;
+        left: 3px;
+        top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      }
+
+      /* ON text */
+      &::after {
+        content: "ON";
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        font-weight: 600;
+        color: white;
+        opacity: 0;
+        transition: 0.3s;
+      }
+    }
+
+    /* CHECKED STATE */
+    input:checked + .slider {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+
+      &::before {
+        transform: translateX(32px);
+      }
+
+      &::after {
+        opacity: 1;
+      }
+    }
+  }
+/* =========================
+   UNIFIED STATS CARDS
+========================= */
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* CARD BASE */
+.stats-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px;
+  border-radius: 14px;
+
+  background: #f8f9fc;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+
+  transition: all 0.25s ease;
+  min-height: 90px;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  .icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    color: white;
+  }
+
+  .info {
+    span {
+      font-size: 13px;
+      color: #6c757d;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+  }
+}
+
+/* COLORS */
+.stats-card.total .icon {
+  background: #4b4baf;
+}
+.stats-card.total h3 { color: #4b4baf; }
+
+.stats-card.approved .icon {
+  background: #22c55e;
+}
+.stats-card.approved h3 { color: #22c55e; }
+
+.stats-card.pending .icon {
+  background: #f59e0b;
+}
+.stats-card.pending h3 { color: #f59e0b; }
+
+.stats-card.rejected .icon {
+  background: #ef4444;
+}
+.stats-card.rejected h3 { color: #ef4444; }
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-row {
+    grid-template-columns: 1fr;
   }
 }

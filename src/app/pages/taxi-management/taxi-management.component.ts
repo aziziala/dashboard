@@ -29,6 +29,9 @@ pdfMake.vfs = pdfFonts.vfs;
   styleUrls: ['./taxi-management.component.scss']
 })
 export class TaxiManagementComponent implements OnInit {
+currentApp = 'SMSselect'; // par default el select
+
+
 resetToken!: string;
 
 pendingTaxiData!: Taxi;
@@ -169,10 +172,34 @@ submitPasswordChange() {
 
 
 
-  ngOnInit(): void {
-    this.loadTaxis(this.currentPage);
-    
-this.passwordForm = this.fb.group({
+ngOnInit(): void {
+
+  const savedApp = localStorage.getItem('currentApp');
+
+  if (savedApp) {
+    this.currentApp = savedApp as any;
+
+    const url = this.currentApp === 'SMSTaxi'
+      ? 'http://41.225.11.231:8777/taxi-client/api'
+      : 'http://41.225.11.231:8444/taxi-client/api';
+
+    this.taxiService.setBaseUrl(url);
+  }
+
+ 
+  this.taxiService.appChanged$.subscribe(() => {
+    this.currentPage = 1;
+    this.searchTerm = '';
+    this.isSearching = false;
+
+    this.loadTaxis(1);
+  });
+
+  // initial load
+  this.loadTaxis(this.currentPage);
+
+  // form init (keep as is)
+  this.passwordForm = this.fb.group({
     newPassword: [
       '',
       [
@@ -184,8 +211,7 @@ this.passwordForm = this.fb.group({
     confirmPassword: ['', Validators.required]
   }, { validators: this.passwordMatchValidator });
 
-
-  }
+}
 
   /** ✅ Loads taxis and regenerates pagination pages */
   /*loadTaxis(page: number): void {
@@ -395,7 +421,7 @@ saveTaxi() {
     email: this.taxiForm.value.email,
     traitement: false,
     destination: this.taxiForm.value.destination || '',
-    contenu: null
+    contenu: ''
   };
 
   // =======================
@@ -818,7 +844,7 @@ doc.line(60, 48, pageWidth - 60, 48);
     'Téléphone',
     'Statut'
   ]],
-  body: tableBody,
+body: tableBody as any,
   startY: 50,
   theme: 'grid',
   headStyles: {
@@ -1223,7 +1249,7 @@ openVerifyIdentityModal(content: any, taxi: Taxi) {
 
   this.verifyForm.patchValue({
     email: taxi.email,
-    telephone: taxi.telephone
+    numTel: taxi.telephone
   });
 
   this.modalService.open(content, {
@@ -1258,7 +1284,7 @@ sendVerificationCode(modal: any) {
 
   const payload = {
     email: this.verifyForm.get('email')?.value,
-    phone: this.verifyForm.get('telephone')?.value // 👈 mapping here
+    phone: this.verifyForm.get('numTel')?.value // 👈 mapping here
   };
 
   this.taxiService.sendPasswordResetCode(payload).subscribe({
@@ -1554,6 +1580,32 @@ useDefaultEmail() {
 }
 
 
+/*toggleApp(event: any) {
+
+  const isChecked = event.target.checked;
+
+  this.currentApp = isChecked ? 'SMSTaxi' : 'SMSselect';
+
+  const url = isChecked
+    ? 'http://41.225.11.231:2000/taxi-client/api'
+    : 'http://41.225.11.231:1000/taxi-client/api';
+
+
+  this.taxiService.setBaseUrl(url);
+
+  
+  localStorage.setItem('currentApp', this.currentApp);
+
+  this.currentPage = 1;
+  this.isSearching = false;
+  this.searchTerm = '';
+
+ 
+  this.loadTaxis(1);
+
+  console.log('%cSwitched to: ' + this.currentApp, 'color: blue; font-weight:bold;');
+}
+*/
 }
 
 
