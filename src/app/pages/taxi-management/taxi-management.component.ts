@@ -1471,6 +1471,7 @@ searchTaxis(): void {
 }
 submitNewPassword(modal: any) {
 
+  
   if (this.passwordForm.invalid || this.isSending) return;
 
   this.isSending = true;
@@ -1578,34 +1579,6 @@ submitNewPassword(modal: any) {
 useDefaultEmail() {
   this.verifyForm.get('email')?.setValue('kais.fahem@smstaxi.tn');
 }
-
-
-/*toggleApp(event: any) {
-
-  const isChecked = event.target.checked;
-
-  this.currentApp = isChecked ? 'SMSTaxi' : 'SMSselect';
-
-  const url = isChecked
-    ? 'http://41.225.11.231:2000/taxi-client/api'
-    : 'http://41.225.11.231:1000/taxi-client/api';
-
-
-  this.taxiService.setBaseUrl(url);
-
-  
-  localStorage.setItem('currentApp', this.currentApp);
-
-  this.currentPage = 1;
-  this.isSearching = false;
-  this.searchTerm = '';
-
- 
-  this.loadTaxis(1);
-
-  console.log('%cSwitched to: ' + this.currentApp, 'color: blue; font-weight:bold;');
-}
-*/
 }
 
 

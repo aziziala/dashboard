@@ -4,6 +4,8 @@ import { TaxiService } from '../../services/taxi.service';
 import { ClientService } from '../../services/client.service';
 import { SmsService } from '../../services/sms.service';
 import { FleetService } from '../../services/fleet.service';
+import { StatisticsService } from '../../services/statistics.service';
+import {  } from '../../services/fleet.service';
 import { ChartType, revenueChartOptions, smsChartOptions, taxiActivityChartOptions, monthlyEarningChartOptions } from '../../models/chart.model';
 
 @Component({
@@ -41,7 +43,8 @@ export class AnalyticsComponent implements OnInit {
     private taxiService: TaxiService,
     private clientService: ClientService,
     private smsService: SmsService,
-    private fleetService: FleetService
+    private fleetService: FleetService,
+    private statisticsService: StatisticsService
   ) { }
 
   ngOnInit(): void {
@@ -49,58 +52,72 @@ export class AnalyticsComponent implements OnInit {
     this.initializeCharts();
   }
 
-  loadAnalyticsData(): void {
-    this.isLoading = true;
-    
-    // Load various analytics data
-    Promise.all([
-      this.loadTopPerformers(),
-      this.loadRevenueData(),
-      this.loadRideFrequency(),
-      this.loadOverallStatistics()
-    ]).finally(() => {
-      this.isLoading = false;
-    });
-  }
+loadAnalyticsData(): void {
+  this.isLoading = true;
 
-  loadTopPerformers(): Promise<void> {
-    return new Promise((resolve) => {
-      // Simulate loading top performing taxis
-      this.topTaxis = [
-        { id: 1, name: 'Taxi-001', driver: 'Ahmed Hassan', revenue: 2500, rides: 45, rating: 4.8 },
-        { id: 2, name: 'Taxi-002', driver: 'Fatima Zahra', revenue: 2300, rides: 42, rating: 4.7 },
-        { id: 3, name: 'Taxi-003', driver: 'Mohammed Ali', revenue: 2100, rides: 38, rating: 4.6 },
-        { id: 4, name: 'Taxi-004', driver: 'Amina Ben', revenue: 1900, rides: 35, rating: 4.5 },
-        { id: 5, name: 'Taxi-005', driver: 'Omar Khalil', revenue: 1800, rides: 33, rating: 4.4 }
-      ];
-      
-      this.topClients = [
-        { id: 1, name: 'Karim Ben', phone: '+212-6-1234-5678', rides: 28, totalSpent: 850, lastRide: '2024-01-15' },
-        { id: 2, name: 'Sara Ahmed', phone: '+212-6-2345-6789', rides: 25, totalSpent: 780, lastRide: '2024-01-14' },
-        { id: 3, name: 'Youssef Ali', phone: '+212-6-3456-7890', rides: 22, totalSpent: 720, lastRide: '2024-01-13' },
-        { id: 4, name: 'Layla Hassan', phone: '+212-6-4567-8901', rides: 20, totalSpent: 680, lastRide: '2024-01-12' },
-        { id: 5, name: 'Adam Khalil', phone: '+212-6-5678-9012', rides: 18, totalSpent: 620, lastRide: '2024-01-11' }
-      ];
-      
-      resolve();
-    });
-  }
+  Promise.all([
+    this.loadTopPerformers(),
+    this.loadRevenueData(),
+    this.loadRideFrequency(),
+    this.loadOverview() // ✅ NEW
+  ]).finally(() => {
+    this.isLoading = false;
+  });
+}
 
-  loadRevenueData(): Promise<void> {
-    return new Promise((resolve) => {
-      // Simulate revenue data based on period
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      this.revenueData = months.map((month, index) => ({
-        month,
-        revenue: Math.floor(Math.random() * 5000) + 10000,
-        rides: Math.floor(Math.random() * 200) + 300,
-        profit: Math.floor(Math.random() * 2000) + 4000
-      }));
-      
-      resolve();
-    });
-  }
+loadTopPerformers(): Promise<void> {
+  return new Promise((resolve) => {
 
+    this.statisticsService.getTopTaxis()
+      .subscribe((res) => {
+        this.topTaxis = res;
+      });
+
+    this.statisticsService.getTopClients()
+      .subscribe((res) => {
+        this.topClients = res;
+      });
+
+    resolve();
+  });
+}
+
+loadRevenueData(): Promise<void> {
+  return new Promise((resolve) => {
+
+    this.statisticsService.getRevenueTrends(this.from, this.to)
+      .subscribe((res: any[]) => {
+
+        // store raw data if you need it
+        this.revenueData = res;
+
+        // 🔥 map data for charts
+        const categories = res.map(item => item.bucketStart);
+        const revenues = res.map(item => item.revenue);
+        const rides = res.map(item => item.rides);
+        const profits = res.map(item => item.profit ?? 0);
+
+        // ✅ update chart directly (better than re-init)
+        this.revenueChartOptions.series = [
+          {
+            name: 'Revenue',
+            data: revenues
+          },
+          {
+            name: 'Profit',
+            data: profits
+          }
+        ];
+
+        this.revenueChartOptions.xaxis = {
+          categories: categories
+        };
+
+        resolve();
+      });
+
+  });
+}
   loadRideFrequency(): Promise<void> {
     return new Promise((resolve) => {
       // Simulate ride frequency data
@@ -115,19 +132,25 @@ export class AnalyticsComponent implements OnInit {
     });
   }
 
-  loadOverallStatistics(): Promise<void> {
-    return new Promise((resolve) => {
-      // Simulate overall statistics
-      this.totalRevenue = 125000;
-      this.totalRides = 2847;
-      this.averageRating = 4.6;
-      this.totalClients = 456;
-      this.totalTaxis = 89;
-      this.successRate = 94.2;
-      
-      resolve();
-    });
-  }
+from = '2026-04-01';
+to = '2026-04-30';
+
+loadOverview(): Promise<void> {
+  return new Promise((resolve) => {
+
+    this.statisticsService.getOverview(this.from, this.to)
+      .subscribe((res: any) => {
+
+        this.totalRevenue = res.totalRevenue;
+        this.totalRides = res.totalRides;
+        this.totalClients = res.totalClients;
+        this.totalTaxis = res.totalTaxis;
+        this.successRate = res.successRate * 100;
+
+        resolve();
+      });
+  });
+}
 
   initializeCharts(): void {
     // Revenue Chart

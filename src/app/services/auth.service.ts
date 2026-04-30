@@ -45,6 +45,18 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
   
+  verifyIdentity(data: any) {
+  return this.http.post<any>(
+    'http://41.225.11.231:8777/iwt-authentication/api/auth/verify-identity',
+    data
+  );
+}
+resetPassword(token: string, password: string) {
+  return this.http.post<any>(
+    `http://41.225.11.231:8777/iwt-authentication/api/auth/reset-password?token=${token}`,
+    { newPassword: password }
+  );
+}
   isAuthenticated(): boolean {
     return this.currentUserValue !== null;
   }
