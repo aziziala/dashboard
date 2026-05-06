@@ -1,12 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TaxiService } from '../../services/taxi.service';
-import { ClientService } from '../../services/client.service';
-import { SmsService } from '../../services/sms.service';
-import { FleetService } from '../../services/fleet.service';
 import { StatisticsService } from '../../services/statistics.service';
-import {  } from '../../services/fleet.service';
-import { ChartType, revenueChartOptions, smsChartOptions, taxiActivityChartOptions, monthlyEarningChartOptions } from '../../models/chart.model';
 
 @Component({
   selector: 'app-analytics',
@@ -14,301 +7,252 @@ import { ChartType, revenueChartOptions, smsChartOptions, taxiActivityChartOptio
   styleUrls: ['./analytics.component.scss']
 })
 export class AnalyticsComponent implements OnInit {
-  isLoading = false;
-  selectedPeriod = 'monthly';
-  selectedYear = new Date().getFullYear();
-  
-  // Performance Data
-  topTaxis: any[] = [];
-  topClients: any[] = [];
-  revenueData: any[] = [];
-  rideFrequency: any[] = [];
-  
-  // Chart Options
-  revenueChartOptions: ChartType = revenueChartOptions;
-  performanceChartOptions: ChartType = smsChartOptions;
-  rideFrequencyChartOptions: ChartType = taxiActivityChartOptions;
-  topPerformersChartOptions: ChartType = monthlyEarningChartOptions;
-  
-  // Statistics
-  totalRevenue = 0;
-  totalRides = 0;
-  averageRating = 0;
-  totalClients = 0;
-  totalTaxis = 0;
-  successRate = 0;
 
-  constructor(
-    private modalService: NgbModal,
-    private taxiService: TaxiService,
-    private clientService: ClientService,
-    private smsService: SmsService,
-    private fleetService: FleetService,
-    private statisticsService: StatisticsService
-  ) { }
+  stats: any;
+  revenueStats: any;
+  trendChart: any;
+  ridesChart: any;
+
+  from = '2026-01-01';
+  to = new Date().toISOString().split('T')[0];
+
+  loading = false;
+  error = false;
+  activePreset = '';
+  periodLabel = '';
+
+  constructor(private statsService: StatisticsService) {}
 
   ngOnInit(): void {
-    this.loadAnalyticsData();
-    this.initializeCharts();
+    this.loadStats();
   }
 
-loadAnalyticsData(): void {
-  this.isLoading = true;
+  // ─── DATE PRESETS ────────────────────────────────
+  setPreset(preset: string): void {
+    this.activePreset = preset;
+    const today = new Date();
+    const yyyy  = today.getFullYear();
+    const mm    = today.getMonth();
+    const dd    = today.getDate();
 
-  Promise.all([
-    this.loadTopPerformers(),
-    this.loadRevenueData(),
-    this.loadRideFrequency(),
-    this.loadOverview() // ✅ NEW
-  ]).finally(() => {
-    this.isLoading = false;
-  });
-}
+    switch (preset) {
+      case 'today':
+        this.from = this.to = this.fmt(today);
+        this.periodLabel = "Aujourd'hui";
+        break;
 
-loadTopPerformers(): Promise<void> {
-  return new Promise((resolve) => {
+      case 'week': {
+        const d = new Date(today);
+        d.setDate(dd - 6);
+        this.from = this.fmt(d);
+        this.to   = this.fmt(today);
+        this.periodLabel = 'Cette semaine';
+        break;
+      }
 
-    this.statisticsService.getTopTaxis()
-      .subscribe((res) => {
-        this.topTaxis = res;
-      });
+      case 'month':
+        this.from = this.fmt(new Date(yyyy, mm, 1));
+        this.to   = this.fmt(today);
+        this.periodLabel = 'Ce mois';
+        break;
 
-    this.statisticsService.getTopClients()
-      .subscribe((res) => {
-        this.topClients = res;
-      });
+      case 'year':
+        this.from = `${yyyy}-01-01`;
+        this.to   = this.fmt(today);
+        this.periodLabel = 'Cette année';
+        break;
+    }
 
-    resolve();
-  });
-}
+    this.loadStats();
+  }
 
-loadRevenueData(): Promise<void> {
-  return new Promise((resolve) => {
+  private fmt(d: Date): string {
+    return d.toISOString().split('T')[0];
+  }
 
-    this.statisticsService.getRevenueTrends(this.from, this.to)
-      .subscribe((res: any[]) => {
+  // ─── LOAD DATA ───────────────────────────────────
+  loadStats(): void {
+    this.loading = true;
+    this.error   = false;
 
-        // store raw data if you need it
-        this.revenueData = res;
+    // Overview
+    this.statsService.getOverview(this.from, this.to).subscribe({
+      next: (res) => {
+        this.stats   = res;
+        this.loading = false;
+        this.initRidesChart();
+      },
+      error: () => {
+        this.error   = true;
+        this.loading = false;
+      }
+    });
 
-        // 🔥 map data for charts
-        const categories = res.map(item => item.bucketStart);
-        const revenues = res.map(item => item.revenue);
-        const rides = res.map(item => item.rides);
-        const profits = res.map(item => item.profit ?? 0);
+    // Revenue details
+    this.statsService.getRevenueStats(this.from, this.to).subscribe({
+      next: (res) => this.revenueStats = res,
+      error: () => {}
+    });
 
-        // ✅ update chart directly (better than re-init)
-        this.revenueChartOptions.series = [
-          {
-            name: 'Revenue',
-            data: revenues
-          },
-          {
-            name: 'Profit',
-            data: profits
-          }
-        ];
-
-        this.revenueChartOptions.xaxis = {
-          categories: categories
-        };
-
-        resolve();
-      });
-
-  });
-}
-  loadRideFrequency(): Promise<void> {
-    return new Promise((resolve) => {
-      // Simulate ride frequency data
-      const hours = Array.from({length: 24}, (_, i) => i);
-      this.rideFrequency = hours.map(hour => ({
-        hour: `${hour}:00`,
-        rides: Math.floor(Math.random() * 50) + 10,
-        revenue: Math.floor(Math.random() * 500) + 100
-      }));
-      
-      resolve();
+    // Trends
+    this.statsService.getRevenueTrends(this.from, this.to).subscribe({
+      next: (res) => this.initTrendChart(res),
+      error: () => {}
     });
   }
 
-from = '2026-04-01';
-to = '2026-04-30';
+  // ─── RIDES BAR CHART ────────────────────────────
+  private initRidesChart(): void {
+    if (!this.stats) return;
 
-loadOverview(): Promise<void> {
-  return new Promise((resolve) => {
-
-    this.statisticsService.getOverview(this.from, this.to)
-      .subscribe((res: any) => {
-
-        this.totalRevenue = res.totalRevenue;
-        this.totalRides = res.totalRides;
-        this.totalClients = res.totalClients;
-        this.totalTaxis = res.totalTaxis;
-        this.successRate = res.successRate * 100;
-
-        resolve();
-      });
-  });
-}
-
-  initializeCharts(): void {
-    // Revenue Chart
-    this.revenueChartOptions = {
+    this.ridesChart = {
       series: [{
-        name: 'Revenue',
-        data: this.revenueData.map(d => d.revenue)
-      }, {
-        name: 'Profit',
-        data: this.revenueData.map(d => d.profit)
-      }],
-      chart: {
-        type: 'area',
-        height: 350,
-        toolbar: {
-          show: false
-        }
-      },
-      colors: ['#0d6efd', '#28a745'],
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth',
-        width: 2
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shadeIntensity: 1,
-          opacityFrom: 0.7,
-          opacityTo: 0.2
-        }
-      },
-      xaxis: {
-        categories: this.revenueData.map(d => d.month)
-      },
-      yaxis: {
-        labels: {
-          formatter: (value: number) => `$${value.toLocaleString()}`
-        }
-      },
-      tooltip: {
-        y: {
-          formatter: (value: number) => `$${value.toLocaleString()}`
-        }
-      }
-    };
-
-    // Performance Chart
-    this.performanceChartOptions = {
-      series: [{
-        name: 'Rides',
-        data: this.revenueData.map(d => d.rides)
+        name: 'Courses',
+        data: [
+          this.stats.avgRidesPerDay   || 0,
+          this.stats.avgRidesPerMonth || 0,
+          this.stats.avgRidesPerYear  || 0
+        ]
       }],
       chart: {
         type: 'bar',
-        height: 350,
-        toolbar: {
-          show: false
-        }
-      },
-      colors: ['#17a2b8'],
-      dataLabels: {
-        enabled: false
+        height: 300,
+        toolbar: { show: false },
+        fontFamily: 'inherit'
       },
       xaxis: {
-        categories: this.revenueData.map(d => d.month)
+        categories: ['Jour', 'Mois', 'Année'],
+        labels: { style: { fontWeight: 500 } }
       },
-      yaxis: {
-        labels: {
-          formatter: (value: number) => value.toLocaleString()
+      colors: ['#4B4BAF'],
+      plotOptions: {
+        bar: {
+          borderRadius: 8,
+          columnWidth: '50%'
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        style: { fontSize: '12px', fontWeight: 600 },
+        formatter: (val: number) => val.toFixed(1)
+      },
+      tooltip: {
+        y: {
+          formatter: (val: number) => `${val.toFixed(1)} courses`
         }
       }
     };
+  }
 
-    // Ride Frequency Chart
-    this.rideFrequencyChartOptions = {
-      series: [{
-        name: 'Rides per Hour',
-        data: this.rideFrequency.map(d => d.rides)
-      }],
-      chart: {
-        type: 'line',
-        height: 300,
-        toolbar: {
-          show: false
+  // ─── TREND CHART ────────────────────────────────
+  private initTrendChart(data: any[]): void {
+    if (!data || !data.length) {
+      this.trendChart = { series: [] };
+      return;
+    }
+
+    this.trendChart = {
+      series: [
+        {
+          name: 'Courses',
+          type: 'area',
+          data: data.map(d => d.rides || 0)
+        },
+        {
+          name: 'Revenus',
+          type: 'line',
+          data: data.map(d => d.revenue || 0)
         }
-      },
-      colors: ['#ffc107'],
-      dataLabels: {
-        enabled: false
+      ],
+      chart: {
+        height: 380,
+        type: 'line',
+        toolbar: {
+          show: true,
+          tools: { download: true, selection: false, zoom: true, zoomin: true, zoomout: true, pan: false }
+        },
+        fontFamily: 'inherit',
+        animations: { enabled: true, easing: 'easeinout', speed: 800 }
       },
       stroke: {
-        curve: 'smooth',
-        width: 3
+        width: [2, 3],
+        curve: 'smooth'
+      },
+      colors: ['#22c55e', '#4B4BAF'],
+      fill: {
+        type: 'gradient',
+        gradient: {
+          opacityFrom: 0.35,
+          opacityTo: 0.05,
+          shade: 'light',
+          type: 'vertical'
+        }
+      },
+      tooltip: {
+        shared: true,
+        intersect: false,
+        y: {
+          formatter: (val: number, opts: any) =>
+            opts.seriesIndex === 1
+              ? `${val.toLocaleString()} DT`
+              : `${val} courses`
+        }
       },
       xaxis: {
-        categories: this.rideFrequency.map(d => d.hour)
+        categories: data.map(d =>
+          new Date(d.bucketStart).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+        ),
+        labels: { style: { fontSize: '11px' } },
+        tickAmount: 10
       },
-      yaxis: {
-        labels: {
-          formatter: (value: number) => value.toLocaleString()
+      yaxis: [
+        {
+          title: { text: 'Courses', style: { fontSize: '12px', fontWeight: 500 } },
+          labels: { formatter: (val: number) => val.toFixed(0) }
+        },
+        {
+          opposite: true,
+          title: { text: 'Revenus (DT)', style: { fontSize: '12px', fontWeight: 500 } },
+          labels: { formatter: (val: number) => val.toLocaleString() }
         }
-      }
-    };
-
-    // Top Performers Chart
-    this.topPerformersChartOptions = {
-      series: this.topTaxis.map(taxi => taxi.revenue),
-      chart: {
-        type: 'donut',
-        height: 300
-      },
-      labels: this.topTaxis.map(taxi => taxi.name),
-      colors: ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6c757d'],
+      ],
       legend: {
-        position: 'bottom'
+        position: 'top',
+        horizontalAlign: 'right',
+        fontSize: '13px',
+        markers: { width: 10, height: 10, radius: 4 }
       },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '60%'
-          }
-        }
+      dataLabels: { enabled: false },
+      grid: {
+        borderColor: '#f1f5f9',
+        strokeDashArray: 4
       }
     };
   }
 
-  onPeriodChange(): void {
-    this.loadAnalyticsData();
-  }
+  // ─── EXPORT CSV ─────────────────────────────────
+  exportCSV(): void {
+    if (!this.stats && !this.revenueStats) return;
 
-  onYearChange(): void {
-    this.loadAnalyticsData();
-  }
+    const rows = [
+      ['Indicateur', 'Valeur'],
+      ['Revenus Totaux',      this.stats?.totalRevenue || 0],
+      ['Courses Totales',     this.stats?.totalRides || 0],
+      ['Moyenne / Course',    this.revenueStats?.avgRevenuePerRide || 0],
+      ['Médiane / Course',    this.revenueStats?.medianRevenuePerRide || 0],
+      ['Courses Complétées',  this.revenueStats?.completedRides || 0],
+      ['Moy. Courses / Jour', this.stats?.avgRidesPerDay || 0],
+      ['Moy. Courses / Mois', this.stats?.avgRidesPerMonth || 0],
+      ['Moy. Courses / Année',this.stats?.avgRidesPerYear || 0]
+    ];
 
-  exportReport(format: string): void {
-    console.log(`Exporting ${format} report for ${this.selectedPeriod} ${this.selectedYear}`);
-    // TODO: Implement actual export functionality
-  }
-
-  openDetailedReport(modal: any, type: string): void {
-    console.log(`Opening detailed ${type} report`);
-    // TODO: Implement detailed report modal
-  }
-
-  getPerformanceColor(performance: number): string {
-    if (performance >= 90) return 'text-success';
-    if (performance >= 75) return 'text-warning';
-    return 'text-danger';
-  }
-
-  getRatingStars(rating: number): string {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
-    return '★'.repeat(fullStars) + (hasHalfStar ? '☆' : '') + '☆'.repeat(emptyStars);
+    const csv  = rows.map(r => r.join(';')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `stats_revenus_${this.from}_${this.to}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

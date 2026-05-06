@@ -1,384 +1,335 @@
-<div class="container-fluid">
-  <!-- Page Title -->
+<div class="dashboard">
+
+  <!-- ========================
+       HEADER
+  ========================= -->
   <div class="row">
     <div class="col-12 my-3">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0 page-title">
-          <i class="fas fa-chart-line me-2 taxi-icon"></i>Gestion des statistiques
-        </h4>
-        <div class="page-title-right d-none d-md-block">
-          <ol class="breadcrumb m-0">
-             <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
-            <li class="breadcrumb-item active">Gestion des statistiques</li>
-          </ol>
+      <div class="page-title-box">
+
+        <div class="title-section">
+          <h4 class="mb-0 page-title">
+            <i class="fas fa-chart-line me-2 stats-icon"></i>
+            Statistiques des Revenus
+          </h4>
+          <span class="period-badge" *ngIf="periodLabel">{{ periodLabel }}</span>
         </div>
+
+        <div class="filters-section">
+          <!-- QUICK PRESETS -->
+          <div class="preset-btns">
+            <button class="preset-btn"
+                    [class.active]="activePreset === 'today'"
+                    (click)="setPreset('today')">
+              Aujourd'hui
+            </button>
+            <button class="preset-btn"
+                    [class.active]="activePreset === 'week'"
+                    (click)="setPreset('week')">
+              Semaine
+            </button>
+            <button class="preset-btn"
+                    [class.active]="activePreset === 'month'"
+                    (click)="setPreset('month')">
+              Mois
+            </button>
+            <button class="preset-btn"
+                    [class.active]="activePreset === 'year'"
+                    (click)="setPreset('year')">
+              Année
+            </button>
+          </div>
+
+          <!-- DATE INPUTS -->
+          <div class="date-range">
+            <div class="date-wrapper">
+              <label>Du</label>
+              <input type="date" [(ngModel)]="from" class="form-control date-input">
+            </div>
+            <div class="date-wrapper">
+              <label>Au</label>
+              <input type="date" [(ngModel)]="to" class="form-control date-input">
+            </div>
+            <button class="btn btn-gradient-primary" (click)="loadStats()">
+              <i class="mdi mdi-filter me-1"></i> Filtrer
+            </button>
+            <button class="btn btn-outline-light" (click)="exportCSV()" title="Exporter CSV">
+              <i class="mdi mdi-download"></i>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Period Selection and Export Controls -->
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <div class="d-flex align-items-center">
-        <label class="form-label me-3 mb-0">Period:</label>
-        <select class="form-select me-3" style="width: auto;" [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly" selected>Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="yearly">Yearly</option>
-        </select>
-        <select class="form-select" style="width: auto;" [(ngModel)]="selectedYear" (change)="onYearChange()">
-          <option *ngFor="let year of [2020, 2021, 2022, 2023, 2024]" [value]="year">{{ year }}</option>
-        </select>
+  <!-- ========================
+       LOADING SKELETON
+  ========================= -->
+  <ng-container *ngIf="loading; else contentBlock">
+    <div class="stats-cards">
+      <div class="stat-card skeleton" *ngFor="let s of [0,1,2,3]">
+        <div class="icon skeleton-pulse"></div>
+        <div class="info">
+          <span class="skeleton-line short skeleton-pulse"></span>
+          <h3 class="skeleton-line long skeleton-pulse"></h3>
+        </div>
       </div>
     </div>
-    <div class="col-md-6 text-end">
-      <div class="btn-group" role="group">
-        <button class="btn btn-outline-secondary" (click)="exportReport('csv')">
-          <i class="fas fa-download me-2"></i>Export CSV
-        </button>
-        <button class="btn btn-outline-secondary" (click)="exportReport('pdf')">
-          <i class="fas fa-file-pdf me-2"></i>Export PDF
-        </button>
-        <button class="btn btn-outline-secondary" (click)="exportReport('excel')">
-          <i class="fas fa-file-excel me-2"></i>Export Excel
-        </button>
-      </div>
+    <div class="chart-card skeleton-chart skeleton-pulse"></div>
+    <div class="charts">
+      <div class="chart-card skeleton-chart skeleton-pulse"></div>
+      <div class="chart-card skeleton-chart skeleton-pulse"></div>
     </div>
-  </div>
+  </ng-container>
 
-  <!-- Key Performance Indicators -->
-  <div class="row mb-4">
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Revenue</p>
-              <h4 class="mb-0 text-primary">${{ totalRevenue | number:'1.0-0' }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-dollar-sign font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- ========================
+       ERROR STATE
+  ========================= -->
+  <ng-template #errorBlock>
+    <div class="error-state">
+      <i class="mdi mdi-alert-circle-outline"></i>
+      <h5>Erreur de chargement</h5>
+      <p>Impossible de récupérer les statistiques.</p>
+      <button class="btn btn-gradient-primary" (click)="loadStats()">
+        <i class="mdi mdi-refresh me-1"></i> Réessayer
+      </button>
     </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Rides</p>
-              <h4 class="mb-0 text-success">{{ totalRides | number:'1.0-0' }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-route font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Avg Rating</p>
-              <h4 class="mb-0 text-warning">{{ averageRating | number:'1.1-1' }}★</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-star font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Clients</p>
-              <h4 class="mb-0 text-info">{{ totalClients | number:'1.0-0' }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-info align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-users font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Taxis</p>
-              <h4 class="mb-0 text-secondary">{{ totalTaxis | number:'1.0-0' }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-secondary align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-taxi font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Success Rate</p>
-              <h4 class="mb-0" [ngClass]="getPerformanceColor(successRate)">{{ successRate | number:'1.1-1' }}%</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle" [ngClass]="'bg-' + (successRate >= 90 ? 'success' : successRate >= 75 ? 'warning' : 'danger')">
-                <span class="avatar-title">
-                  <i class="fas fa-chart-line font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </ng-template>
 
-  <!-- Revenue and Performance Charts -->
-  <div class="row mb-4">
-    <div class="col-xl-8">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Revenue & Profit Trends</h4>
+  <!-- ========================
+       CONTENT
+  ========================= -->
+  <ng-template #contentBlock>
+    <ng-container *ngIf="!error; else errorBlock">
+
+      <!-- PRIMARY KPI CARDS -->
+      <div class="stats-cards" *ngIf="stats">
+
+        <div class="stat-card revenue">
+          <div class="icon"><i class="mdi mdi-currency-usd"></i></div>
+          <div class="info">
+            <span>Revenus Totaux</span>
+            <h3>{{ stats?.totalRevenue || 0 | number }} DT</h3>
+          </div>
+          <div class="card-decoration"></div>
         </div>
-        <div class="card-body">
-          <apx-chart [series]="revenueChartOptions.series" [chart]="revenueChartOptions.chart"
-                     [colors]="revenueChartOptions.colors" [dataLabels]="revenueChartOptions.dataLabels"
-                     [stroke]="revenueChartOptions.stroke" [fill]="revenueChartOptions.fill"
-                     [xaxis]="revenueChartOptions.xaxis" [yaxis]="revenueChartOptions.yaxis"
-                     [tooltip]="revenueChartOptions.tooltip">
+
+        <div class="stat-card rides">
+          <div class="icon"><i class="mdi mdi-taxi"></i></div>
+          <div class="info">
+            <span>Courses Totales</span>
+            <h3>{{ stats?.totalRides || 0 }}</h3>
+          </div>
+          <div class="card-decoration"></div>
+        </div>
+
+        <div class="stat-card avg">
+          <div class="icon"><i class="mdi mdi-chart-bar"></i></div>
+          <div class="info">
+            <span>Moyenne / Course</span>
+            <h3>{{ revenueStats?.avgRevenuePerRide || 0 | number:'1.2-2' }} DT</h3>
+          </div>
+          <div class="card-decoration"></div>
+        </div>
+
+        <div class="stat-card median">
+          <div class="icon"><i class="mdi mdi-chart-line"></i></div>
+          <div class="info">
+            <span>Médiane / Course</span>
+            <h3>{{ revenueStats?.medianRevenuePerRide || 0 | number:'1.2-2' }} DT</h3>
+          </div>
+          <div class="card-decoration"></div>
+        </div>
+
+      </div>
+
+      <!-- SECONDARY KPI ROW -->
+      <div class="stats-cards secondary" *ngIf="stats">
+
+        <div class="stat-card mini">
+          <div class="icon small" style="background:linear-gradient(135deg,#0284c7,#0ea5e9)">
+            <i class="mdi mdi-calendar-today"></i>
+          </div>
+          <div class="info">
+            <span>Moy. courses / jour</span>
+            <h3>{{ stats?.avgRidesPerDay || 0 | number:'1.1-1' }}</h3>
+          </div>
+        </div>
+
+        <div class="stat-card mini">
+          <div class="icon small" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)">
+            <i class="mdi mdi-calendar-month"></i>
+          </div>
+          <div class="info">
+            <span>Moy. courses / mois</span>
+            <h3>{{ stats?.avgRidesPerMonth || 0 | number:'1.1-1' }}</h3>
+          </div>
+        </div>
+
+        <div class="stat-card mini">
+          <div class="icon small" style="background:linear-gradient(135deg,#c2410c,#f97316)">
+            <i class="mdi mdi-calendar"></i>
+          </div>
+          <div class="info">
+            <span>Moy. courses / année</span>
+            <h3>{{ stats?.avgRidesPerYear || 0 | number:'1.1-1' }}</h3>
+          </div>
+        </div>
+
+        <div class="stat-card mini">
+          <div class="icon small" style="background:linear-gradient(135deg,#059669,#10b981)">
+            <i class="mdi mdi-check-circle"></i>
+          </div>
+          <div class="info">
+            <span>Courses complétées</span>
+            <h3>{{ revenueStats?.completedRides || 0 }}</h3>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================
+           TREND CHART
+      ========================= -->
+      <div class="chart-card" *ngIf="trendChart?.series?.length > 0">
+        <div class="chart-header">
+          <h5>
+            <i class="mdi mdi-trending-up me-2 text-success"></i>
+            Évolution Revenus & Courses
+          </h5>
+          <div class="chart-legend">
+            <span><span class="legend-dot green"></span> Courses</span>
+            <span><span class="legend-dot indigo"></span> Revenus</span>
+          </div>
+        </div>
+
+        <apx-chart
+          [series]="trendChart.series"
+          [chart]="trendChart.chart"
+          [stroke]="trendChart.stroke"
+          [xaxis]="trendChart.xaxis"
+          [tooltip]="trendChart.tooltip"
+          [colors]="trendChart.colors"
+          [fill]="trendChart.fill"
+          [yaxis]="trendChart.yaxis"
+          [legend]="trendChart.legend"
+          [dataLabels]="trendChart.dataLabels"
+          [grid]="trendChart.grid">
+        </apx-chart>
+      </div>
+
+      <!-- EMPTY TREND -->
+      <div class="chart-card empty-state" *ngIf="trendChart && !trendChart?.series?.length">
+        <i class="mdi mdi-chart-bell-curve-cumulative empty-icon"></i>
+        <h5>Évolution Revenus & Courses</h5>
+        <p class="text-muted">Aucune donnée disponible pour cette période</p>
+      </div>
+
+      <!-- ========================
+           BOTTOM GRIDS
+      ========================= -->
+      <div class="charts" *ngIf="revenueStats">
+
+        <!-- REVENUE DETAIL CARD -->
+        <div class="chart-card detail-card">
+          <h5>
+            <i class="mdi mdi-cash-multiple me-2" style="color:#4B4BAF"></i>
+            Analyse Revenus
+          </h5>
+
+          <div class="detail-list">
+            <div class="list-item">
+              <div class="list-left">
+                <i class="mdi mdi-check-circle-outline text-success"></i>
+                <span>Courses complétées</span>
+              </div>
+              <strong>{{ revenueStats?.completedRides || 0 }}</strong>
+            </div>
+
+            <div class="list-item">
+              <div class="list-left">
+                <i class="mdi mdi-cash text-warning"></i>
+                <span>Revenu total</span>
+              </div>
+              <strong>{{ revenueStats?.totalRevenue || 0 | number }} DT</strong>
+            </div>
+
+            <div class="list-item">
+              <div class="list-left">
+                <i class="mdi mdi-chart-bar text-info"></i>
+                <span>Moyenne</span>
+              </div>
+              <strong>{{ revenueStats?.avgRevenuePerRide || 0 | number:'1.2-2' }} DT</strong>
+            </div>
+
+            <div class="list-item">
+              <div class="list-left">
+                <i class="mdi mdi-chart-line text-purple"></i>
+                <span>Médiane</span>
+              </div>
+              <strong>{{ revenueStats?.medianRevenuePerRide || 0 | number:'1.2-2' }} DT</strong>
+            </div>
+
+            <div class="list-item" *ngIf="revenueStats?.minRevenue !== undefined">
+              <div class="list-left">
+                <i class="mdi mdi-arrow-down-bold text-danger"></i>
+                <span>Min</span>
+              </div>
+              <strong>{{ revenueStats?.minRevenue | number:'1.2-2' }} DT</strong>
+            </div>
+
+            <div class="list-item" *ngIf="revenueStats?.maxRevenue !== undefined">
+              <div class="list-left">
+                <i class="mdi mdi-arrow-up-bold text-success"></i>
+                <span>Max</span>
+              </div>
+              <strong>{{ revenueStats?.maxRevenue | number:'1.2-2' }} DT</strong>
+            </div>
+          </div>
+
+          <!-- PROGRESS: AVG vs MAX -->
+          <div class="revenue-progress"
+               *ngIf="revenueStats?.avgRevenuePerRide && revenueStats?.maxRevenue">
+            <div class="progress-label">
+              <span>Moyenne vs Max</span>
+              <span>{{ revenueStats.avgRevenuePerRide / revenueStats.maxRevenue * 100 | number:'1.0-0' }}%</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill"
+                   [style.width.%]="revenueStats.avgRevenuePerRide / revenueStats.maxRevenue * 100">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIDES BAR CHART -->
+        <div class="chart-card" *ngIf="ridesChart?.series?.length > 0">
+          <h5>
+            <i class="mdi mdi-chart-bar me-2" style="color:#6366f1"></i>
+            Performance Courses
+          </h5>
+          <apx-chart
+            [series]="ridesChart.series"
+            [chart]="ridesChart.chart"
+            [xaxis]="ridesChart.xaxis"
+            [colors]="ridesChart.colors"
+            [plotOptions]="ridesChart.plotOptions"
+            [dataLabels]="ridesChart.dataLabels"
+            [tooltip]="ridesChart.tooltip">
           </apx-chart>
         </div>
-      </div>
-    </div>
-    <div class="col-xl-4">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Ride Performance</h4>
-        </div>
-        <div class="card-body">
-          <apx-chart [series]="performanceChartOptions.series" [chart]="performanceChartOptions.chart"
-                     [colors]="performanceChartOptions.colors" [dataLabels]="performanceChartOptions.dataLabels"
-                     [xaxis]="performanceChartOptions.xaxis" [yaxis]="performanceChartOptions.yaxis">
-          </apx-chart>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Ride Frequency and Top Performers -->
-  <div class="row mb-4">
-    <div class="col-xl-6">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">24-Hour Ride Frequency</h4>
+        <!-- EMPTY RIDES -->
+        <div class="chart-card empty-state" *ngIf="ridesChart && !ridesChart?.series?.length">
+          <i class="mdi mdi-chart-bar empty-icon"></i>
+          <h5>Performance Courses</h5>
+          <p class="text-muted">Aucune donnée disponible pour cette période</p>
         </div>
-        <div class="card-body">
-          <apx-chart [series]="rideFrequencyChartOptions.series" [chart]="rideFrequencyChartOptions.chart"
-                     [colors]="rideFrequencyChartOptions.colors" [dataLabels]="rideFrequencyChartOptions.dataLabels"
-                     [stroke]="rideFrequencyChartOptions.stroke" [xaxis]="rideFrequencyChartOptions.xaxis"
-                     [yaxis]="rideFrequencyChartOptions.yaxis">
-          </apx-chart>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-6">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Top Performing Taxis</h4>
-        </div>
-        <div class="card-body">
-          <apx-chart [series]="topPerformersChartOptions.series" [chart]="topPerformersChartOptions.chart"
-                     [labels]="topPerformersChartOptions.labels" [colors]="topPerformersChartOptions.colors"
-                     [legend]="topPerformersChartOptions.legend" [plotOptions]="topPerformersChartOptions.plotOptions">
-          </apx-chart>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Top Performers Tables -->
-  <div class="row mb-4">
-    <div class="col-xl-6">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 class="card-title mb-0">Top Performing Taxis</h4>
-          <button class="btn btn-sm btn-outline-primary" (click)="openDetailedReport('taxi', 'taxi')">
-            View All
-          </button>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0">
-              <thead>
-                <tr>
-                  <th>Taxi</th>
-                  <th>Driver</th>
-                  <th>Revenue</th>
-                  <th>Rides</th>
-                  <th>Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let taxi of topTaxis">
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="avatar-sm bg-light rounded-circle me-3">
-                        <span class="avatar-title text-primary font-weight-bold">
-                          <i class="fas fa-taxi"></i>
-                        </span>
-                      </div>
-                      <div>
-                        <strong>{{ taxi.name }}</strong>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{{ taxi.driver }}</td>
-                  <td class="text-success">${{ taxi.revenue | number:'1.0-0' }}</td>
-                  <td>{{ taxi.rides }}</td>
-                  <td>
-                    <span class="text-warning">{{ getRatingStars(taxi.rating) }}</span>
-                    <small class="text-muted ms-1">({{ taxi.rating }})</small>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
-    </div>
-    <div class="col-xl-6">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 class="card-title mb-0">Top Clients</h4>
-          <button class="btn btn-sm btn-outline-primary" (click)="openDetailedReport('client', 'client')">
-            View All
-          </button>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0">
-              <thead>
-                <tr>
-                  <th>Client</th>
-                  <th>Phone</th>
-                  <th>Rides</th>
-                  <th>Total Spent</th>
-                  <th>Last Ride</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let client of topClients">
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="avatar-sm bg-light rounded-circle me-3">
-                        <span class="avatar-title text-info font-weight-bold">
-                          <i class="fas fa-user"></i>
-                        </span>
-                      </div>
-                      <div>
-                        <strong>{{ client.name }}</strong>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{{ client.phone }}</td>
-                  <td>{{ client.rides }}</td>
-                  <td class="text-success">${{ client.totalSpent | number:'1.0-0' }}</td>
-                  <td>{{ client.lastRide | date:'short' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Additional Analytics Cards -->
-  <div class="row mb-4">
-    <div class="col-xl-4">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Geographic Distribution</h4>
-        </div>
-        <div class="card-body">
-          <div class="text-center py-4">
-            <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">Geographic Analytics</h5>
-            <p class="text-muted">Map-based analysis of ride distribution</p>
-            <button class="btn btn-outline-primary">View Map</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-4">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Peak Hours Analysis</h4>
-        </div>
-        <div class="card-body">
-          <div class="text-center py-4">
-            <i class="fas fa-clock fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">Peak Hours</h5>
-            <p class="text-muted">Analysis of busiest hours and demand patterns</p>
-            <button class="btn btn-outline-primary">View Details</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-4">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Customer Satisfaction</h4>
-        </div>
-        <div class="card-body">
-          <div class="text-center py-4">
-            <i class="fas fa-smile fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">Satisfaction Metrics</h5>
-            <p class="text-muted">Customer feedback and satisfaction analysis</p>
-            <button class="btn btn-outline-primary">View Report</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    </ng-container>
+  </ng-template>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
 </div>

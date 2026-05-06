@@ -42,7 +42,7 @@ export class ClientManagementComponent implements OnInit {
   isEditing = false;
   editingClientId: number | null = null;
   pendingClientData!: Client;
-  passwordForm: FormGroup;
+  passwordForm!: FormGroup;
   showNewPassword = false;
   showConfirmPassword = false;
   isSending = false;
@@ -105,7 +105,7 @@ clientForm!: FormGroup;
     });
 
     this.searchSubject.pipe(
-    debounceTime(400),          // ⭐ sweet spot
+    debounceTime(400),         
     distinctUntilChanged()      // prevents duplicate searches
   ).subscribe(term => {
     this.performSearch(term);
@@ -260,14 +260,15 @@ console.log('saveClient clicked');
     return;
   }
 
-  const clientData: Client = {
-    id: this.editingClientId || 0,
-    nom: this.isEditing ? this.selectedClient.nom : this.clientForm.value.nomPrenom,
-    email: this.clientForm.value.email,
-    type: this.clientForm.value.type,
-    telephone: this.clientForm.value.telephone,
-  };
-
+const clientData: Client = {
+  id: this.editingClientId || 0,
+  nom: this.isEditing
+    ? this.selectedClient?.nom ?? ''
+    : this.clientForm.value.nomPrenom ?? '',
+  email: this.clientForm.value.email ?? '',
+  type: this.clientForm.value.type ?? '',
+  telephone: this.clientForm.value.telephone ?? ''
+};
   // =======================
   // ✏️ UPDATE MODE
   // =======================
@@ -787,28 +788,29 @@ doc.setLineWidth(0.5);
 doc.line(60, 48, pageWidth - 60, 48);
 
 
-      // Prepare table data
-      const tableBody = data.map(t => [
-        t.ID, t.Nom,t.Email, t.Téléphone
-      ]);
+const tableBody: (string | number)[][] = data.map(t => [
+  t.ID ?? '',
+  t.Nom ?? '',
+  t.Email ?? '',
+  t.Téléphone ?? ''
+]);
 
-      // Add table using autoTable (your existing style)
-      autoTable(doc, {
+autoTable(doc, {
   head: [[
     'ID',
     'Nom et Prénom',
     'Email',
-    'Téléphone',
+    'Téléphone'
   ]],
   body: tableBody,
   startY: 50,
   theme: 'grid',
   headStyles: {
-    fillColor: [33, 31, 84], // #211F54
+    fillColor: [33, 31, 84],
     textColor: 255,
-    halign: 'center',   // horizontal center
-    valign: 'middle',  // vertical center (optional)
-    fontStyle: 'bold'  // optional, looks nicer for headers
+    halign: 'center',
+    valign: 'middle',
+    fontStyle: 'bold'
   }
 });
 

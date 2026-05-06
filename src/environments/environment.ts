@@ -10,7 +10,7 @@ export const environment = {
     smsAuth: 'http://41.225.11.231:8777',
     smsClient: 'http://41.225.11.231:8777/taxi-client/api',
     //smsTaxiupdate: 'http://41.225.11.231:8777',
-    
+    TaxiSelect: 'http://41.225.11.231:8777/taxi-client/api'
   },
   wsBaseUrl: 'http://41.225.11.231:8981/ws',
   adminWsBaseUrl: 'http://41.225.11.231:8981/admin-ws',

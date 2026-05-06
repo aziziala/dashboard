@@ -1,71 +1,95 @@
 
 /* GLOBAL CADRE AROUND THE BLOCK */
 .container-fluid{
-  margin-top: -4% !important;
-  margin-bottom: 3%;
-}
+
+  padding: 20px 24px;
+  margin: 0;}
 
 
-.page-title {
-  font-weight: 700;
-  color: #211F54;
-
-  .fleet-icon {
-    color: #FFC900;
-  }
-}
 .page-title-box {
   padding: 1rem 1.5rem;
   border-radius: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(33, 31, 84, 0.05),
-    rgba(75, 75, 175, 0.05)
-  );
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  background: linear-gradient(135deg, #211F54, #4B4BAF);
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
 
-  .page-title {
-    font-size: 1.25rem;
-
-    @media (max-width: 576px) { font-size: 1rem; }
-  }
-
-  .page-title-right {
-    margin-top: 0.5rem;
-
-    @media (max-width: 576px) { width: 100%; }
-  }
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
 }
-/* ===== Breadcrumb ===== */
+
+/* =========================
+   BREADCRUMB
+========================= */
 
 .page-title-right {
   ol.breadcrumb {
     li.breadcrumb-item {
       font-weight: 500;
       font-size: 0.875rem;
-      color: #4B4BAF;
+      color: #fff;
 
       a {
-        color: #4B4BAF;
+        color: #FFC900;
         text-decoration: none;
-        transition: color 0.3s ease;
 
         &:hover {
-          color: #211F54;
+          color: #fff;
         }
       }
 
       &.active {
-        color: #495057;
+        color: #ddd;
       }
 
       &:not(:last-child)::after {
         content: ">";
         margin: 0 0.5rem;
-        color: #211F54;
+        color: #fff;
       }
     }
+  }
+}
+
+/* =========================
+   PAGE TITLE
+========================= */
+
+.page-title {
+  font-weight: 700;
+  color: #fff;
+
+  .fleet-icon {
+    color: #FFC900;
+  }
+}
+/* =========================
+   BUTTONS
+========================= */
+
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #211F54, #4B4BAF);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  font-size: 0.845rem;
+  line-height: 1.2;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 31, 84, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
   }
 }
 
