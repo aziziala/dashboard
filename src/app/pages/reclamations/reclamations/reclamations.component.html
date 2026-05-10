@@ -1,1 +1,470 @@
-<p>Coming Soon...</p>
+<div class="container-fluid">
+
+  <!-- ═══════════════════════════════════════
+       PAGE TITLE
+  ═══════════════════════════════════════ -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-gift me-2 taxi-icon"></i>Gestion de Parrainage
+        </h4>
+        <div class="page-title-right d-none d-md-block">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Gestion de Parrainage</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       STATS ROW
+  ═══════════════════════════════════════ -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="stats-row">
+
+        <div class="stats-card total">
+          <div class="icon"><i class="fas fa-users"></i></div>
+          <div class="info">
+            <span>Total Parrainages</span>
+            <h3>{{ stats.total }}</h3>
+          </div>
+        </div>
+
+        <div class="stats-card approved">
+          <div class="icon"><i class="fas fa-user-check"></i></div>
+          <div class="info">
+            <span>Actifs</span>
+            <h3>{{ stats.active }}</h3>
+          </div>
+        </div>
+
+        <div class="stats-card pending">
+          <div class="icon"><i class="fas fa-user-clock"></i></div>
+          <div class="info">
+            <span>En Attente</span>
+            <h3>{{ stats.pending }}</h3>
+          </div>
+        </div>
+
+        <div class="stats-card rejected">
+          <div class="icon"><i class="fas fa-user-times"></i></div>
+          <div class="info">
+            <span>Expirés</span>
+            <h3>{{ stats.expired }}</h3>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SEARCH + FILTER + ACTIONS
+  ═══════════════════════════════════════ -->
+  <div class="row align-items-center mb-4 gx-3">
+
+    <!-- Search -->
+    <div class="col-md-4 mb-2 mb-md-0">
+      <div class="search-wrapper">
+        <i *ngIf="!isLoading" class="fas fa-search search-icon"></i>
+        <div *ngIf="isLoading"
+             class="spinner-border spinner-sm search-spinner"
+             role="status" aria-hidden="true">
+        </div>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Rechercher par parrain ou filleul..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput()"
+        />
+        <button *ngIf="searchTerm"
+                class="clear-btn"
+                (click)="clearSearch()"
+                aria-label="Effacer">✕</button>
+      </div>
+    </div>
+
+    <!-- Status filter -->
+    <div class="col-md-3 mb-2 mb-md-0">
+      <select class="form-select shadow-sm rounded border-0"
+              [(ngModel)]="statusFilter"
+              (change)="onStatusFilterChange()">
+        <option value="">Tous les statuts</option>
+        <option value="ACTIVE">Actif</option>
+        <option value="PENDING">En attente</option>
+        <option value="EXPIRED">Expiré</option>
+      </select>
+    </div>
+
+    <!-- Export -->
+    <div class="col-md-3 text-end mb-2 mb-md-0">
+      <button class="btn btn-outline-success me-1 shadow-sm" (click)="exportData('excel')">
+        <i class="fas fa-file-excel me-1"></i>Excel
+      </button>
+      <button class="btn btn-outline-danger me-1 shadow-sm" (click)="exportData('pdf')">
+        <i class="fas fa-file-pdf me-1"></i>PDF
+      </button>
+    </div>
+
+    <!-- Add -->
+    <div class="col-md-2 text-md-end">
+      <button class="btn btn-gradient-primary shadow-sm"
+              (click)="openAddModal(addParrainageModal)">
+        <i class="fas fa-plus me-1"></i>Ajouter
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       TABLE
+  ═══════════════════════════════════════ -->
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Parrain</th>
+          <th>Téléphone Parrain</th>
+          <th>Filleul</th>
+          <th>Téléphone Filleul</th>
+          <th>Code</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr *ngFor="let p of paginatedItems">
+          <td data-label="ID">{{ p.id }}</td>
+          <td data-label="Parrain">
+            <div class="user-cell">
+              <div class="user-avatar">{{ p.parrainNom | slice:0:1 | uppercase }}</div>
+              <span>{{ p.parrainNom }}</span>
+            </div>
+          </td>
+          <td data-label="Tél. Parrain">{{ p.parrainPhone }}</td>
+          <td data-label="Filleul">
+            <div class="user-cell">
+              <div class="user-avatar filleul">{{ p.filleulNom | slice:0:1 | uppercase }}</div>
+              <span>{{ p.filleulNom }}</span>
+            </div>
+          </td>
+          <td data-label="Tél. Filleul">{{ p.filleulPhone }}</td>
+          <td data-label="Code">
+            <span class="code-badge">{{ p.code }}</span>
+          </td>
+          <td data-label="Date">{{ p.date | date:'dd/MM/yyyy' }}</td>
+          <td data-label="Statut">
+            <span class="badge" [ngClass]="getStatusBadgeClass(p.statut)">
+              {{ getStatusLabel(p.statut) }}
+            </span>
+          </td>
+          <td data-label="Actions">
+            <div class="btn-group-actions">
+              <button class="btn btn-sm btn-info"
+                      (click)="openDetailsModal(viewModal, p)"
+                      title="Voir">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning"
+                      (click)="openEditModal(addParrainageModal, p)"
+                      title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger"
+                      (click)="openDeleteModal(deleteModal, p)"
+                      title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="paginatedItems.length === 0">
+          <td colspan="9" class="text-center text-muted py-5">
+            <i class="fas fa-gift fa-2x mb-2 d-block" style="opacity:.25"></i>
+            Aucun parrainage trouvé.
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PAGINATION
+  ═══════════════════════════════════════ -->
+  <nav class="mt-3" aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" (click)="onPageChange(currentPage - 1)">Précédent</a>
+      </li>
+      <li class="page-item"
+          *ngFor="let page of pageNumbers"
+          [class.active]="currentPage === page">
+        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link" (click)="onPageChange(currentPage + 1)">Suivant</a>
+      </li>
+    </ul>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════
+       ADD / EDIT MODAL
+  ═══════════════════════════════════════ -->
+  <ng-template #addParrainageModal let-modal>
+    <div class="modal-content modal-animated compact-modal">
+
+      <div class="modal-header modal-header-compact">
+        <div class="header-avatar-sm">
+          <i [ngClass]="isEditing ? 'fas fa-edit' : 'fas fa-gift'"></i>
+        </div>
+        <div class="header-text">
+          <h6 class="modal-title mb-0">
+            {{ isEditing ? 'Modifier le parrainage' : 'Nouveau parrainage' }}
+          </h6>
+        </div>
+        <button type="button"
+                class="btn-close btn-close-white ms-auto"
+                (click)="modal.dismiss()">
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="parrainageForm" class="form-modern">
+          <div class="form-grid">
+
+            <!-- Parrain -->
+            <div class="form-floating input-icon-top">
+              <i class="fas fa-user"></i>
+              <input type="text" class="form-control"
+                     id="parrainNom"
+                     formControlName="parrainNom"
+                     placeholder="Nom du Parrain"
+                     [class.is-invalid]="isInvalid('parrainNom')">
+              <label for="parrainNom">Nom du Parrain</label>
+            </div>
+
+            <div class="form-floating input-icon-top">
+              <i class="fas fa-phone"></i>
+              <input type="text" class="form-control"
+                     id="parrainPhone"
+                     formControlName="parrainPhone"
+                     placeholder="Téléphone Parrain"
+                     [class.is-invalid]="isInvalid('parrainPhone')">
+              <label for="parrainPhone">Téléphone Parrain</label>
+            </div>
+
+            <!-- Filleul -->
+            <div class="form-floating input-icon-top">
+              <i class="fas fa-user-plus"></i>
+              <input type="text" class="form-control"
+                     id="filleulNom"
+                     formControlName="filleulNom"
+                     placeholder="Nom du Filleul"
+                     [class.is-invalid]="isInvalid('filleulNom')">
+              <label for="filleulNom">Nom du Filleul</label>
+            </div>
+
+            <div class="form-floating input-icon-top">
+              <i class="fas fa-phone-alt"></i>
+              <input type="text" class="form-control"
+                     id="filleulPhone"
+                     formControlName="filleulPhone"
+                     placeholder="Téléphone Filleul"
+                     [class.is-invalid]="isInvalid('filleulPhone')">
+              <label for="filleulPhone">Téléphone Filleul</label>
+            </div>
+
+            <!-- Code parrainage -->
+            <div class="form-floating input-icon-top">
+              <i class="fas fa-hashtag"></i>
+              <input type="text" class="form-control"
+                     id="code"
+                     formControlName="code"
+                     placeholder="Code de parrainage"
+                     [class.is-invalid]="isInvalid('code')">
+              <label for="code">Code de Parrainage</label>
+            </div>
+
+            <!-- Statut -->
+            <div class="form-floating input-icon-top">
+              <i class="fas fa-flag"></i>
+              <select class="form-select"
+                      id="statut"
+                      formControlName="statut"
+                      [class.is-invalid]="isInvalid('statut')">
+                <option value="" disabled>Sélectionner un statut</option>
+                <option value="ACTIVE">Actif</option>
+                <option value="PENDING">En attente</option>
+                <option value="EXPIRED">Expiré</option>
+              </select>
+              <label for="statut">Statut</label>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer compact-footer">
+        <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
+          <i class="bi bi-x-circle me-1"></i>Annuler
+        </button>
+        <button class="btn btn-gradient-primary"
+                [disabled]="parrainageForm.invalid || isSaving"
+                (click)="save(modal)">
+          <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
+          <i class="bi bi-save me-1" *ngIf="!isSaving"></i>
+          {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+        </button>
+      </div>
+
+    </div>
+  </ng-template>
+
+
+  <!-- ═══════════════════════════════════════
+       VIEW MODAL
+  ═══════════════════════════════════════ -->
+  <ng-template #viewModal let-modal>
+    <div class="modal-content">
+
+      <div class="modal-header modal-header-enriched">
+        <div class="header-avatar">
+          <i class="fas fa-gift taxi-icon"></i>
+        </div>
+        <h5 class="modal-title ms-2">Détails du Parrainage</h5>
+        <span class="badge ms-3"
+              [ngClass]="getStatusBadgeClass(selectedItem?.statut)">
+          {{ getStatusLabel(selectedItem?.statut) }}
+        </span>
+        <button type="button" class="btn-close ms-auto" (click)="modal.dismiss()"></button>
+      </div>
+
+      <div class="modal-body" *ngIf="selectedItem">
+        <div class="parrainage-detail-header mb-4">
+          <div class="detail-user parrain">
+            <div class="detail-avatar">
+              {{ selectedItem.parrainNom | slice:0:1 | uppercase }}
+            </div>
+            <div>
+              <div class="detail-role">Parrain</div>
+              <div class="detail-name">{{ selectedItem.parrainNom }}</div>
+              <div class="detail-phone">
+                <i class="fas fa-phone me-1"></i>{{ selectedItem.parrainPhone }}
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-arrow">
+            <i class="fas fa-arrow-right"></i>
+            <div class="code-pill">{{ selectedItem.code }}</div>
+          </div>
+
+          <div class="detail-user filleul">
+            <div class="detail-avatar filleul">
+              {{ selectedItem.filleulNom | slice:0:1 | uppercase }}
+            </div>
+            <div>
+              <div class="detail-role">Filleul</div>
+              <div class="detail-name">{{ selectedItem.filleulNom }}</div>
+              <div class="detail-phone">
+                <i class="fas fa-phone me-1"></i>{{ selectedItem.filleulPhone }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="info-box">
+              <span>ID Parrainage</span>
+              <strong>#{{ selectedItem.id }}</strong>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-box">
+              <span>Date</span>
+              <strong>{{ selectedItem.date | date:'dd MMMM yyyy' }}</strong>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-box">
+              <span>Code</span>
+              <strong>{{ selectedItem.code }}</strong>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-box">
+              <span>Statut</span>
+              <strong>
+                <span class="badge" [ngClass]="getStatusBadgeClass(selectedItem.statut)">
+                  {{ getStatusLabel(selectedItem.statut) }}
+                </span>
+              </strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger" (click)="downloadPDF()">
+          <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+        </button>
+        <button class="btn btn-gradient-primary" (click)="modal.dismiss()">
+          Fermer
+        </button>
+      </div>
+
+    </div>
+  </ng-template>
+
+
+  <!-- ═══════════════════════════════════════
+       DELETE MODAL
+  ═══════════════════════════════════════ -->
+  <ng-template #deleteModal let-modal>
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-triangle-exclamation text-danger me-2"></i>
+          Confirmation de suppression
+        </h5>
+        <button class="btn-close" (click)="modal.dismiss()"></button>
+      </div>
+
+      <div class="modal-body text-center py-4">
+        <div class="delete-icon mb-3">
+          <i class="fas fa-gift"></i>
+        </div>
+        <p class="mb-1">Voulez-vous vraiment supprimer ce parrainage ?</p>
+        <strong class="text-danger">Cette action est irréversible.</strong>
+      </div>
+
+      <div class="modal-footer justify-content-center">
+        <button class="btn btn-outline-secondary me-2" (click)="modal.dismiss()">
+          Annuler
+        </button>
+        <button class="btn btn-danger"
+                [disabled]="isDeleting"
+                (click)="confirmDelete(modal)">
+          <span class="spinner-border spinner-border-sm me-1" *ngIf="isDeleting"></span>
+          <i class="fas fa-trash me-1" *ngIf="!isDeleting"></i>
+          {{ isDeleting ? 'Suppression...' : 'Supprimer' }}
+        </button>
+      </div>
+
+    </div>
+  </ng-template>
+
+</div>

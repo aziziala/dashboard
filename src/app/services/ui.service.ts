@@ -17,7 +17,9 @@ private mobileMenuSubject = new BehaviorSubject<boolean>(false);
     this.rightbarOpen$.next(next);
     document.documentElement.classList.toggle('rightbar-open', next);
   }
-
+  closeMobileMenu(): void {
+    this.mobileMenu.next(false);
+  }
   /*toggleMobileMenu(): void {
     const next = !this.mobileMenuOpen$.value;
     this.mobileMenuOpen$.next(next);

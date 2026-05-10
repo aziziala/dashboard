@@ -1,258 +1,219 @@
 import { Component, OnInit } from '@angular/core';
-import { StatisticsService } from '../../services/statistics.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  StatisticsService,
+  StatisticsOverviewDto,
+  TimeSeriesPointDto,
+  TaxiPerformanceDto,
+  ClientPerformanceDto,
+  BucketSize,
+} from '../../services/statistics.service';
+
+// ── Brand-book colors ──────────────────────────────────────────────────────
+const NAVY   = '#211F54';
+const YELLOW = '#FFC900';
+const NAVY60 = '#4B4BAF';
+const NAVY40 = '#7B7BC7';
 
 @Component({
   selector: 'app-analytics',
   templateUrl: './analytics.component.html',
-  styleUrls: ['./analytics.component.scss']
+  styleUrls: ['./analytics.component.scss'],
 })
 export class AnalyticsComponent implements OnInit {
+  isLoading = false;
 
-  stats: any;
-  revenueStats: any;
-  trendChart: any;
-  ridesChart: any;
+  selectedPeriod: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' = 'monthly';
+  selectedYear = new Date().getFullYear();
+  years = [2022, 2023, 2024, 2025, 2026];
 
-  from = '2026-01-01';
-  to = new Date().toISOString().split('T')[0];
+  // ── KPI values ────────────────────────────────────────────────────────────
+  totalRevenue  = 0;
+  totalRides    = 0;
+  averageRating = 0;   // from top-taxis average
+  totalClients  = 0;
+  totalTaxis    = 0;
+  successRate   = 0;   // in %
 
-  loading = false;
-  error = false;
-  activePreset = '';
-  periodLabel = '';
+  // ── Table data ────────────────────────────────────────────────────────────
+  topTaxis:   TaxiPerformanceDto[]   = [];
+  topClients: ClientPerformanceDto[] = [];
 
-  constructor(private statsService: StatisticsService) {}
+  // ── Chart options ─────────────────────────────────────────────────────────
+  revenueChartOptions:      any = {};
+  performanceChartOptions:  any = {};
+  rideFrequencyChartOptions: any = {};
+  topPerformersChartOptions: any = {};
+
+  constructor(
+    private modalService: NgbModal,
+    private statisticsService: StatisticsService,
+  ) {}
 
   ngOnInit(): void {
-    this.loadStats();
+    this.loadAll();
   }
 
-  // ─── DATE PRESETS ────────────────────────────────
-  setPreset(preset: string): void {
-    this.activePreset = preset;
-    const today = new Date();
-    const yyyy  = today.getFullYear();
-    const mm    = today.getMonth();
-    const dd    = today.getDate();
+  // ── Date helpers ──────────────────────────────────────────────────────────
 
-    switch (preset) {
-      case 'today':
-        this.from = this.to = this.fmt(today);
-        this.periodLabel = "Aujourd'hui";
-        break;
-
-      case 'week': {
-        const d = new Date(today);
-        d.setDate(dd - 6);
-        this.from = this.fmt(d);
-        this.to   = this.fmt(today);
-        this.periodLabel = 'Cette semaine';
-        break;
-      }
-
-      case 'month':
-        this.from = this.fmt(new Date(yyyy, mm, 1));
-        this.to   = this.fmt(today);
-        this.periodLabel = 'Ce mois';
-        break;
-
-      case 'year':
-        this.from = `${yyyy}-01-01`;
-        this.to   = this.fmt(today);
-        this.periodLabel = 'Cette année';
-        break;
-    }
-
-    this.loadStats();
+  private get dateRange(): { from: string; to: string } {
+    return StatisticsService.buildDateRange(this.selectedPeriod, this.selectedYear);
   }
 
-  private fmt(d: Date): string {
-    return d.toISOString().split('T')[0];
+  private get bucket(): BucketSize {
+    return StatisticsService.periodToBucket(this.selectedPeriod);
   }
 
-  // ─── LOAD DATA ───────────────────────────────────
-  loadStats(): void {
-    this.loading = true;
-    this.error   = false;
+  // ── Load ──────────────────────────────────────────────────────────────────
 
-    // Overview
-    this.statsService.getOverview(this.from, this.to).subscribe({
-      next: (res) => {
-        this.stats   = res;
-        this.loading = false;
-        this.initRidesChart();
+  loadAll(): void {
+    this.isLoading = true;
+    const { from, to } = this.dateRange;
+
+    let done = 0;
+    const total = 3;
+    const check = () => { if (++done === total) this.isLoading = false; };
+
+    // 1. Overview KPIs
+    this.statisticsService.getOverview(from, to).subscribe({
+      next: (res: StatisticsOverviewDto) => {
+        this.totalRevenue  = res.totalRevenue  ?? 0;
+        this.totalRides    = res.totalRides    ?? 0;
+        this.totalClients  = res.totalClients  ?? 0;
+        this.totalTaxis    = res.totalTaxis    ?? 0;
+        this.successRate   = (res.successRate  ?? 0) * 100;
       },
-      error: () => {
-        this.error   = true;
-        this.loading = false;
-      }
+      error: () => {},
+      complete: check,
     });
 
-    // Revenue details
-    this.statsService.getRevenueStats(this.from, this.to).subscribe({
-      next: (res) => this.revenueStats = res,
-      error: () => {}
+    // 2. Revenue trends → chart
+    this.statisticsService.getRevenueTrends(from, to, this.bucket, 20).subscribe({
+      next: (points: TimeSeriesPointDto[]) => {
+        this.buildRevenueChart(points);
+        this.buildPerformanceChart(points);
+      },
+      error: () => {},
+      complete: check,
     });
 
-    // Trends
-    this.statsService.getRevenueTrends(this.from, this.to).subscribe({
-      next: (res) => this.initTrendChart(res),
-      error: () => {}
-    });
-  }
-
-  // ─── RIDES BAR CHART ────────────────────────────
-  private initRidesChart(): void {
-    if (!this.stats) return;
-
-    this.ridesChart = {
-      series: [{
-        name: 'Courses',
-        data: [
-          this.stats.avgRidesPerDay   || 0,
-          this.stats.avgRidesPerMonth || 0,
-          this.stats.avgRidesPerYear  || 0
-        ]
-      }],
-      chart: {
-        type: 'bar',
-        height: 300,
-        toolbar: { show: false },
-        fontFamily: 'inherit'
-      },
-      xaxis: {
-        categories: ['Jour', 'Mois', 'Année'],
-        labels: { style: { fontWeight: 500 } }
-      },
-      colors: ['#4B4BAF'],
-      plotOptions: {
-        bar: {
-          borderRadius: 8,
-          columnWidth: '50%'
+    // 3. Top taxis + top clients
+    this.statisticsService.getTopTaxis(from, to, 'REVENUE', 0, 5).subscribe({
+      next: (taxis) => {
+        this.topTaxis = taxis;
+        // derive average rating from list
+        if (taxis.length) {
+          this.averageRating = taxis.reduce((s, t) => s + (t.rating ?? 0), 0) / taxis.length;
         }
+        this.buildTopPerformersChart(taxis);
       },
-      dataLabels: {
-        enabled: true,
-        style: { fontSize: '12px', fontWeight: 600 },
-        formatter: (val: number) => val.toFixed(1)
-      },
-      tooltip: {
-        y: {
-          formatter: (val: number) => `${val.toFixed(1)} courses`
-        }
-      }
-    };
+      error: () => {},
+    });
+
+    this.statisticsService.getTopClients(from, to, 'RIDES', 0, 5).subscribe({
+      next: (clients) => { this.topClients = clients; },
+      error: () => {},
+      complete: check,
+    });
   }
 
-  // ─── TREND CHART ────────────────────────────────
-  private initTrendChart(data: any[]): void {
-    if (!data || !data.length) {
-      this.trendChart = { series: [] };
-      return;
-    }
+  // ── Chart builders ────────────────────────────────────────────────────────
 
-    this.trendChart = {
+  private buildRevenueChart(points: TimeSeriesPointDto[]): void {
+    const labels   = points.map(p => this.formatBucket(p.bucketStart));
+    const revenues = points.map(p => +(p.revenue ?? 0).toFixed(2));
+    const profits  = points.map(p => +(p.profit  ?? 0).toFixed(2));
+
+    this.revenueChartOptions = {
       series: [
-        {
-          name: 'Courses',
-          type: 'area',
-          data: data.map(d => d.rides || 0)
-        },
-        {
-          name: 'Revenus',
-          type: 'line',
-          data: data.map(d => d.revenue || 0)
-        }
+        { name: 'Revenue', data: revenues },
+        { name: 'Profit',  data: profits  },
       ],
-      chart: {
-        height: 380,
-        type: 'line',
-        toolbar: {
-          show: true,
-          tools: { download: true, selection: false, zoom: true, zoomin: true, zoomout: true, pan: false }
-        },
-        fontFamily: 'inherit',
-        animations: { enabled: true, easing: 'easeinout', speed: 800 }
-      },
-      stroke: {
-        width: [2, 3],
-        curve: 'smooth'
-      },
-      colors: ['#22c55e', '#4B4BAF'],
+      chart: { type: 'area', height: 350, toolbar: { show: false }, fontFamily: 'All round gothic, sans-serif' },
+      colors: [NAVY, YELLOW],
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 2 },
       fill: {
         type: 'gradient',
-        gradient: {
-          opacityFrom: 0.35,
-          opacityTo: 0.05,
-          shade: 'light',
-          type: 'vertical'
-        }
+        gradient: { shadeIntensity: 1, opacityFrom: 0.55, opacityTo: 0.05 },
       },
-      tooltip: {
-        shared: true,
-        intersect: false,
-        y: {
-          formatter: (val: number, opts: any) =>
-            opts.seriesIndex === 1
-              ? `${val.toLocaleString()} DT`
-              : `${val} courses`
-        }
-      },
-      xaxis: {
-        categories: data.map(d =>
-          new Date(d.bucketStart).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
-        ),
-        labels: { style: { fontSize: '11px' } },
-        tickAmount: 10
-      },
-      yaxis: [
-        {
-          title: { text: 'Courses', style: { fontSize: '12px', fontWeight: 500 } },
-          labels: { formatter: (val: number) => val.toFixed(0) }
-        },
-        {
-          opposite: true,
-          title: { text: 'Revenus (DT)', style: { fontSize: '12px', fontWeight: 500 } },
-          labels: { formatter: (val: number) => val.toLocaleString() }
-        }
-      ],
-      legend: {
-        position: 'top',
-        horizontalAlign: 'right',
-        fontSize: '13px',
-        markers: { width: 10, height: 10, radius: 4 }
-      },
-      dataLabels: { enabled: false },
-      grid: {
-        borderColor: '#f1f5f9',
-        strokeDashArray: 4
-      }
+      xaxis: { categories: labels, labels: { style: { colors: '#6c757d', fontSize: '12px' } } },
+      yaxis: { labels: { formatter: (v: number) => `${v.toLocaleString()} DT` } },
+      tooltip: { y: { formatter: (v: number) => `${v.toLocaleString()} DT` } },
+      legend: { position: 'top' },
+      grid: { borderColor: '#f1f1f1' },
     };
   }
 
-  // ─── EXPORT CSV ─────────────────────────────────
-  exportCSV(): void {
-    if (!this.stats && !this.revenueStats) return;
+  private buildPerformanceChart(points: TimeSeriesPointDto[]): void {
+    const labels = points.map(p => this.formatBucket(p.bucketStart));
+    const rides  = points.map(p => p.rides ?? 0);
 
-    const rows = [
-      ['Indicateur', 'Valeur'],
-      ['Revenus Totaux',      this.stats?.totalRevenue || 0],
-      ['Courses Totales',     this.stats?.totalRides || 0],
-      ['Moyenne / Course',    this.revenueStats?.avgRevenuePerRide || 0],
-      ['Médiane / Course',    this.revenueStats?.medianRevenuePerRide || 0],
-      ['Courses Complétées',  this.revenueStats?.completedRides || 0],
-      ['Moy. Courses / Jour', this.stats?.avgRidesPerDay || 0],
-      ['Moy. Courses / Mois', this.stats?.avgRidesPerMonth || 0],
-      ['Moy. Courses / Année',this.stats?.avgRidesPerYear || 0]
-    ];
+    this.performanceChartOptions = {
+      series: [{ name: 'Rides', data: rides }],
+      chart: { type: 'bar', height: 350, toolbar: { show: false }, fontFamily: 'All round gothic, sans-serif' },
+      colors: [NAVY60],
+      dataLabels: { enabled: false },
+      xaxis: { categories: labels },
+      yaxis: { labels: { formatter: (v: number) => v.toLocaleString() } },
+      plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+      grid: { borderColor: '#f1f1f1' },
+    };
+  }
 
-    const csv  = rows.map(r => r.join(';')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `stats_revenus_${this.from}_${this.to}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  private buildTopPerformersChart(taxis: TaxiPerformanceDto[]): void {
+    if (!taxis.length) return;
+    this.topPerformersChartOptions = {
+      series: taxis.map(t => +(t.revenue ?? 0).toFixed(2)),
+      chart: { type: 'donut', height: 300 },
+      labels: taxis.map(t => t.nom || t.telephone),
+      colors: [NAVY, YELLOW, NAVY60, NAVY40, '#6c757d'],
+      legend: { position: 'bottom' },
+      plotOptions: { pie: { donut: { size: '60%' } } },
+      tooltip: { y: { formatter: (v: number) => `${v.toLocaleString()} DT` } },
+    };
+  }
+
+  // ── Period / year change ──────────────────────────────────────────────────
+
+  onPeriodChange(): void { this.loadAll(); }
+  onYearChange():   void { this.loadAll(); }
+
+  // ── Export ────────────────────────────────────────────────────────────────
+
+  exportReport(format: string): void {
+    console.log(`Exporting ${format} for ${this.selectedPeriod} ${this.selectedYear}`);
+    // TODO: implement via a backend export endpoint or client-side library
+  }
+
+  // ── Modal ─────────────────────────────────────────────────────────────────
+
+  openDetailedReport(modal: any, type: string): void {
+    console.log(`Opening detailed ${type} report`);
+  }
+get avgRidesPerDayBarWidth(): number {
+  return Math.min(((this.totalRides / 30) / 50) * 100, 100);
+}
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  getPerformanceColor(value: number): string {
+    if (value >= 90) return 'text-success';
+    if (value >= 75) return 'text-warning';
+    return 'text-danger';
+  }
+
+  getRatingStars(rating: number): string {
+    const full  = Math.floor(rating ?? 0);
+    const half  = (rating ?? 0) % 1 >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+  }
+
+  private formatBucket(iso: string): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (this.bucket === 'DAY')   return d.toLocaleDateString('fr-TN', { day: '2-digit', month: 'short' });
+    if (this.bucket === 'MONTH') return d.toLocaleDateString('fr-TN', { month: 'short', year: 'numeric' });
+    return String(d.getFullYear());
   }
 }

@@ -118,7 +118,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
+import { CommonModule } from '@angular/common';
 import { ToastrModule } from 'ngx-toastr';
 
 // ngx-translate
@@ -163,6 +163,7 @@ import { FleetService } from './services/fleet.service';
 import { ClientService } from './services/client.service';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
+import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
 
 @NgModule({
   declarations: [
@@ -180,7 +181,8 @@ import { NotificationService } from './services/notification.service';
     LayoutSettingsComponent,
     TopbarComponent,
     SidebarComponent,
-    RightSidebarComponent
+    RightSidebarComponent,
+    ReclamationsComponent
   ],
   imports: [
     BrowserModule,

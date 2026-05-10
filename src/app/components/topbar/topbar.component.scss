@@ -1,8 +1,6 @@
-
-
 #page-topbar {
-  background-color: #211F54; // main topbar color
-  color: #FFC900;
+  background-color: #211f54;
+  color: #ffc900;
   height: 42px;
   font-weight: 600;
 
@@ -19,29 +17,48 @@
     background-color: inherit;
 
     img {
-      max-height: 18px; // shrunk logo
+      max-height: 18px;
     }
   }
 
   .header-item {
-  position: relative;
-}
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
 
-.header-item:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 25%;
-  height: 50%;
-  width: 1px;
-  background: #FFC900;
-}
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 25%;
+      height: 50%;
+      width: 1px;
+      background: #ffc900;
+    }
 
+    i {
+      font-size: 20px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    &:hover i {
+      transform: scale(1.15);
+      opacity: 0.9;
+    }
+
+    // ✅ Focus styles for accessibility
+    &:focus-visible {
+      outline: 2px solid #ffc900;
+      outline-offset: 2px;
+    }
+  }
 
   .btn.header-item {
     background-color: transparent !important;
     border: none;
-    color:#FFC900;
+    color: #ffc900;
     padding: 0 6px;
   }
 
@@ -49,38 +66,33 @@
     display: flex;
     align-items: center;
     margin-right: 8px;
+
     input.form-control {
-      background-color: #211F54; // match topbar
-      border: 1px solid #FFC900;
-      color: #FFC900;
+      background-color: #211f54;
+      border: 1px solid #ffc900;
+      color: #ffc900;
       font-weight: 600;
       height: 28px;
       padding: 0 8px;
 
       &::placeholder {
-        color: #FFC900;
+        color: #ffc900;
         opacity: 0.7;
         font-weight: 600;
+      }
+
+      &:focus {
+        outline: 2px solid #ffc900;
+        outline-offset: 2px;
       }
     }
 
     .bx {
-      color: #FFC900 !important;
-      margin-left: -24px; // overlap input nicely
+      color: #ffc900 !important;
+      margin-left: -24px;
     }
   }
 
-  .header-item i {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.header-item:hover i {
-  transform: scale(1.15);
-  opacity: 0.9;
-}
-
-
-  // Responsive tweaks
   @media (max-width: 1200px) {
     .app-search {
       display: none;
@@ -103,19 +115,9 @@
       max-height: 16px;
     }
   }
-  
-  
-}
-.header-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
 }
 
-.header-item i {
-  font-size: 20px;
-}
+/* ================= APP SWITCH ================= */
 
 .app-switch {
   display: flex;
@@ -123,36 +125,37 @@
   gap: 8px;
 }
 
-/* Labels */
 .label {
   font-size: 13px;
   font-weight: 600;
   color: #ffc107;
   opacity: 0.5;
   transition: 0.3s;
+
+  &.active {
+    opacity: 1;
+    color: #ffc107;
+  }
 }
 
-.label.active {
-  opacity: 1;
-  color: #ffc107;
-}
-
-/* Switch container */
 .switch {
   position: relative;
   display: inline-block;
   width: 46px;
   height: 22px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:focus + .slider {
+      outline: 2px solid #ffc107;
+      outline-offset: 2px;
+    }
+  }
 }
 
-/* Hide checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* Slider background */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -163,27 +166,39 @@
   right: 0;
   bottom: 0;
   transition: 0.3s;
+
+  &:before {
+    position: absolute;
+    content: '';
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
 }
 
-/* Circle */
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 3px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-
-/* Active state */
 .switch input:checked + .slider {
   background-color: #ffc107;
+
+  &:before {
+    transform: translate(22px, -50%);
+  }
 }
 
-.switch input:checked + .slider:before {
-  transform: translate(22px, -50%);
+/* ================= DROPDOWN ================= */
+
+.dropdown-item {
+  &.active {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ffc107;
+    outline-offset: -2px;
+  }
 }

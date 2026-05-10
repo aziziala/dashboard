@@ -569,6 +569,63 @@ apx-chart {
 }
 
 
+/* ===== Leaflet Custom Marker Styles ===== */
+.modern-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.marker {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  i {
+    color: white;
+    font-size: 16px;
+    z-index: 2;
+  }
+
+  &.green {
+    background: #22c55e;
+  }
+  &.red {
+    background: #ef4444;
+  }
+  &.yellow {
+    background: #f59e0b;
+  }
+
+  .pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: pulse-ring 1.5s ease-out infinite;
+    z-index: 1;
+  }
+
+  &.green .pulse { background: rgba(34, 197, 94, 0.4); }
+  &.red .pulse   { background: rgba(239, 68, 68, 0.4); }
+  &.yellow .pulse { background: rgba(245, 158, 11, 0.4); }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
 

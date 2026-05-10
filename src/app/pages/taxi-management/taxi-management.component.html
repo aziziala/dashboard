@@ -360,12 +360,15 @@ trouvé.
       <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
         <i class="bi bi-x-circle"></i> Annuler
       </button>
-      <button class="btn btn-gradient-primary"
-              [disabled]="taxiForm.invalid"
-              (click)="saveTaxi()">
-        <i class="bi bi-save"></i>
-        {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
-      </button>
+<button
+  class="btn btn-gradient-primary"
+  [disabled]="taxiForm.invalid || isSending"
+  [attr.aria-busy]="isSending"
+  (click)="saveTaxi()">
+  <i class="bi bi-save" *ngIf="!isSending"></i>
+  <span class="spinner-border spinner-border-sm" *ngIf="isSending"></span>
+  {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+</button>
     </div>
   </div>
 </ng-template>
@@ -451,170 +454,133 @@ Fermer
 </div>
 </div>
 </ng-template>
-<!-- Password Change Modal -->
-<ng-template #changePasswordModal1 let-modal>
+<!-- ✅ MODAL 1: For ADDING a new taxi (first time password) -->
+<ng-template #passwordModalForAdd let-modal>
   <div class="modal-content">
     <div class="modal-header modal-header-enriched">
       <div class="header-avatar"><i class="fas fa-key"></i></div>
-      <h5 class="modal-title">Changer le mot de passe 1</h5>
+      <h5 class="modal-title">Définir le mot de passe</h5>
       <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
     </div>
 
     <div class="modal-body">
       <form [formGroup]="passwordForm">
         <div class="form-floating mb-3 position-relative">
-  <input
-    [type]="showNewPassword ? 'text' : 'password'"
-    class="form-control"
-    formControlName="newPassword"
-    [class.is-invalid]="passwordForm.get('newPassword')?.touched &&
-                        passwordForm.get('newPassword')?.invalid">
+          <input
+            [type]="showNewPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="newPassword"
+            [class.is-invalid]="passwordForm.get('newPassword')?.touched &&
+                                passwordForm.get('newPassword')?.invalid">
+          <label>Nouveau mot de passe</label>
+          <button
+            type="button"
+            class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
+            (click)="showNewPassword = !showNewPassword">
+            <i class="fas" [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+          <div class="invalid-feedback">
+            <div *ngIf="passwordForm.get('newPassword')?.errors?.['required']">Mot de passe requis</div>
+            <div *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">Minimum 6 caractères</div>
+            <div *ngIf="passwordForm.get('newPassword')?.errors?.['maxlength']">Maximum 40 caractères</div>
+          </div>
+          <small class="text-muted d-block text-end mt-1">{{ passwordLength }} / 40</small>
+        </div>
 
-  <label>Nouveau mot de passe</label>
+        <div class="form-floating mb-3 position-relative">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="confirmPassword"
+            [class.is-invalid]="passwordForm.touched && passwordForm.errors?.['passwordMismatch']">
+          <label>Confirmer le mot de passe</label>
+          <button
+            type="button"
+            class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
+            (click)="showConfirmPassword = !showConfirmPassword">
+            <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+          <div class="invalid-feedback">Les mots de passe ne correspondent pas</div>
+        </div>
 
-  <!-- 👁 Toggle -->
-  <button
-    type="button"
-    class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
-    (click)="showNewPassword = !showNewPassword">
-    <i class="fas" [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-  </button>
-
-  <!-- Validation messages -->
-  <div class="invalid-feedback">
-    <div *ngIf="passwordForm.get('newPassword')?.errors?.['required']">
-      Mot de passe requis
-    </div>
-    <div *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">
-      Minimum 6 caractères
-    </div>
-    <div *ngIf="passwordForm.get('newPassword')?.errors?.['maxlength']">
-      Maximum 40 caractères
-    </div>
-  </div>
-
-  <!-- 🔢 Character counter -->
-  <small class="text-muted d-block text-end mt-1">
-    {{ passwordLength }} / 40
-  </small>
-</div>
-
-
-<div class="form-floating mb-3 position-relative">
-  <input
-    [type]="showConfirmPassword ? 'text' : 'password'"
-    class="form-control"
-    formControlName="confirmPassword"
-    [class.is-invalid]="passwordForm.touched &&
-                        passwordForm.errors?.['passwordMismatch']">
-
-  <label>Confirmer le mot de passe</label>
-
-  <!-- 👁 Toggle -->
-  <button
-    type="button"
-    class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
-    (click)="showConfirmPassword = !showConfirmPassword">
-    <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-  </button>
-
-  <div class="invalid-feedback">
-    Les mots de passe ne correspondent pas
-  </div>
-</div>
-<button class="btn btn-gradient-primary w-100"
-        [disabled]="passwordForm.invalid || isSending"
-        (click)="submitNewPassword2(modal)">
-  Envoyer
-</button>
-
+        <button
+          class="btn btn-gradient-primary w-100"
+          [disabled]="passwordForm.invalid || isSending"
+          (click)="submitNewPassword(modal)">
+          <span *ngIf="!isSending">Créer le taxi</span>
+          <span *ngIf="isSending">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Création...
+          </span>
+        </button>
       </form>
     </div>
   </div>
 </ng-template>
 
-<ng-template #changePasswordModal2 let-modal>
+<!-- ✅ MODAL 2: For RESETTING password (existing taxi) -->
+<ng-template #passwordModalForReset let-modal>
   <div class="modal-content">
     <div class="modal-header modal-header-enriched">
       <div class="header-avatar"><i class="fas fa-key"></i></div>
-      <h5 class="modal-title">Changer le mot de passe 2</h5>
+      <h5 class="modal-title">Réinitialiser le mot de passe</h5>
       <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
     </div>
 
     <div class="modal-body">
       <form [formGroup]="passwordForm">
         <div class="form-floating mb-3 position-relative">
-  <input
-    [type]="showNewPassword ? 'text' : 'password'"
-    class="form-control"
-    formControlName="newPassword"
-    [class.is-invalid]="passwordForm.get('newPassword')?.touched &&
-                        passwordForm.get('newPassword')?.invalid">
+          <input
+            [type]="showNewPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="newPassword"
+            [class.is-invalid]="passwordForm.get('newPassword')?.touched &&
+                                passwordForm.get('newPassword')?.invalid">
+          <label>Nouveau mot de passe</label>
+          <button
+            type="button"
+            class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
+            (click)="showNewPassword = !showNewPassword">
+            <i class="fas" [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+          <div class="invalid-feedback">
+            <div *ngIf="passwordForm.get('newPassword')?.errors?.['required']">Mot de passe requis</div>
+            <div *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">Minimum 6 caractères</div>
+            <div *ngIf="passwordForm.get('newPassword')?.errors?.['maxlength']">Maximum 40 caractères</div>
+          </div>
+          <small class="text-muted d-block text-end mt-1">{{ passwordLength }} / 40</small>
+        </div>
 
-  <label>Nouveau mot de passe</label>
+        <div class="form-floating mb-3 position-relative">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="confirmPassword"
+            [class.is-invalid]="passwordForm.touched && passwordForm.errors?.['passwordMismatch']">
+          <label>Confirmer le mot de passe</label>
+          <button
+            type="button"
+            class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
+            (click)="showConfirmPassword = !showConfirmPassword">
+            <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+          <div class="invalid-feedback">Les mots de passe ne correspondent pas</div>
+        </div>
 
-  <!-- 👁 Toggle -->
-  <button
-    type="button"
-    class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
-    (click)="showNewPassword = !showNewPassword">
-    <i class="fas" [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-  </button>
-
-  <!-- Validation messages -->
-  <div class="invalid-feedback">
-    <div *ngIf="passwordForm.get('newPassword')?.errors?.['required']">
-      Mot de passe requis
-    </div>
-    <div *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">
-      Minimum 6 caractères
-    </div>
-    <div *ngIf="passwordForm.get('newPassword')?.errors?.['maxlength']">
-      Maximum 40 caractères
-    </div>
-  </div>
-
-  <!-- 🔢 Character counter -->
-  <small class="text-muted d-block text-end mt-1">
-    {{ passwordLength }} / 40
-  </small>
-</div>
-
-
-<div class="form-floating mb-3 position-relative">
-  <input
-    [type]="showConfirmPassword ? 'text' : 'password'"
-    class="form-control"
-    formControlName="confirmPassword"
-    [class.is-invalid]="passwordForm.touched &&
-                        passwordForm.errors?.['passwordMismatch']">
-
-  <label>Confirmer le mot de passe</label>
-
-  <!-- 👁 Toggle -->
-  <button
-    type="button"
-    class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2"
-    (click)="showConfirmPassword = !showConfirmPassword">
-    <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-  </button>
-
-  <div class="invalid-feedback">
-    Les mots de passe ne correspondent pas
-  </div>
-</div>
-
-<button class="btn btn-gradient-primary w-100"
-        [disabled]="passwordForm.invalid || isSending"
-        (click)="submitNewPassword2(modal)">
-  Envoyer
-</button>
-
+        <button
+          class="btn btn-gradient-primary w-100"
+          [disabled]="passwordForm.invalid || isSending"
+          (click)="submitPasswordReset(modal)">
+          <span *ngIf="!isSending">Réinitialiser</span>
+          <span *ngIf="isSending">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Envoi...
+          </span>
+        </button>
       </form>
     </div>
   </div>
 </ng-template>
-
 <!-- ================= DELETE CONFIRMATION MODAL ================= -->
 <ng-template #deleteConfirmModal let-modal>
 <div class="modal-content">

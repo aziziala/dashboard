@@ -1,335 +1,464 @@
-<div class="dashboard">
+<div class="analytics-wrapper">
 
-  <!-- ========================
-       HEADER
-  ========================= -->
-  <div class="row">
-    <div class="col-12 my-3">
-      <div class="page-title-box">
+  <!-- ══════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════ -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <div class="page-header__icon-wrap">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div>
+        <h1 class="page-header__title">Gestion des statistiques</h1>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+          <li class="breadcrumb-item active">Statistiques</li>
+        </ol>
+      </div>
+    </div>
 
-        <div class="title-section">
-          <h4 class="mb-0 page-title">
-            <i class="fas fa-chart-line me-2 stats-icon"></i>
-            Statistiques des Revenus
-          </h4>
-          <span class="period-badge" *ngIf="periodLabel">{{ periodLabel }}</span>
+    <div class="page-header__right">
+      <!-- Period selector -->
+      <div class="control-group">
+        <label class="control-group__label">Période</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+            <option value="daily">Aujourd'hui</option>
+            <option value="weekly">Cette semaine</option>
+            <option value="monthly">Ce mois</option>
+            <option value="quarterly">Ce trimestre</option>
+            <option value="yearly">Cette année</option>
+          </select>
+          <i class="fas fa-chevron-down select-arrow"></i>
         </div>
+      </div>
 
-        <div class="filters-section">
-          <!-- QUICK PRESETS -->
-          <div class="preset-btns">
-            <button class="preset-btn"
-                    [class.active]="activePreset === 'today'"
-                    (click)="setPreset('today')">
-              Aujourd'hui
-            </button>
-            <button class="preset-btn"
-                    [class.active]="activePreset === 'week'"
-                    (click)="setPreset('week')">
-              Semaine
-            </button>
-            <button class="preset-btn"
-                    [class.active]="activePreset === 'month'"
-                    (click)="setPreset('month')">
-              Mois
-            </button>
-            <button class="preset-btn"
-                    [class.active]="activePreset === 'year'"
-                    (click)="setPreset('year')">
-              Année
-            </button>
-          </div>
-
-          <!-- DATE INPUTS -->
-          <div class="date-range">
-            <div class="date-wrapper">
-              <label>Du</label>
-              <input type="date" [(ngModel)]="from" class="form-control date-input">
-            </div>
-            <div class="date-wrapper">
-              <label>Au</label>
-              <input type="date" [(ngModel)]="to" class="form-control date-input">
-            </div>
-            <button class="btn btn-gradient-primary" (click)="loadStats()">
-              <i class="mdi mdi-filter me-1"></i> Filtrer
-            </button>
-            <button class="btn btn-outline-light" (click)="exportCSV()" title="Exporter CSV">
-              <i class="mdi mdi-download"></i>
-            </button>
-          </div>
+      <!-- Year selector -->
+      <div class="control-group">
+        <label class="control-group__label">Année</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="selectedYear" (change)="onYearChange()">
+            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+          </select>
+          <i class="fas fa-chevron-down select-arrow"></i>
         </div>
+      </div>
 
+      <!-- Export buttons -->
+      <div class="export-group">
+        <button class="btn-export" (click)="exportReport('csv')" title="Exporter CSV">
+          <i class="fas fa-file-csv"></i>
+          <span>CSV</span>
+        </button>
+        <button class="btn-export" (click)="exportReport('pdf')" title="Exporter PDF">
+          <i class="fas fa-file-pdf"></i>
+          <span>PDF</span>
+        </button>
+        <button class="btn-export btn-export--primary" (click)="exportReport('excel')" title="Exporter Excel">
+          <i class="fas fa-file-excel"></i>
+          <span>Excel</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- ========================
-       LOADING SKELETON
-  ========================= -->
-  <ng-container *ngIf="loading; else contentBlock">
-    <div class="stats-cards">
-      <div class="stat-card skeleton" *ngFor="let s of [0,1,2,3]">
-        <div class="icon skeleton-pulse"></div>
-        <div class="info">
-          <span class="skeleton-line short skeleton-pulse"></span>
-          <h3 class="skeleton-line long skeleton-pulse"></h3>
-        </div>
-      </div>
+  <!-- ══════════════════════════════════════════════
+       LOADING OVERLAY
+  ══════════════════════════════════════════════ -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <span>Chargement…</span>
     </div>
-    <div class="chart-card skeleton-chart skeleton-pulse"></div>
-    <div class="charts">
-      <div class="chart-card skeleton-chart skeleton-pulse"></div>
-      <div class="chart-card skeleton-chart skeleton-pulse"></div>
-    </div>
-  </ng-container>
+  </div>
 
-  <!-- ========================
-       ERROR STATE
-  ========================= -->
-  <ng-template #errorBlock>
-    <div class="error-state">
-      <i class="mdi mdi-alert-circle-outline"></i>
-      <h5>Erreur de chargement</h5>
-      <p>Impossible de récupérer les statistiques.</p>
-      <button class="btn btn-gradient-primary" (click)="loadStats()">
-        <i class="mdi mdi-refresh me-1"></i> Réessayer
-      </button>
-    </div>
-  </ng-template>
+  <!-- ══════════════════════════════════════════════
+       KPI CARDS
+  ══════════════════════════════════════════════ -->
+  <div class="kpi-grid">
 
-  <!-- ========================
-       CONTENT
-  ========================= -->
-  <ng-template #contentBlock>
-    <ng-container *ngIf="!error; else errorBlock">
-
-      <!-- PRIMARY KPI CARDS -->
-      <div class="stats-cards" *ngIf="stats">
-
-        <div class="stat-card revenue">
-          <div class="icon"><i class="mdi mdi-currency-usd"></i></div>
-          <div class="info">
-            <span>Revenus Totaux</span>
-            <h3>{{ stats?.totalRevenue || 0 | number }} DT</h3>
-          </div>
-          <div class="card-decoration"></div>
-        </div>
-
-        <div class="stat-card rides">
-          <div class="icon"><i class="mdi mdi-taxi"></i></div>
-          <div class="info">
-            <span>Courses Totales</span>
-            <h3>{{ stats?.totalRides || 0 }}</h3>
-          </div>
-          <div class="card-decoration"></div>
-        </div>
-
-        <div class="stat-card avg">
-          <div class="icon"><i class="mdi mdi-chart-bar"></i></div>
-          <div class="info">
-            <span>Moyenne / Course</span>
-            <h3>{{ revenueStats?.avgRevenuePerRide || 0 | number:'1.2-2' }} DT</h3>
-          </div>
-          <div class="card-decoration"></div>
-        </div>
-
-        <div class="stat-card median">
-          <div class="icon"><i class="mdi mdi-chart-line"></i></div>
-          <div class="info">
-            <span>Médiane / Course</span>
-            <h3>{{ revenueStats?.medianRevenuePerRide || 0 | number:'1.2-2' }} DT</h3>
-          </div>
-          <div class="card-decoration"></div>
-        </div>
-
+    <div class="kpi-card kpi-card--revenue">
+      <div class="kpi-card__icon">
+        <i class="fas fa-coins"></i>
       </div>
-
-      <!-- SECONDARY KPI ROW -->
-      <div class="stats-cards secondary" *ngIf="stats">
-
-        <div class="stat-card mini">
-          <div class="icon small" style="background:linear-gradient(135deg,#0284c7,#0ea5e9)">
-            <i class="mdi mdi-calendar-today"></i>
-          </div>
-          <div class="info">
-            <span>Moy. courses / jour</span>
-            <h3>{{ stats?.avgRidesPerDay || 0 | number:'1.1-1' }}</h3>
-          </div>
-        </div>
-
-        <div class="stat-card mini">
-          <div class="icon small" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)">
-            <i class="mdi mdi-calendar-month"></i>
-          </div>
-          <div class="info">
-            <span>Moy. courses / mois</span>
-            <h3>{{ stats?.avgRidesPerMonth || 0 | number:'1.1-1' }}</h3>
-          </div>
-        </div>
-
-        <div class="stat-card mini">
-          <div class="icon small" style="background:linear-gradient(135deg,#c2410c,#f97316)">
-            <i class="mdi mdi-calendar"></i>
-          </div>
-          <div class="info">
-            <span>Moy. courses / année</span>
-            <h3>{{ stats?.avgRidesPerYear || 0 | number:'1.1-1' }}</h3>
-          </div>
-        </div>
-
-        <div class="stat-card mini">
-          <div class="icon small" style="background:linear-gradient(135deg,#059669,#10b981)">
-            <i class="mdi mdi-check-circle"></i>
-          </div>
-          <div class="info">
-            <span>Courses complétées</span>
-            <h3>{{ revenueStats?.completedRides || 0 }}</h3>
-          </div>
-        </div>
-
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Revenu total</p>
+        <h2 class="kpi-card__value">{{ totalRevenue | number:'1.0-0' }} <span class="kpi-card__unit">DT</span></h2>
       </div>
+      <div class="kpi-card__decoration"></div>
+    </div>
 
-      <!-- ========================
-           TREND CHART
-      ========================= -->
-      <div class="chart-card" *ngIf="trendChart?.series?.length > 0">
-        <div class="chart-header">
-          <h5>
-            <i class="mdi mdi-trending-up me-2 text-success"></i>
-            Évolution Revenus & Courses
-          </h5>
-          <div class="chart-legend">
-            <span><span class="legend-dot green"></span> Courses</span>
-            <span><span class="legend-dot indigo"></span> Revenus</span>
-          </div>
+    <div class="kpi-card kpi-card--rides">
+      <div class="kpi-card__icon">
+        <i class="fas fa-route"></i>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Courses totales</p>
+        <h2 class="kpi-card__value">{{ totalRides | number:'1.0-0' }}</h2>
+      </div>
+      <div class="kpi-card__decoration"></div>
+    </div>
+
+    <div class="kpi-card kpi-card--rating">
+      <div class="kpi-card__icon">
+        <i class="fas fa-star"></i>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Note moyenne</p>
+        <h2 class="kpi-card__value">{{ averageRating | number:'1.1-1' }} <span class="kpi-card__unit">/ 5</span></h2>
+      </div>
+      <div class="kpi-card__decoration"></div>
+    </div>
+
+    <div class="kpi-card kpi-card--clients">
+      <div class="kpi-card__icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Total clients</p>
+        <h2 class="kpi-card__value">{{ totalClients | number:'1.0-0' }}</h2>
+      </div>
+      <div class="kpi-card__decoration"></div>
+    </div>
+
+    <div class="kpi-card kpi-card--taxis">
+      <div class="kpi-card__icon">
+        <i class="fas fa-taxi"></i>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Total taxis</p>
+        <h2 class="kpi-card__value">{{ totalTaxis | number:'1.0-0' }}</h2>
+      </div>
+      <div class="kpi-card__decoration"></div>
+    </div>
+
+    <div class="kpi-card" [ngClass]="'kpi-card--success-' + (successRate >= 90 ? 'high' : successRate >= 75 ? 'mid' : 'low')">
+      <div class="kpi-card__icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Taux de succès</p>
+        <h2 class="kpi-card__value">{{ successRate | number:'1.1-1' }} <span class="kpi-card__unit">%</span></h2>
+      </div>
+      <div class="kpi-card__decoration"></div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       CHARTS ROW — Revenue + Rides bar
+  ══════════════════════════════════════════════ -->
+  <div class="charts-row charts-row--70-30">
+
+    <div class="chart-card">
+      <div class="chart-card__header">
+        <div class="chart-card__header-left">
+          <span class="chart-card__dot chart-card__dot--navy"></span>
+          <h3 class="chart-card__title">Revenus & Bénéfices</h3>
         </div>
-
+        <span class="chart-card__badge">{{ selectedPeriod | titlecase }}</span>
+      </div>
+      <div class="chart-card__body">
         <apx-chart
-          [series]="trendChart.series"
-          [chart]="trendChart.chart"
-          [stroke]="trendChart.stroke"
-          [xaxis]="trendChart.xaxis"
-          [tooltip]="trendChart.tooltip"
-          [colors]="trendChart.colors"
-          [fill]="trendChart.fill"
-          [yaxis]="trendChart.yaxis"
-          [legend]="trendChart.legend"
-          [dataLabels]="trendChart.dataLabels"
-          [grid]="trendChart.grid">
+          [series]="revenueChartOptions.series"
+          [chart]="revenueChartOptions.chart"
+          [colors]="revenueChartOptions.colors"
+          [dataLabels]="revenueChartOptions.dataLabels"
+          [stroke]="revenueChartOptions.stroke"
+          [fill]="revenueChartOptions.fill"
+          [xaxis]="revenueChartOptions.xaxis"
+          [yaxis]="revenueChartOptions.yaxis"
+          [tooltip]="revenueChartOptions.tooltip"
+          [legend]="revenueChartOptions.legend"
+          [grid]="revenueChartOptions.grid">
         </apx-chart>
       </div>
+    </div>
 
-      <!-- EMPTY TREND -->
-      <div class="chart-card empty-state" *ngIf="trendChart && !trendChart?.series?.length">
-        <i class="mdi mdi-chart-bell-curve-cumulative empty-icon"></i>
-        <h5>Évolution Revenus & Courses</h5>
-        <p class="text-muted">Aucune donnée disponible pour cette période</p>
+    <div class="chart-card">
+      <div class="chart-card__header">
+        <div class="chart-card__header-left">
+          <span class="chart-card__dot chart-card__dot--yellow"></span>
+          <h3 class="chart-card__title">Courses</h3>
+        </div>
       </div>
+      <div class="chart-card__body">
+        <apx-chart
+          [series]="performanceChartOptions.series"
+          [chart]="performanceChartOptions.chart"
+          [colors]="performanceChartOptions.colors"
+          [dataLabels]="performanceChartOptions.dataLabels"
+          [xaxis]="performanceChartOptions.xaxis"
+          [yaxis]="performanceChartOptions.yaxis"
+          [plotOptions]="performanceChartOptions.plotOptions"
+          [grid]="performanceChartOptions.grid">
+        </apx-chart>
+      </div>
+    </div>
 
-      <!-- ========================
-           BOTTOM GRIDS
-      ========================= -->
-      <div class="charts" *ngIf="revenueStats">
+  </div>
 
-        <!-- REVENUE DETAIL CARD -->
-        <div class="chart-card detail-card">
-          <h5>
-            <i class="mdi mdi-cash-multiple me-2" style="color:#4B4BAF"></i>
-            Analyse Revenus
-          </h5>
+  <!-- ══════════════════════════════════════════════
+       CHARTS ROW — Top performers donut
+  ══════════════════════════════════════════════ -->
+  <div class="charts-row charts-row--50-50">
 
-          <div class="detail-list">
-            <div class="list-item">
-              <div class="list-left">
-                <i class="mdi mdi-check-circle-outline text-success"></i>
-                <span>Courses complétées</span>
-              </div>
-              <strong>{{ revenueStats?.completedRides || 0 }}</strong>
+    <div class="chart-card">
+      <div class="chart-card__header">
+        <div class="chart-card__header-left">
+          <span class="chart-card__dot chart-card__dot--navy"></span>
+          <h3 class="chart-card__title">Top Taxis — Part de revenus</h3>
+        </div>
+      </div>
+      <div class="chart-card__body chart-card__body--centered">
+        <apx-chart
+          *ngIf="topPerformersChartOptions?.series?.length"
+          [series]="topPerformersChartOptions.series"
+          [chart]="topPerformersChartOptions.chart"
+          [labels]="topPerformersChartOptions.labels"
+          [colors]="topPerformersChartOptions.colors"
+          [legend]="topPerformersChartOptions.legend"
+          [plotOptions]="topPerformersChartOptions.plotOptions"
+          [tooltip]="topPerformersChartOptions.tooltip">
+        </apx-chart>
+        <div class="empty-state" *ngIf="!topPerformersChartOptions?.series?.length && !isLoading">
+          <i class="fas fa-chart-pie"></i>
+          <p>Aucune donnée disponible</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success vs Cancellation rate visual -->
+    <div class="chart-card">
+      <div class="chart-card__header">
+        <div class="chart-card__header-left">
+          <span class="chart-card__dot chart-card__dot--yellow"></span>
+          <h3 class="chart-card__title">Indicateurs de performance</h3>
+        </div>
+      </div>
+      <div class="chart-card__body">
+        <div class="perf-indicators">
+
+          <div class="perf-indicator">
+            <div class="perf-indicator__top">
+              <span class="perf-indicator__label">Taux de succès</span>
+              <span class="perf-indicator__value" [ngClass]="getPerformanceColor(successRate)">
+                {{ successRate | number:'1.1-1' }}%
+              </span>
             </div>
-
-            <div class="list-item">
-              <div class="list-left">
-                <i class="mdi mdi-cash text-warning"></i>
-                <span>Revenu total</span>
-              </div>
-              <strong>{{ revenueStats?.totalRevenue || 0 | number }} DT</strong>
-            </div>
-
-            <div class="list-item">
-              <div class="list-left">
-                <i class="mdi mdi-chart-bar text-info"></i>
-                <span>Moyenne</span>
-              </div>
-              <strong>{{ revenueStats?.avgRevenuePerRide || 0 | number:'1.2-2' }} DT</strong>
-            </div>
-
-            <div class="list-item">
-              <div class="list-left">
-                <i class="mdi mdi-chart-line text-purple"></i>
-                <span>Médiane</span>
-              </div>
-              <strong>{{ revenueStats?.medianRevenuePerRide || 0 | number:'1.2-2' }} DT</strong>
-            </div>
-
-            <div class="list-item" *ngIf="revenueStats?.minRevenue !== undefined">
-              <div class="list-left">
-                <i class="mdi mdi-arrow-down-bold text-danger"></i>
-                <span>Min</span>
-              </div>
-              <strong>{{ revenueStats?.minRevenue | number:'1.2-2' }} DT</strong>
-            </div>
-
-            <div class="list-item" *ngIf="revenueStats?.maxRevenue !== undefined">
-              <div class="list-left">
-                <i class="mdi mdi-arrow-up-bold text-success"></i>
-                <span>Max</span>
-              </div>
-              <strong>{{ revenueStats?.maxRevenue | number:'1.2-2' }} DT</strong>
+            <div class="perf-bar">
+              <div class="perf-bar__fill perf-bar__fill--success"
+                   [style.width.%]="successRate"></div>
             </div>
           </div>
 
-          <!-- PROGRESS: AVG vs MAX -->
-          <div class="revenue-progress"
-               *ngIf="revenueStats?.avgRevenuePerRide && revenueStats?.maxRevenue">
-            <div class="progress-label">
-              <span>Moyenne vs Max</span>
-              <span>{{ revenueStats.avgRevenuePerRide / revenueStats.maxRevenue * 100 | number:'1.0-0' }}%</span>
+          <div class="perf-indicator">
+            <div class="perf-indicator__top">
+              <span class="perf-indicator__label">Courses / jour (moy.)</span>
+              <span class="perf-indicator__value perf-indicator__value--navy">
+                {{ (totalRides / 30) | number:'1.0-0' }}
+              </span>
             </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill"
-                   [style.width.%]="revenueStats.avgRevenuePerRide / revenueStats.maxRevenue * 100">
+            <div class="perf-bar">
+              <div class="perf-bar__fill perf-bar__fill--navy"
+                   [style.width.%]="avgRidesPerDayBarWidth"></div>
+            </div>
+          </div>
+
+          <div class="separator"></div>
+
+          <div class="stat-grid">
+            <div class="stat-item">
+              <i class="fas fa-taxi stat-item__icon"></i>
+              <div>
+                <p class="stat-item__label">Taxis actifs</p>
+                <p class="stat-item__value">{{ totalTaxis }}</p>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-users stat-item__icon stat-item__icon--yellow"></i>
+              <div>
+                <p class="stat-item__label">Clients enregistrés</p>
+                <p class="stat-item__value">{{ totalClients }}</p>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-check-circle stat-item__icon stat-item__icon--green"></i>
+              <div>
+                <p class="stat-item__label">Courses complétées</p>
+                <p class="stat-item__value">{{ totalRides }}</p>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-star stat-item__icon stat-item__icon--yellow"></i>
+              <div>
+                <p class="stat-item__label">Note globale</p>
+                <p class="stat-item__value">{{ averageRating | number:'1.1-1' }}</p>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- RIDES BAR CHART -->
-        <div class="chart-card" *ngIf="ridesChart?.series?.length > 0">
-          <h5>
-            <i class="mdi mdi-chart-bar me-2" style="color:#6366f1"></i>
-            Performance Courses
-          </h5>
-          <apx-chart
-            [series]="ridesChart.series"
-            [chart]="ridesChart.chart"
-            [xaxis]="ridesChart.xaxis"
-            [colors]="ridesChart.colors"
-            [plotOptions]="ridesChart.plotOptions"
-            [dataLabels]="ridesChart.dataLabels"
-            [tooltip]="ridesChart.tooltip">
-          </apx-chart>
         </div>
-
-        <!-- EMPTY RIDES -->
-        <div class="chart-card empty-state" *ngIf="ridesChart && !ridesChart?.series?.length">
-          <i class="mdi mdi-chart-bar empty-icon"></i>
-          <h5>Performance Courses</h5>
-          <p class="text-muted">Aucune donnée disponible pour cette période</p>
-        </div>
-
       </div>
+    </div>
 
-    </ng-container>
-  </ng-template>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       TABLES ROW — Top taxis + Top clients
+  ══════════════════════════════════════════════ -->
+  <div class="tables-row">
+
+    <!-- Top Taxis -->
+    <div class="data-card">
+      <div class="data-card__header">
+        <div class="data-card__header-left">
+          <span class="data-card__dot"></span>
+          <h3 class="data-card__title">Top Taxis</h3>
+        </div>
+        <button class="btn-view-all" (click)="openDetailedReport(null, 'taxi')">
+          Voir tout <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      <div class="data-card__body">
+        <table class="data-table" *ngIf="topTaxis.length; else emptyTaxis">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Taxi / Téléphone</th>
+              <th>Courses</th>
+              <th>Revenu</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let taxi of topTaxis; let i = index">
+              <td>
+                <span class="rank-badge" [ngClass]="'rank-badge--' + (i + 1)">{{ i + 1 }}</span>
+              </td>
+              <td>
+                <div class="entity-cell">
+                  <div class="entity-avatar entity-avatar--taxi">
+                    <i class="fas fa-taxi"></i>
+                  </div>
+                  <div>
+                    <strong>{{ taxi.nom || '—' }}</strong>
+                    <small>{{ taxi.telephone }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="pill">{{ taxi.rides }}</span>
+              </td>
+              <td class="value-cell">{{ taxi.revenue | number:'1.0-0' }} DT</td>
+              <td>
+                <span class="stars">{{ getRatingStars(taxi.rating) }}</span>
+                <small class="rating-num">{{ taxi.rating | number:'1.1-1' }}</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #emptyTaxis>
+          <div class="empty-state" *ngIf="!isLoading">
+            <i class="fas fa-taxi"></i>
+            <p>Aucun taxi trouvé</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Top Clients -->
+    <div class="data-card">
+      <div class="data-card__header">
+        <div class="data-card__header-left">
+          <span class="data-card__dot data-card__dot--yellow"></span>
+          <h3 class="data-card__title">Top Clients</h3>
+        </div>
+        <button class="btn-view-all" (click)="openDetailedReport(null, 'client')">
+          Voir tout <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      <div class="data-card__body">
+        <table class="data-table" *ngIf="topClients.length; else emptyClients">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Client / Téléphone</th>
+              <th>Courses</th>
+              <th>Dépensé</th>
+              <th>Note moy.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let client of topClients; let i = index">
+              <td>
+                <span class="rank-badge" [ngClass]="'rank-badge--' + (i + 1)">{{ i + 1 }}</span>
+              </td>
+              <td>
+                <div class="entity-cell">
+                  <div class="entity-avatar entity-avatar--client">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div>
+                    <strong>{{ client.name || '—' }}</strong>
+                    <small>{{ client.telephone }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="pill pill--yellow">{{ client.rides }}</span>
+              </td>
+              <td class="value-cell">{{ client.revenue | number:'1.0-0' }} DT</td>
+              <td>
+                <span class="stars">{{ getRatingStars(client.avgRideRating || 0) }}</span>
+                <small class="rating-num">{{ (client.avgRideRating || 0) | number:'1.1-1' }}</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #emptyClients>
+          <div class="empty-state" *ngIf="!isLoading">
+            <i class="fas fa-users"></i>
+            <p>Aucun client trouvé</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       BOTTOM ANALYTICS CARDS
+  ══════════════════════════════════════════════ -->
+  <div class="info-cards-row">
+
+    <div class="info-card">
+      <div class="info-card__icon-wrap info-card__icon-wrap--navy">
+        <i class="fas fa-map-marked-alt"></i>
+      </div>
+      <h4 class="info-card__title">Distribution géographique</h4>
+      <p class="info-card__desc">Analyse cartographique de la distribution des courses par zone.</p>
+      <button class="btn-action">Voir la carte <i class="fas fa-external-link-alt"></i></button>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card__icon-wrap info-card__icon-wrap--yellow">
+        <i class="fas fa-clock"></i>
+      </div>
+      <h4 class="info-card__title">Heures de pointe</h4>
+      <p class="info-card__desc">Analyse des heures les plus actives et des schémas de demande.</p>
+      <button class="btn-action">Voir les détails <i class="fas fa-external-link-alt"></i></button>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card__icon-wrap info-card__icon-wrap--navy">
+        <i class="fas fa-smile"></i>
+      </div>
+      <h4 class="info-card__title">Satisfaction client</h4>
+      <p class="info-card__desc">Retours clients et analyse de la satisfaction globale.</p>
+      <button class="btn-action">Voir le rapport <i class="fas fa-external-link-alt"></i></button>
+    </div>
+
+  </div>
 
 </div>

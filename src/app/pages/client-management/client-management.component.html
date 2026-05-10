@@ -1,34 +1,37 @@
 <div class="container-fluid">
-  <!-- Page Title -->
-  <div class="row">
-    <div class="col-12 my-3">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0 page-title">
-          <i class="fas fa-user me-2 taxi-icon"></i>Gestion des Clients
-        </h4>
-        <div class="page-title-right d-none d-md-block">
-          <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
-            <li class="breadcrumb-item active">Gestion des Clients</li>
-          </ol>
-        </div>
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12 my-3">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0 page-title">
+        <i class="fas fa-user me-2 taxi-icon"></i>Gestion des Clients
+      </h4>
+      <div class="page-title-right d-none d-md-block">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+          <li class="breadcrumb-item active">Gestion des Clients</li>
+        </ol>
       </div>
     </div>
   </div>
-
-<div class="row mb-4 justify-content-center g-3">
-<div class="col-md-2" *ngFor="let stat of [
-{label: 'Total', value: clientStats.total, color: '#211F54'},
-]">
-<div class="card text-center" [ngStyle]="{'border': '2px solid ' + stat.color}">
-<div class="card-body">
-<h5 class="card-title" [ngStyle]="{'color': stat.color}">{{ stat.label }}</h5>
-<p class="card-text display-6" [ngStyle]="{'color': stat.color}">{{ stat.value }}</p>
-</div>
-</div>
-</div>
 </div>
 
+<!-- Stats Row -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="stats-row">
+
+      <div class="stats-card total">
+        <div class="icon"><i class="fas fa-users"></i></div>
+        <div class="info">
+          <span>Total</span>
+          <h3>{{ clientStats.total }}</h3>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 
   <div class="row align-items-center mb-4 gx-3">
@@ -55,13 +58,13 @@
     aria-hidden="true">
   </div>
 
-  <input
-    type="text"
-    class="search-input"
-    placeholder="Rechercher téléphone..."
-    [(ngModel)]="searchTerm"
-    (input)="searchClients()"
-  />
+<input
+  type="text"
+  class="search-input"
+  placeholder="Rechercher par nom ou téléphone..."
+  [(ngModel)]="searchTerm"
+  (input)="onSearchInput()"
+/>
 
   <button
     *ngIf="searchTerm"
@@ -77,7 +80,7 @@
 </div>
 <div class="col-md-3 mb-2 mb-md-0">
 <select class="form-select shadow-sm rounded border-0"
-[(ngModel)]="statusFilter" (change)="filterClients()">
+[(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
 <option value="">Tous les statuts</option>
 <option >...</option>
 </select>
@@ -126,13 +129,13 @@
             <button
               class="btn btn-sm btn-info me-1"
                (click)="openDetailsModal(viewModal, client)"
-            disabled>
+            >
               <i class="fas fa-eye"></i>
             </button>
             <button
               class="btn btn-sm btn-warning me-1"
               (click)="openEditModal(addEditModal, client)"
-            disabled>
+            >
               <i class="fas fa-edit"></i>
             </button>
             <button
