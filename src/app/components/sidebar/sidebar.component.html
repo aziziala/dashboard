@@ -1,142 +1,101 @@
-<nav
-  class="vertical-menu"
-  [class.open]="isOpen"
-  [class.collapsed]="isCollapsed"
-  role="navigation"
-  aria-label="Main menu"
->
+<nav class="vertical-menu" [class.open]="isOpen" [class.collapsed]="isCollapsed" role="navigation"
+  aria-label="Main menu">
   <!-- Mobile backdrop (closes sidebar on click) - ✅ fixed: uses isMobile -->
-  <div
-    class="sidebar-backdrop"
-    (click)="closeMobile()"
-    *ngIf="isOpen && isMobile"
-  ></div>
+  <div class="sidebar-backdrop" (click)="closeMobile()" *ngIf="isOpen && isMobile"></div>
 
   <div data-simplebar class="h-100">
     <div id="sidebar-menu">
       <ul class="metismenu list-unstyled" id="side-menu" role="menubar">
-        <li
-          role="none"
-          [class.mm-active]="activeUrl.startsWith('/dashboard')"
-        >
-          <a
-            routerLink="/dashboard"
-            class="waves-effect"
-            [class.active]="activeUrl.startsWith('/dashboard')"
-            role="menuitem"
-            [attr.aria-current]="activeUrl.startsWith('/dashboard') ? 'page' : null"
-            [title]="isCollapsed ? 'Tableau de bord' : ''"
-          >
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/dashboard')">
+          <a routerLink="/dashboard" class="waves-effect" [class.active]="activeUrl.startsWith('/dashboard')"
+            role="menuitem" [attr.aria-current]="activeUrl.startsWith('/dashboard') ? 'page' : null"
+            [title]="isCollapsed ? 'Tableau de bord' : ''">
             <i class="bx bx-home-circle" aria-hidden="true"></i>
             <span key="t-dashboards">Tableau de bord</span>
           </a>
         </li>
 
         <li role="none" [class.mm-active]="activeUrl.startsWith('/taxis')">
-          <a
-            routerLink="/taxis"
-            [class.active]="activeUrl.startsWith('/taxis')"
-            role="menuitem"
+          <a routerLink="/taxis" [class.active]="activeUrl.startsWith('/taxis')" role="menuitem"
             [attr.aria-current]="activeUrl.startsWith('/taxis') ? 'page' : null"
-            [title]="isCollapsed ? 'Gestion des taxis' : ''"
-          >
+            [title]="isCollapsed ? 'Gestion des taxis' : ''">
             <i class="bx bx-taxi" aria-hidden="true"></i>
             <span key="t-taxis">Gestion des Taxis</span>
           </a>
         </li>
 
         <li role="none" [class.mm-active]="activeUrl.startsWith('/clients')">
-          <a
-            routerLink="/clients"
-            [class.active]="activeUrl.startsWith('/clients')"
-            role="menuitem"
+          <a routerLink="/clients" [class.active]="activeUrl.startsWith('/clients')" role="menuitem"
             [attr.aria-current]="activeUrl.startsWith('/clients') ? 'page' : null"
-            [title]="isCollapsed ? 'Gestion des clients' : ''"
-          >
+            [title]="isCollapsed ? 'Gestion des clients' : ''">
             <i class="bx bx-user" aria-hidden="true"></i>
             <span key="t-clients">Gestion des clients</span>
           </a>
         </li>
 
         <li role="none" [class.mm-active]="activeUrl.startsWith('/sms')">
-          <a
-            routerLink="/sms"
-            [class.active]="activeUrl.startsWith('/sms')"
-            role="menuitem"
+          <a routerLink="/sms" [class.active]="activeUrl.startsWith('/sms')" role="menuitem"
             [attr.aria-current]="activeUrl.startsWith('/sms') ? 'page' : null"
-            [title]="isCollapsed ? 'Gestion des SMS' : ''"
-          >
+            [title]="isCollapsed ? 'Gestion des SMS' : ''">
             <i class="bx bx-message" aria-hidden="true"></i>
             <span key="t-sms">Gestion des SMS</span>
           </a>
         </li>
 
         <li role="none" [class.mm-active]="activeUrl.startsWith('/fleet')">
-          <a
-            routerLink="/fleet"
-            [class.active]="activeUrl.startsWith('/fleet')"
-            role="menuitem"
+          <a routerLink="/fleet" [class.active]="activeUrl.startsWith('/fleet')" role="menuitem"
             [attr.aria-current]="activeUrl.startsWith('/fleet') ? 'page' : null"
-            [title]="isCollapsed ? 'Gestion des flottes' : ''"
-          >
+            [title]="isCollapsed ? 'Gestion des flottes' : ''">
             <i class="bx bx-map" aria-hidden="true"></i>
             <span key="t-fleet">Gestion des flottes</span>
           </a>
         </li>
 
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/promotion')">
+          <a routerLink="/promotion" [class.active]="activeUrl.startsWith('/promotion')" role="menuitem"
+            [attr.aria-current]="activeUrl.startsWith('/promotion') ? 'page' : null"
+            [title]="isCollapsed ? 'Gestion des Promotions' : ''">
+
+            <i class="bx bx-purchase-tag"></i>
+
+            <span>
+              Gestion des Promotions
+            </span>
+
+          </a>
+        </li>
+
         <li role="none" [class.mm-active]="activeUrl.startsWith('/affectation-client')">
-          <a
-            routerLink="/affectation-client"
-            [class.active]="activeUrl.startsWith('/affectation-client')"
-            role="menuitem"
-            [attr.aria-current]="activeUrl.startsWith('/affectation-client') ? 'page' : null"
-            [title]="isCollapsed ? 'Gestion des réservations' : ''"
-          >
+          <a routerLink="/affectation-client" [class.active]="activeUrl.startsWith('/affectation-client')"
+            role="menuitem" [attr.aria-current]="activeUrl.startsWith('/affectation-client') ? 'page' : null"
+            [title]="isCollapsed ? 'Gestion des réservations' : ''">
             <i class="bx bx-transfer" aria-hidden="true"></i>
             <span>Gestion des réservations</span>
           </a>
         </li>
 
         <li role="none" [class.mm-active]="activeUrl.startsWith('/analytics')">
-          <a
-            routerLink="/analytics"
-            [class.active]="activeUrl.startsWith('/analytics')"
-            role="menuitem"
+          <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')" role="menuitem"
             [attr.aria-current]="activeUrl.startsWith('/analytics') ? 'page' : null"
-            [title]="isCollapsed ? 'Gestion des statistiques' : ''"
-          >
+            [title]="isCollapsed ? 'Gestion des statistiques' : ''">
             <i class="bx bx-bar-chart" aria-hidden="true"></i>
             <span key="t-analytics">Gestion des statistiques</span>
           </a>
         </li>
 
         <li role="none" [class.mm-active]="activeUrl.startsWith('/rides')">
-          <a
-            routerLink="/rides"
-            [class.active]="activeUrl.startsWith('/rides')"
-            role="menuitem"
+          <a routerLink="/rides" [class.active]="activeUrl.startsWith('/rides')" role="menuitem"
             [attr.aria-current]="activeUrl.startsWith('/rides') ? 'page' : null"
-            [title]="isCollapsed ? 'Suivi des courses' : ''"
-          >
+            [title]="isCollapsed ? 'Suivi des courses' : ''">
             <i class="bx bx-navigation" aria-hidden="true"></i>
             <span key="t-rides">Suivi des courses</span>
           </a>
         </li>
 
-        <li
-          
-          role="none"
-          [class.mm-active]="activeUrl.startsWith('/reclamations')"
-        >
-          <a
-            routerLink="/reclamations"
-            class="disabled-link"
-            [class.active]="activeUrl.startsWith('/reclamations')"
-            role="menuitem"
-            aria-disabled="true"
-            aria-label="Gestion des réclamations – bientôt disponible"
-            [title]="'Bientôt disponible'"
-          >
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/reclamations')">
+          <a routerLink="/reclamations" class="disabled-link" [class.active]="activeUrl.startsWith('/reclamations')"
+            role="menuitem" aria-disabled="true" aria-label="Gestion des réclamations – bientôt disponible"
+            [title]="'Bientôt disponible'">
             <i class="bx bx-support" aria-hidden="true"></i>
             <span key="t-rides">Gestion des réclamations</span>
           </a>
@@ -149,10 +108,7 @@
 
   <div class="sidebar-logo">
     <a href="https://smstaxi.tn/" target="_blank">
-      <img
-        [src]="currentApp === 'SMSTaxi' ? 'assets/logoY.png' : 'assets/taxiselect4.png'"
-        alt="logo"
-      />
+      <img [src]="currentApp === 'SMSTaxi' ? 'assets/logoY.png' : 'assets/taxiselect4.png'" alt="logo" />
     </a>
   </div>
 </nav>

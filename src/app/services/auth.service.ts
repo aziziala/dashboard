@@ -16,7 +16,7 @@ export interface User {
 })
 export class AuthService {
   
-  private baseUrl = 'http://41.225.11.231:8666/api'; // JWT service port
+  private baseUrl = 'http://192.168.100.12:8666/api'; // JWT service port
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
   
@@ -47,13 +47,13 @@ export class AuthService {
   
   verifyIdentity(data: any) {
   return this.http.post<any>(
-    'http://41.225.11.231:8777/iwt-authentication/api/auth/verify-identity',
+    'http://192.168.100.12:8777/iwt-authentication/api/auth/verify-identity',
     data
   );
 }
 resetPassword(token: string, password: string) {
   return this.http.post<any>(
-    `http://41.225.11.231:8777/iwt-authentication/api/auth/reset-password?token=${token}`,
+    `http://192.168.100.12:8777/iwt-authentication/api/auth/reset-password?token=${token}`,
     { newPassword: password }
   );
 }

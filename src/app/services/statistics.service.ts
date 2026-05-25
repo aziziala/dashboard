@@ -113,8 +113,8 @@ export type BucketSize = 'DAY' | 'MONTH' | 'YEAR';
 @Injectable({ providedIn: 'root' })
 export class StatisticsService {
 
-  /** Base URL — matches the Swagger server: http://41.225.11.231:8444/taxi-client */
-  private readonly base = 'http://41.225.11.231:8444/taxi-client/api/statistics';
+  /** Base URL — matches the Swagger server: http://192.168.100.12:8444/taxi-client */
+  private readonly base = 'http://192.168.100.12:8444/taxi-client/api/statistics';
 
   constructor(private http: HttpClient) {}
 

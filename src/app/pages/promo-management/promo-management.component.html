@@ -1,0 +1,321 @@
+<div class="container-fluid">
+
+    <!-- TITLE -->
+    <div class="row">
+        <div class="col-12 my-3">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+
+                <h4 class="mb-0 page-title">
+                    <i class="fas fa-tags me-2 taxi-icon"></i>
+                    Gestion des Promotions
+                </h4>
+                <div class="page-title-right d-none d-md-block">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item">
+                            <a routerLink="/dashboard">
+                                Tableau de bord
+                            </a>
+                        </li>
+
+                        <li class="breadcrumb-item active">
+                            Promotions
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP BAR -->
+
+    <div class="row align-items-center mb-4 gx-3">
+
+        <div class="col-md-4 mb-2 mb-md-0">
+            <div class="input-group shadow-sm rounded">
+                <div class="search-wrapper">
+                    <input type="text" class="search-input" placeholder="Rechercher un code promo...">
+                    <button *ngIf="searchTerm" class="clear-btn" aria-label="Clear search">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 text-end">
+
+            <button class="btn btn-gradient-primary" data-bs-toggle="modal" (click)="openPromoModal(promoModal)">
+                <i class="fas fa-plus me-1"></i>
+                Ajouter Promo
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Code</th>
+                    <th>Réduction</th>
+                    <th>Description</th>
+                    <th>Expiration</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let promo of promos">
+
+                    <td>{{ promo.id }}</td>
+
+                    <td>
+                        <span class="badge bg-dark">
+                            {{ promo.code }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ promo.discountPercentage }} %
+                    </td>
+
+                    <td>
+                        {{ promo.description }}
+                    </td>
+
+                    <td>
+                        {{ promo.expirationDate | date:'dd/MM/yyyy' }}
+                    </td>
+
+                    <td>
+
+                        <span class="badge" [ngClass]="promo.active ? 'bg-success' : 'bg-danger'">
+                            {{ promo.active ? 'Actif' : 'Inactif' }}
+                        </span>
+
+                    </td>
+                    <td>
+
+                        <div class="btn-group-actions">
+
+                            <button *ngIf="promo.active" class="btn btn-sm btn-danger"
+                                (click)="openDeactivateModal(deactivateModal, promo.id!)">
+
+                                <i class="fas fa-ban"></i>
+
+                            </button>
+
+                            <span *ngIf="!promo.active" class="text-muted small">
+
+                                Désactivé
+
+                            </span>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+<!-- Pagination -->
+<!--  <div class="row mt-3" *ngIf="totalItems > itemsPerPage">
+        <div class="col-12">
+          <nav>
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                  Previous
+                </a>
+              </li>
+              <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalItems / itemsPerPage)); let i = index"
+                  [class.active]="currentPage === i + 1">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(i + 1)">
+                  {{ i + 1 }}
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === Math.ceil(totalItems / itemsPerPage)">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                  Next
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>-->
+
+
+
+
+<!-- MODAL -->
+
+<ng-template #promoModal let-modal>
+    <div class="modal-content modal-animated compact-modal">
+
+        <!-- HEADER -->
+        <div class="modal-header modal-header-compact">
+
+            <div class="header-avatar-sm">
+                <i class="fas fa-tags"></i>
+            </div>
+
+            <div class="header-text">
+                <h6 class="modal-title mb-0">
+                    Ajouter une promotion
+                </h6>
+            </div>
+
+            <button type="button" class="btn-close btn-close-white ms-auto" (click)="modal.dismiss()">
+            </button>
+
+        </div>
+
+        <!-- BODY -->
+        <div class="modal-body">
+
+            <form class="form-modern">
+
+                <div class="form-grid">
+
+                    <!-- Code -->
+                    <div class="form-floating input-icon-top">
+                        <i class="fas fa-barcode"></i>
+                        <input type="text" class="form-control" id="code" placeholder="Code promo"
+                            [(ngModel)]="newPromo.code" name="code">
+                        <label for="code">Code promo</label>
+                    </div>
+
+                    <!-- Discount -->
+                    <div class="form-floating input-icon-top">
+                        <i class="fas fa-percent"></i>
+                        <input type="number" class="form-control" id="discount" placeholder="Réduction"
+                            [(ngModel)]="newPromo.discountPercentage" name="discount">
+                        <label for="discount">Réduction %</label>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-floating input-icon-top full-width">
+                        <i class="fas fa-comment"></i>
+                        <textarea class="form-control" id="description" placeholder="Description" style="height: 100px"
+                            [(ngModel)]="newPromo.description" name="description">
+            </textarea>
+                        <label for="description">Description</label>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-floating input-icon-top">
+                        <i class="fas fa-calendar"></i>
+                        <input type="date" class="form-control" id="expiration" [(ngModel)]="newPromo.expirationDate"
+                            name="expiration">
+                        <label for="expiration">Date expiration</label>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer compact-footer">
+
+            <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
+                <i class="bi bi-x-circle"></i> Annuler
+            </button>
+
+            <button class="btn btn-gradient-primary" (click)="createPromo()">
+                <i class="bi bi-save"></i>
+                Ajouter
+            </button>
+
+        </div>
+
+    </div>
+</ng-template>
+<!-- modal desactive -->
+
+<ng-template #deactivateModal let-modal>
+
+  <div class="modal-content modal-animated compact-modal">
+
+    <!-- HEADER -->
+    <div class="modal-header modal-header-compact bg-danger">
+
+      <div class="header-avatar-sm">
+        <i class="fas fa-ban"></i>
+      </div>
+
+      <div class="header-text">
+        <h6 class="modal-title mb-0">
+          Désactiver Promotion
+        </h6>
+      </div>
+
+      <button
+        type="button"
+        class="btn-close btn-close-white ms-auto"
+        (click)="modal.dismiss()">
+      </button>
+
+    </div>
+
+    <!-- BODY -->
+    <div class="modal-body text-center py-4">
+
+      <div class="mb-3">
+
+        <i class="fas fa-exclamation-triangle text-danger"
+           style="font-size: 55px;">
+        </i>
+
+      </div>
+
+      <h5 class="fw-bold">
+        Confirmation
+      </h5>
+
+      <p class="text-muted mb-0">
+        Voulez-vous vraiment désactiver cette promotion ?
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer compact-footer">
+
+      <button
+        class="btn btn-outline-secondary"
+        (click)="modal.dismiss()">
+
+        <i class="bi bi-x-circle"></i>
+        Annuler
+
+      </button>
+
+      <button
+        class="btn btn-danger"
+        (click)="deactivatePromo(modal)">
+
+        <i class="fas fa-ban me-1"></i>
+        Désactiver
+
+      </button>
+
+    </div>
+
+  </div>
+
+</ng-template>

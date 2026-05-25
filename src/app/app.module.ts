@@ -146,7 +146,7 @@ import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { RideManagementComponent } from './pages/ride-management/ride-management.component';
 import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-time-monitoring.component';
 import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sms-gateway-monitoring.component';
-
+import { PromoManagementComponent } from './pages/promo-management/promo-management.component';
 // Layout
 import { LayoutSettingsComponent } from './components/layout-settings/layout-settings.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
@@ -165,6 +165,7 @@ import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -182,6 +183,7 @@ import { ReclamationsComponent } from './pages/reclamations/reclamations/reclama
     TopbarComponent,
     SidebarComponent,
     RightSidebarComponent,
+    PromoManagementComponent,
     ReclamationsComponent
   ],
   imports: [
