@@ -17,7 +17,7 @@ import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-t
 import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sms-gateway-monitoring.component';
 import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
 import { PromoManagementComponent } from './pages/promo-management/promo-management.component';
-
+import { ParrainageComponent } from './pages/parrainage/parrainage.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -37,6 +37,7 @@ const routes: Routes = [
   { path: 'sms-gateway', component: SmsGatewayMonitoringComponent },
   { path: 'reclamations', component: ReclamationsComponent },
   { path: 'promotion', component: PromoManagementComponent },
+  { path: 'parrainages', component: ParrainageComponent },
   { path: '**', redirectTo: '/dashboard' }
 ];
 

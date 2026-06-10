@@ -1,9 +1,8 @@
+
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import * as L from 'leaflet';
 import { RideService } from '../../services/ride.service';
-import { RideRequest, RideOffer, RideStatus, RideMatching } from '../../models/ride.model';
-import { TaxiService } from '../../services/taxi.service';
-import { ClientService } from '../../services/client.service';
 
 @Component({
   selector: 'app-ride-management',
@@ -11,316 +10,848 @@ import { ClientService } from '../../services/client.service';
   styleUrls: ['./ride-management.component.scss']
 })
 export class RideManagementComponent implements OnInit {
-  // Expose Math for template usage (pagination calculations)
-  Math = Math;
-  // Ride data
-  rideRequests: RideRequest[] = [];
-  rideOffers: RideOffer[] = [];
-  rideMatchings: RideMatching[] = [];
-  
-  // Filtering and pagination
+
+  // ═════════════════════════════════════
+  // FILTERS
+  // ═════════════════════════════════════
+Math = Math;
   searchTerm = '';
+
   statusFilter = '';
+
+  dateFrom = '';
+
+  dateTo = '';
+
+  // ═════════════════════════════════════
+  // DATA
+  // ═════════════════════════════════════
+
+  rideRequests: any[] = [];
+
+  // ═════════════════════════════════════
+  // PAGINATION
+  // ═════════════════════════════════════
+
   currentPage = 1;
+
   itemsPerPage = 10;
+
   totalItems = 0;
-  
-  // Loading states
+
+  // ═════════════════════════════════════
+  // LOADING
+  // ═════════════════════════════════════
+
   isLoading = false;
-  isProcessing = false;
-  
-  // Statistics
-  rideStats = {
-    totalRequests: 0,
-    pendingRequests: 0,
-    activeRides: 0,
-    completedRides: 0,
-    cancelledRides: 0,
-    totalRevenue: 0,
-    averageResponseTime: 0,
-    successRate: 0
-  };
 
-  // Selected items
-  selectedRequest: RideRequest | null = null;
-  selectedOffer: RideOffer | null = null;
-  selectedMatching: RideMatching | null = null;
+  isTrajectoryLoading = false;
 
-  // Available taxis and clients for assignment
-  availableTaxis: any[] = [];
-  availableClients: any[] = [];
+  // ═════════════════════════════════════
+  // TRAJECTORIES
+  // ═════════════════════════════════════
+
+  selectedRide: any = null;
+
+  trajectoryGeoJson: any = null;
+
+  trajectorySummary: any = null;
+
+  // ═════════════════════════════════════
+  // STATISTICS
+  // ═════════════════════════════════════
+
+  rideStats: any = null;
+map: any;
+trajectoryError = '';
+trajectoryLayer: any;
 
   constructor(
     private modalService: NgbModal,
-    private rideService: RideService,
-    private taxiService: TaxiService,
-    private clientService: ClientService
-  ) { }
+    private rideService: RideService
+  ) {}
+
+  // ═════════════════════════════════════
+  // INIT
+  // ═════════════════════════════════════
 
   ngOnInit(): void {
-    this.loadRideData();
+
+    this.loadRides();
+
     this.loadStatistics();
-    this.loadAvailableTaxis();
-    this.loadAvailableClients();
   }
 
-  loadRideData(): void {
+  // ═════════════════════════════════════
+  // LOAD RIDES
+  // ═════════════════════════════════════
+
+  loadRides(): void {
+
     this.isLoading = true;
-    
-    Promise.all([
-      this.loadRideRequests(),
-      this.loadRideOffers(),
-      this.loadRideMatchings()
-    ]).finally(() => {
-      this.isLoading = false;
-    });
-  }
 
-  loadRideRequests(): Promise<void> {
-    return new Promise((resolve) => {
-      this.rideService.getRideRequests().subscribe({
-        next: (requests) => {
-          this.rideRequests = requests;
-          this.totalItems = requests.length;
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error loading ride requests:', error);
-          resolve();
+    this.rideService.getOffersPage(
+
+      this.currentPage - 1,
+
+      this.itemsPerPage,
+
+      {
+        status: this.statusFilter,
+        search: this.searchTerm,
+        dateFrom: this.dateFrom,
+        dateTo: this.dateTo
+      }
+
+    ).subscribe({
+
+      next: (response: any) => {
+
+        console.log(
+          'FULL OFFERS RESPONSE:',
+          response
+        );
+
+        // BACKEND RESPONSE PARSING
+        if (Array.isArray(response)) {
+
+  this.rideRequests = response;
+
+  this.totalItems = response.length;
+} else if (
+          response?.data &&
+          Array.isArray(response.data)
+        ) {
+
+          this.rideRequests =
+            response.data;
+
+        } else if (
+          response?.data?.content
+        ) {
+
+          this.rideRequests =
+            response.data.content;
+
+          this.totalItems =
+            response.data.totalElements || 0;
+
+        } else if (
+          response?.content
+        ) {
+
+          this.rideRequests =
+            response.content;
+
+          this.totalItems =
+            response.totalElements || 0;
+
+        } else {
+
+          this.rideRequests = [];
         }
-      });
+
+        console.log(
+          'Parsed rides:',
+          this.rideRequests
+        );
+
+        this.isLoading = false;
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error loading offers page:',
+          error
+        );
+
+        this.rideRequests = [];
+
+        this.isLoading = false;
+      }
     });
   }
 
-  loadRideOffers(): Promise<void> {
-    return new Promise((resolve) => {
-      this.rideService.getRideOffers().subscribe({
-        next: (offers) => {
-          this.rideOffers = offers;
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error loading ride offers:', error);
-          resolve();
-        }
-      });
-    });
-  }
-
-  loadRideMatchings(): Promise<void> {
-    // No backend endpoint available yet; clear for now
-    this.rideMatchings = [];
-    return Promise.resolve();
-  }
+  // ═════════════════════════════════════
+  // STATISTICS
+  // ═════════════════════════════════════
 
   loadStatistics(): void {
-    this.rideService.getRideStatistics().subscribe({
-      next: (stats) => {
-        this.rideStats = {
-          totalRequests: stats.totalRides,
-          pendingRequests: 0,
-          activeRides: 0,
-          completedRides: stats.completedRides,
-          cancelledRides: stats.cancelledRides,
-          totalRevenue: stats.totalRevenue,
-          averageResponseTime: stats.averageDuration || 0,
-          successRate: stats.successRate
+
+    this.rideService
+      .getRideStatistics()
+      .subscribe({
+
+        next: (stats) => {
+
+          this.rideStats = stats;
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading statistics:',
+            error
+          );
+        }
+      });
+  }
+
+  // ═════════════════════════════════════
+  // FILTERS
+  // ═════════════════════════════════════
+
+  onFiltersChange(): void {
+
+    this.currentPage = 1;
+
+    this.loadRides();
+  }
+
+  // ═════════════════════════════════════
+  // PAGINATION
+  // ═════════════════════════════════════
+
+onPageChange(page: number): void {
+
+  const totalPages =
+    Math.ceil(
+      this.totalItems /
+      this.itemsPerPage
+    );
+
+  if (
+    page < 1 ||
+    page > totalPages
+  ) {
+    return;
+  }
+
+  this.currentPage = page;
+
+  this.loadRides();
+}
+
+  // ═════════════════════════════════════
+  // COMPUTED UI DATA
+  // ═════════════════════════════════════
+
+  get rides(): any[] {
+
+    return (this.rideRequests || []).map(
+      (ride: any) => {
+
+        const clientName =
+          ride.client?.name ||
+          'Client inconnu';
+
+        const taxiName =
+          ride.taxi?.name ||
+          'Taxi inconnu';
+
+        return {
+
+          id: ride.id,
+
+          raw: ride,
+
+          date: ride.dateDepot
+            ? new Date(ride.dateDepot)
+                .toLocaleDateString()
+            : '--',
+
+          time: ride.dateDepot
+            ? new Date(ride.dateDepot)
+                .toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
+            : '--',
+
+          client: clientName,
+
+          clientPhone:
+            ride.client?.phoneNumber ||
+            '--',
+
+          clientInitials:
+            this.getInitials(clientName),
+
+          taxi: taxiName,
+
+          plate:
+            ride.taxi?.phoneNumber ||
+            '--',
+
+          depart:
+            ride.locationHistory ||
+            'Départ',
+
+          destination:
+            ride.destinationHistory ||
+            'Destination',
+
+          duration:
+            ride.duration || '--',
+
+          price:
+            ride.realPrice ||
+            ride.totalPrice ||
+            0,
+
+          taxiId:
+            ride.taxiId ||
+            ride.taxi?.id,
+
+          status:
+            this.mapRideStatus(
+              ride.etat
+            )
         };
-      },
-      error: (error) => {
-        console.error('Error loading ride statistics:', error);
       }
-    });
+    );
   }
 
-  loadAvailableTaxis(): void {
-    // Fallback: reuse ride offers taxis if no endpoint
-    this.taxiService.getActiveTaxis?.().subscribe({
-      next: (taxis) => {
-        this.availableTaxis = taxis;
-      },
-      error: (error) => {
-        console.error('Error loading available taxis:', error);
-      }
-    });
+  // ═════════════════════════════════════
+  // TRAJECTORIES
+  // ═════════════════════════════════════
+
+viewTrajectory(ride: any): void {
+
+  // FORCE CLEANUP FIRST
+  this.closeTrajectoryModal();
+
+  // WAIT DOM DESTROY
+  setTimeout(() => {
+
+    this.selectedRide = ride;
+
+    this.isTrajectoryLoading = true;
+
+    this.trajectoryError = '';
+
+    this.trajectoryGeoJson = null;
+
+    this.trajectorySummary = null;
+
+    this.rideService
+      .getRideTrajectory(ride.id)
+      .subscribe({
+
+        next: (geoJson: any) => {
+
+          console.log(
+            'Trajectory GeoJSON:',
+            geoJson
+          );
+
+          if (
+            !geoJson ||
+            !geoJson.features ||
+            geoJson.features.length === 0
+          ) {
+
+            this.trajectoryError =
+              'Aucune trajectoire disponible';
+
+            this.isTrajectoryLoading =
+              false;
+
+            return;
+          }
+
+          this.trajectoryGeoJson =
+            geoJson;
+
+          this.isTrajectoryLoading =
+            false;
+
+          // WAIT MODAL RENDER
+          setTimeout(() => {
+
+            this.initTrajectoryMap(
+              geoJson
+            );
+
+          }, 600);
+
+          this.loadTrajectorySummary(
+            ride.id
+          );
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading trajectory:',
+            error
+          );
+
+          this.trajectoryError =
+            'Aucune trajectoire disponible';
+
+          this.isTrajectoryLoading =
+            false;
+        }
+      });
+
+  }, 250);
+}
+  loadTrajectorySummary(
+    offreId: number
+  ): void {
+
+    this.rideService
+      .getRideTrajectorySummary(offreId)
+      .subscribe({
+
+        next: (summary) => {
+
+          this.trajectorySummary = summary;
+
+          this.isTrajectoryLoading = false;
+
+          console.log(
+            'Trajectory Summary:',
+            summary
+          );
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading summary:',
+            error
+          );
+
+          this.isTrajectoryLoading = false;
+        }
+      });
   }
 
-  loadAvailableClients(): void {
-    this.clientService.getAllClients().subscribe({
-      next: (clients) => {
-        this.availableClients = clients;
-      },
-      error: (error) => {
-        console.error('Error loading clients:', error);
-      }
-    });
+  viewLiveTrajectory(
+    ride: any
+  ): void {
+
+    if (!ride.taxiId) {
+
+      console.error(
+        'Taxi ID not found'
+      );
+
+      return;
+    }
+
+
+
+    this.selectedRide = ride;
+
+    this.isTrajectoryLoading = true;
+
+    this.rideService
+      .getActiveTaxiTrajectory(
+        ride.taxiId
+      )
+      .subscribe({
+
+        next: (geoJson) => {
+
+          this.trajectoryGeoJson = geoJson;
+
+          this.isTrajectoryLoading = false;
+
+          console.log(
+            'Live trajectory:',
+            geoJson
+          );
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading live trajectory:',
+            error
+          );
+
+          this.isTrajectoryLoading = false;
+        }
+      });
   }
 
-  // Ride request management
-  approveRideRequest(request: RideRequest): void {
-    this.isProcessing = true;
-    this.rideService.updateRideRequestStatus(request.id, RideStatus.IN_PROGRESS).subscribe({
-      next: () => {
-        this.loadRideData();
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Error approving ride request:', error);
-        this.isProcessing = false;
-      }
-    });
+
+
+  // ═════════════════════════════════════
+  // HELPERS
+  // ═════════════════════════════════════
+
+  getInitials(name: string): string {
+
+    return name
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
   }
 
-  rejectRideRequest(request: RideRequest): void {
-    this.isProcessing = true;
-    this.rideService.updateRideRequestStatus(request.id, RideStatus.CANCELLED).subscribe({
-      next: () => {
-        this.loadRideData();
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Error rejecting ride request:', error);
-        this.isProcessing = false;
-      }
-    });
-  }
+  mapRideStatus(status: string): string {
 
-  assignTaxiToRequest(request: RideRequest, taxiId: number): void {
-    this.isProcessing = true;
-    this.rideService.assignTaxiToRequest(request.id, taxiId).subscribe({
-      next: () => {
-        this.loadRideData();
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Error assigning taxi:', error);
-        this.isProcessing = false;
-      }
-    });
-  }
+    if (!status) {
 
-  // Ride offer management
-  approveRideOffer(offer: RideOffer): void {
-    this.isProcessing = true;
-    this.rideService.updateRideOfferStatus(offer.id, RideStatus.IN_PROGRESS).subscribe({
-      next: () => {
-        this.loadRideData();
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Error approving ride offer:', error);
-        this.isProcessing = false;
-      }
-    });
-  }
+      return '--';
+    }
 
-  rejectRideOffer(offer: RideOffer): void {
-    this.isProcessing = true;
-    this.rideService.updateRideOfferStatus(offer.id, RideStatus.CANCELLED).subscribe({
-      next: () => {
-        this.loadRideData();
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Error rejecting ride offer:', error);
-        this.isProcessing = false;
-      }
-    });
-  }
+    switch (status.toUpperCase()) {
 
-  // Ride matching management
-  createRideMatching(request: RideRequest, offer: RideOffer): void {
-    this.isProcessing = true;
-    // No matching endpoint yet; simulate success and refresh
-    setTimeout(() => {
-      this.loadRideData();
-      this.isProcessing = false;
-    }, 300);
-  }
+      case 'TERMINATED':
+        return 'TERMINE';
 
-  updateRideStatus(matching: RideMatching, status: RideStatus): void {
-    this.isProcessing = true;
-    // No matching ID or endpoint; update offers as fallback
-    this.rideService.updateRideOfferStatus((matching as any).rideOfferId || 0, status).subscribe({
-      next: () => {
-        this.loadRideData();
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Error updating ride status:', error);
-        this.isProcessing = false;
-      }
-    });
-  }
+      case 'WAITING':
+        return 'EN_ATTENTE';
 
-  // Filtering and search
-  filterRides(): void {
-    // Implement filtering logic
-  }
+      case 'IN_PROGRESS':
+        return 'EN_COURS';
 
-  onSearch(): void {
-    this.currentPage = 1;
-    this.filterRides();
-  }
+      case 'STARTED':
+        return 'DEMARRÉE';
 
-  onStatusFilterChange(): void {
-    this.currentPage = 1;
-    this.filterRides();
-  }
+      case 'CANCELLED':
+      case 'CANCELLED_BY_CLIENT':
+      case 'CANCELLED_BY_TAXI':
+        return 'ANNULEE';
 
-  // Pagination
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.loadRideData();
-  }
+      case 'EXPIRED':
+        return 'EXPIRÉE';
 
-  // Modal operations
-  openRideDetailsModal(content: any, ride: any): void {
-    this.selectedRequest = ride;
-    this.modalService.open(content, { size: 'lg' });
-  }
-
-  openOfferDetailsModal(content: any, offer: any): void {
-    this.selectedOffer = offer;
-    this.modalService.open(content, { size: 'lg' });
-  }
-
-  openMatchingDetailsModal(content: any, matching: any): void {
-    this.selectedMatching = matching;
-    this.modalService.open(content, { size: 'lg' });
-  }
-
-  // Utility methods
-  getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'PENDING': return 'bg-warning';
-      case 'APPROVED': return 'bg-success';
-      case 'REJECTED': return 'bg-danger';
-      case 'IN_PROGRESS': return 'bg-info';
-      case 'COMPLETED': return 'bg-success';
-      case 'CANCELLED': return 'bg-secondary';
-      default: return 'bg-secondary';
+      default:
+        return status;
     }
   }
 
-  getStatusText(status: string): string {
-    return status.replace('_', ' ').toLowerCase();
+  closeTrajectoryModal(): void {
+
+  try {
+
+    // REMOVE LAYER
+    if (this.trajectoryLayer) {
+
+      this.trajectoryLayer.remove();
+
+      this.trajectoryLayer = null;
+    }
+
+    // REMOVE MAP
+    if (this.map) {
+
+      this.map.off();
+
+      this.map.remove();
+
+      this.map = null;
+    }
+
+  } catch (e) {
+
+    console.error(
+      'Cleanup error:',
+      e
+    );
   }
 
-  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = this.deg2rad(lat2 - lat1);
-    const dLon = this.deg2rad(lon2 - lon1);
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-    return Math.round(distance * 100) / 100;
+  // RESET
+  this.selectedRide = null;
+
+  this.trajectoryGeoJson = null;
+
+  this.trajectorySummary = null;
+
+  this.trajectoryError = '';
+
+  this.isTrajectoryLoading = false;
+
+  // RESET LEAFLET CONTAINER
+  setTimeout(() => {
+
+    const container =
+      document.getElementById(
+        'trajectoryMap'
+      );
+
+    if (container) {
+
+      (container as any)._leaflet_id =
+        null;
+
+      container.innerHTML = '';
+    }
+
+  }, 50);
+}
+
+initTrajectoryMap(
+  geoJson: any
+): void {
+
+  // GET CONTAINER
+  const container =
+    document.getElementById(
+      'trajectoryMap'
+    );
+
+  // CONTAINER NOT FOUND
+  if (!container) {
+
+    console.error(
+      'Map container not found'
+    );
+
+    return;
   }
 
-  private deg2rad(deg: number): number {
-    return deg * (Math.PI/180);
+  // REMOVE OLD MAP
+  if (this.map) {
+
+    try {
+
+      this.map.off();
+
+      this.map.remove();
+
+    } catch (e) {
+
+      console.error(
+        'Error removing map:',
+        e
+      );
+    }
+
+    this.map = null;
   }
+
+  // REMOVE OLD LAYER
+  if (this.trajectoryLayer) {
+
+    try {
+
+      this.trajectoryLayer.remove();
+
+    } catch (e) {
+
+      console.error(
+        'Layer remove error:',
+        e
+      );
+    }
+
+    this.trajectoryLayer = null;
+  }
+
+  // DESTROY LEAFLET CACHE
+  container.innerHTML = '';
+
+  (container as any)._leaflet_id =
+    null;
+
+  // FORCE REFLOW
+  void container.offsetHeight;
+
+  // CREATE MAP
+  this.map = L.map(
+    container,
+    {
+      zoomControl: true,
+      preferCanvas: true
+    }
+  ).setView(
+    [36.8065, 10.1815],
+    13
+  );
+
+  // TILE LAYER
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution:
+        '&copy; OpenStreetMap'
+    }
+  ).addTo(this.map);
+
+  // GEOJSON
+// EXTRACT COORDINATES
+const coordinates: any[] = [];
+
+geoJson.features.forEach(
+  (feature: any) => {
+
+    if (
+      feature.geometry?.type ===
+      'Point'
+    ) {
+
+      const coords =
+        feature.geometry.coordinates;
+
+      coordinates.push([
+        coords[1],
+        coords[0]
+      ]);
+    }
+  }
+);
+
+// START / END
+const startPoint =
+  coordinates[0];
+
+const endPoint =
+  coordinates[
+    coordinates.length - 1
+  ];
+
+// MAIN TRAJECTORY
+this.trajectoryLayer =
+  L.geoJSON(
+    geoJson,
+    {
+
+      style: {
+
+        color: '#4B4BAF',
+
+        weight: 6,
+
+        opacity: 0.9,
+
+        lineCap: 'round',
+
+        lineJoin: 'round'
+      },
+
+      pointToLayer:
+        (
+          feature: any,
+          latlng: any
+        ) => {
+
+          return L.circleMarker(
+            latlng,
+            {
+
+              radius: 5,
+
+              fillColor: '#ffffff',
+
+              color: '#4B4BAF',
+
+              weight: 3,
+
+              opacity: 1,
+
+              fillOpacity: 1
+            }
+          );
+        }
+    }
+  ).addTo(this.map);
+
+// START MARKER
+if (startPoint) {
+
+  const startIcon =
+    L.divIcon({
+
+      className:
+        'custom-start-marker',
+
+      html: `
+        <div class="marker-pin start">
+          <i class="fas fa-play"></i>
+        </div>
+      `,
+
+      iconSize: [34, 34],
+
+      iconAnchor: [17, 34]
+    });
+
+  const startMarker =
+    L.marker(
+      startPoint,
+      {
+        icon: startIcon
+      }
+    )
+    .addTo(this.map)
+    .bindPopup(
+      '<b>Départ Client</b>',
+      {
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false
+      }
+    );
+
+  // ALWAYS OPEN
+  startMarker.openPopup();
+}
+
+// END MARKER
+if (
+  endPoint &&
+  coordinates.length > 1
+) {
+
+  const endIcon =
+    L.divIcon({
+
+      className:
+        'custom-end-marker',
+
+      html: `
+        <div class="marker-pin end">
+          <i class="fas fa-flag-checkered"></i>
+        </div>
+      `,
+
+      iconSize: [34, 34],
+
+      iconAnchor: [17, 34]
+    });
+
+  const endMarker =
+    L.marker(
+      endPoint,
+      {
+        icon: endIcon
+      }
+    )
+    .addTo(this.map)
+    .bindPopup(
+      '<b>Destination Client</b>',
+      {
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false
+      }
+    );
+
+  // ALWAYS OPEN
+  endMarker.openPopup();
+}
+
+  // REFRESH MAP
+  setTimeout(() => {
+
+    if (this.map) {
+
+      this.map.invalidateSize(
+        true
+      );
+    }
+
+  }, 500);
+}
+
+
 }

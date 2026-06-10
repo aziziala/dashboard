@@ -77,7 +77,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     const url =
       this.currentApp === 'SMSTaxi'
         ? 'http://192.168.100.12:8777/taxi-client/api'
-        : 'http://192.168.100.12:8444/taxi-client/api';
+        : '/taxi-client/api';
 
     this.taxiService.setBaseUrl(url);
   }

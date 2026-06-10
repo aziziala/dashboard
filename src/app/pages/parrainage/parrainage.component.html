@@ -1,0 +1,341 @@
+<!-- parrainage.component.html -->
+<div class="parrainage-container">
+
+<!-- Header -->
+<div class="page-header">
+  <div class="page-title">
+    <div class="title-icon">
+      <i class="fas fa-handshake"></i>
+    </div>
+    <h1>Système de Parrainage</h1>
+  </div>
+  <nav class="breadcrumb">
+    <span>Tableau de bord</span>
+    <span class="separator">/</span>
+    <span class="active">Système de Parrainage</span>
+  </nav>
+</div>
+
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+
+  <!-- Total Parrainages - purple QR code -->
+  <div class="stat-card">
+    <div class="stat-icon purple">
+      <i class="fas fa-qrcode"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Total Parrainages</span>
+      <span class="stat-value">1,245</span>
+    </div>
+  </div>
+
+  <!-- Taxis Participants - green taxi -->
+  <div class="stat-card">
+    <div class="stat-icon green">
+      <i class="fas fa-taxi"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Taxis Participants</span>
+      <span class="stat-value">128</span>
+    </div>
+  </div>
+
+  <!-- À Payer aux Taxis - orange wallet -->
+  <div class="stat-card">
+    <div class="stat-icon orange">
+      <i class="fas fa-wallet"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">À Payer aux Taxis</span>
+      <span class="stat-value">850 <small>TND</small></span>
+    </div>
+  </div>
+
+  <!-- Montant Encaissé - blue check circle -->
+  <div class="stat-card">
+    <div class="stat-icon blue">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Montant Encaisse</span>
+      <span class="stat-value">5,375 <small>TND</small></span>
+    </div>
+  </div>
+
+</div>
+
+  <!-- Main Card -->
+  <div class="main-card">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.active]="activeTab === 'liste'"
+        (click)="setTab('liste')">
+        <i class="icon-list"></i> Liste des Taxis Parrains
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'encours'"
+        (click)="setTab('encours')">
+        <i class="icon-lightning"></i> Parrainages en cours
+        <span class="dot"></span>
+      </button>
+    </div>
+
+    <!-- ─── TAB 1: Liste des Taxis Parrains ─── -->
+    <div *ngIf="activeTab === 'liste'">
+
+      <!-- Filters Row -->
+      <div class="filters-row">
+        <div class="search-box">
+          <i class="icon-search"></i>
+          <input
+            type="text"
+            placeholder="Rechercher par nom ou telephone..."
+            [(ngModel)]="searchTerm" />
+        </div>
+
+        <select class="status-select" [(ngModel)]="statusFilter">
+          <option value="">Tous les statuts</option>
+          <option value="Encaisse">Encaisse</option>
+          <option value="Non Encaisse">Non Encaisse</option>
+        </select>
+
+        <div class="export-buttons">
+          <button class="btn-excel">
+            <i class="icon-excel"></i> Excel
+          </button>
+          <button class="btn-pdf">
+            <i class="icon-pdf"></i> PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID TAXI</th>
+              <th>NOM ET PRENOM</th>
+              <th>N.TELEPHONE</th>
+              <th>PARRAINAGES</th>
+              <th>MONTANT TOTAL</th>
+              <th>STATUT</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let taxi of filteredTaxis">
+              <td class="id-col">{{ taxi.id }}</td>
+              <td>
+                <div class="name-col">
+                  <div class="avatar">{{ taxi.initials }}</div>
+                  {{ taxi.name }}
+                </div>
+              </td>
+              <td>{{ taxi.phone }}</td>
+              <td class="center-col">
+                <span class="badge-count">{{ taxi.parrainages }}</span>
+              </td>
+              <td class="montant-col">
+                <strong>{{ taxi.montant }}</strong> <small>TND</small>
+              </td>
+              <td>
+                <span
+                  class="status-badge"
+                  [ngClass]="taxi.statut === 'Encaisse' ? 'encaisse' : 'non-encaisse'">
+                  {{ taxi.statut }}
+                </span>
+              </td>
+              <td>
+                <div class="actions-col">
+                  <button class="action-btn view" (click)="openModal(taxi)">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button
+                    class="action-btn check"
+                    [disabled]="taxi.statut === 'Encaisse'"
+                    (click)="marquerPayeDirect(taxi)">
+                    <i class="fas fa-check"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    <!-- ─── END TAB 1 ─── -->
+
+    <!-- ─── TAB 2: Parrainages en cours ─── -->
+    <div *ngIf="activeTab === 'encours'" class="encours-tab">
+
+      <!-- Live Feed Header Card -->
+      <div class="live-feed-header">
+        <div class="live-feed-left">
+          <div class="live-icon">
+            <i class="fas fa-signal"></i>
+          </div>
+          <div class="live-feed-info">
+            <h3>Flux des Scans QR en direct</h3>
+            <p>Surveillez les clients qui scannent les codes QR des taxis en temps reel.</p>
+          </div>
+        </div>
+        <div class="connection-status">
+          <span class="dot"></span>
+          Connecte au serveur
+        </div>
+      </div>
+
+      <!-- Live Feed Items -->
+      <div class="feed-list">
+        <div class="feed-item" *ngFor="let scan of liveScans">
+
+          <div class="feed-avatar">
+            <i class="fas fa-qrcode"></i>
+          </div>
+
+          <div class="feed-details">
+            <div class="feed-header-row">
+              <span class="feed-client-name">{{ scan.clientName }}</span>
+              <span class="feed-time">
+                <i class="fas fa-clock"></i> {{ scan.time }}
+              </span>
+            </div>
+            <p class="feed-description">
+              A scanne le code de <a href="#">{{ scan.taxiName }}</a>
+            </p>
+            <div class="feed-choice">
+              <span class="choice-label">Choix :</span>
+              <span class="choice-value" [ngClass]="scan.choiceClass">
+                <i [class]="scan.choiceIcon"></i> {{ scan.choice }}
+              </span>
+            </div>
+          </div>
+
+          <div class="feed-reward">
+            <span class="reward-amount">+{{ scan.amount }} TND</span>
+            <span class="reward-label">Parrainage Valide</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- ─── END TAB 2 ─── -->
+
+  </div>
+  <!-- ─── END Main Card ─── -->
+
+  <!-- ─── Modal: Historique des Parrainages ─── -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-header-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div>
+            <h2>Historique des Parrainages</h2>
+            <p *ngIf="selectedTaxi">
+              Taxi: {{ selectedTaxi.name }} ({{ selectedTaxi.phone }})
+            </p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Info Banner -->
+        <div class="modal-info-banner">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>Comment fonctionne le parrainage ?</strong>
+            <p>
+              Le client scanne le code QR du taxi. Il choisit une reduction de -30%
+              (immediate ou future). Le taxi gagne <strong>+5 TND</strong> par scan
+              valide et un point de parrainage.
+            </p>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="modal-stats">
+          <div class="modal-stat">
+            <span class="modal-stat-label">TOTAL CLIENTS</span>
+            <span class="modal-stat-value">{{ selectedTaxi?.parrainages }}</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-label">GAINS GENERES</span>
+            <span class="modal-stat-value green">{{ selectedTaxi?.montant }} TND</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-label">STATUT PAIEMENT</span>
+            <span
+              class="status-badge"
+              [ngClass]="selectedTaxi?.statut === 'Encaisse' ? 'encaisse' : 'non-encaisse'">
+              {{ selectedTaxi?.statut }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="modal-table-wrapper">
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th>CLIENT</th>
+                <th>DATE & HEURE</th>
+                <th>CHOIX DE REDUCTION (-30%)</th>
+                <th>GAIN TAXI</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let scan of modalScans">
+                <td>
+                  <div class="modal-client">
+                    <i class="fas fa-user-circle"></i>
+                    {{ scan.client }}
+                  </div>
+                </td>
+                <td>{{ scan.date }}</td>
+                <td>
+                  <span class="choice-badge" [ngClass]="scan.choiceClass">
+                    <i [class]="scan.choiceIcon"></i> {{ scan.choice }}
+                  </span>
+                </td>
+                <td class="gain">+5 TND</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <!-- ─── END Modal Body ─── -->
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          class="btn-marquer"
+          (click)="marquerPaye()"
+          [disabled]="selectedTaxi?.statut === 'Encaisse'">
+          <i class="fas fa-wallet"></i> Marquer comme paye
+        </button>
+        <button class="btn-fermer" (click)="closeModal()">Fermer</button>
+      </div>
+
+    </div>
+  </div>
+  <!-- ─── END Modal ─── -->
+
+</div>

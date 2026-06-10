@@ -7,7 +7,7 @@ import { PromoCode } from '../models/promo-code.model';
   providedIn: 'root'
 })
 export class PromoCodeService {
-   private readonly baseUrl = 'http://192.168.100.12:8444/taxi-client/voucher';
+   private readonly baseUrl = '/taxi-client/voucher';
   constructor(private http: HttpClient) { }
 
    getAllPromos(): Observable<PromoCode[]> {

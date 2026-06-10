@@ -100,6 +100,16 @@
             <span key="t-rides">Gestion des réclamations</span>
           </a>
         </li>
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/parrainages')">
+          <a routerLink="/parrainages" 
+            [class.active]="activeUrl.startsWith('/parrainages')"
+            role="menuitem" 
+            aria-label="Gestion des parrainages">
+            <i class="bx bx-user-plus" aria-hidden="true"></i>
+            <span key="t-parrainages">Gestion des parrainages</span>
+          </a>
+        </li>
+
         <!--
         <li ... commented code unchanged -->
       </ul>
