@@ -1,18 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-taxis-courses',
-//   standalone: true,
-//   imports: [],
-//   templateUrl: './taxis-courses.component.html',
-//   styleUrl: './taxis-courses.component.css'
-// })
-// export class TaxisCoursesComponent {
-
-// }
-
-
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup }       from '@angular/forms';
 import { ToastrService }                from 'ngx-toastr';

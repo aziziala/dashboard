@@ -1,18 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-taxi-traffic-history',
-//   standalone: true,
-//   imports: [],
-//   templateUrl: './taxi-traffic-history.component.html',
-//   styleUrl: './taxi-traffic-history.component.scss'
-// })
-// export class TaxiTrafficHistoryComponent {
-
-// }
-
-
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService }                      from 'ngx-toastr';

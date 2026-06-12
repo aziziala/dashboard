@@ -1,15 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-taxis-inactifs',
-//   templateUrl: './taxis-inactifs.component.html',
-//   styleUrl: './taxis-inactifs.component.scss'
-// })
-// export class TaxisInactifsComponent {
-// }
-
-
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup }        from '@angular/forms';
 import { ToastrService }                 from 'ngx-toastr';

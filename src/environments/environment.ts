@@ -8,38 +8,38 @@ export const environment = {
     // SMS TAXI
     // ======================================================
 
-    smsTaxi: 'http://192.168.100.9:8444/taxi-client/api',
+    smsTaxi: 'http://41.225.11.231:8444/taxi-client/api',
 
-    smsClient: 'http://192.168.100.9:8444/taxi-client/api',
+    smsClient: 'http://41.225.11.231:8444/taxi-client/api',
 
-    smsOut: 'http://192.168.100.9:8444/api',
+    smsOut: 'http://41.225.11.231:8444/api',
 
-    smsTaxidelete: 'http://192.168.100.9:8444',
+    smsTaxidelete: 'http://41.225.11.231:8444',
 
-    smsAuth: 'http://192.168.100.9:8444',
+    smsAuth: 'http://41.225.11.231:8444',
 
     // ======================================================
     // TAXI SELECT
     // ======================================================
 
-    taxiSelect: 'http://192.168.100.9:8444/taxi-client/api',
+    taxiSelect: 'http://41.225.11.231:8444/taxi-client/api',
 
     // ======================================================
     // OTHER SERVICES
     // ======================================================
 
-    fleet: 'http://192.168.100.9:8444/fleet-api',
+    fleet: 'http://41.225.11.231:8444/fleet-api',
 
-    discovery: 'http://192.168.100.9:8444/discovery',
+    discovery: 'http://41.225.11.231:8444/discovery',
 
-    apiGateway: 'http://192.168.100.9:8444/api-gateway'
+    apiGateway: 'http://41.225.11.231:8444/api-gateway'
   },
 
   // ======================================================
   // WEBSOCKETS
   // ======================================================
 
-  wsBaseUrl: 'http://192.168.100.9:8981/ws',
+  wsBaseUrl: 'http://41.225.11.231:8981/ws',
 
-  adminWsBaseUrl: 'http://192.168.100.9:8981/admin-ws'
+  adminWsBaseUrl: 'http://41.225.11.231:8981/admin-ws'
 };
