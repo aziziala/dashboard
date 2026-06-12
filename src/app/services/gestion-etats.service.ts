@@ -12,7 +12,10 @@ import { TaxiTrafficHistoryDto } from '../models/gestionEtat/TaxiTrafficHistoryD
 @Injectable({ providedIn: 'root' })
 export class GestionEtatsService {
 
-  private readonly BASE_URL = 'http://localhost:8442/api/statistics';
+  // private readonly BASE_URL = 'http://localhost:8442/api/statistics';
+  private readonly BASE_URL = 'http://41.225.11.231:8444/taxi-client/api/statistics';
+
+
 
   constructor(private http: HttpClient) { }
 
