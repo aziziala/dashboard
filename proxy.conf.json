@@ -1,26 +1,26 @@
 {
   "/taxi-client": {
-    "target": "http://41.225.11.231",
+    "target": "http://192.168.100.9",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/sms-api": {
-    "target": "http://41.225.11.231:8091/api",
+    "target": "http://192.168.100.9:8091/api",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug",
     "pathRewrite": { "^/sms-api": "" }
   },
   "/fleet-api": {
-    "target": "http://41.225.11.231:8981/api",
+    "target": "http://192.168.100.9:8981/api",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug",
     "pathRewrite": { "^/fleet-api/api": "" }
   },
   "/taxi-client/api": {
-    "target": "http://41.225.11.231:1000",
+    "target": "http://192.168.100.9:1000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
