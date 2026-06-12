@@ -147,6 +147,11 @@ import { RideManagementComponent } from './pages/ride-management/ride-management
 import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-time-monitoring.component';
 import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sms-gateway-monitoring.component';
 import { PromoManagementComponent } from './pages/promo-management/promo-management.component';
+
+import { TaxisActifsComponent } from './pages/gestion-etats/taxis-actifs/taxis-actifs.component';
+import { PaginationComponent } from './components/shared/pagination/pagination.component';
+import { GestionEtatsService  }    from './services/gestion-etats.service';
+
 // Layout
 import { LayoutSettingsComponent } from './components/layout-settings/layout-settings.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
@@ -164,6 +169,11 @@ import { ClientService } from './services/client.service';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
+import { TaxisInactifsComponent } from './pages/gestion-etats/taxis-inactifs/taxis-inactifs.component';
+import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/taxis-earnings.component';
+import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
+import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
+import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
 
 
 @NgModule({
@@ -184,7 +194,15 @@ import { ReclamationsComponent } from './pages/reclamations/reclamations/reclama
     SidebarComponent,
     RightSidebarComponent,
     PromoManagementComponent,
-    ReclamationsComponent
+    ReclamationsComponent,
+    TaxisActifsComponent,
+    TaxisInactifsComponent,
+    TaxisEarningsComponent,
+    TaxisCoursesComponent,
+    TaxisBonusComponent,
+    TaxiTrafficHistoryComponent,
+    PaginationComponent
+
   ],
   imports: [
     BrowserModule,
@@ -225,6 +243,7 @@ import { ReclamationsComponent } from './pages/reclamations/reclamations/reclama
     ClientService,
     AuthService,
     NotificationService,
+    GestionEtatsService,
 
     // ✅ REQUIRED for new ngx-translate-http-loader
     {

@@ -65,6 +65,60 @@
           </a>
         </li>
 
+
+        <li role="none" [class.mm-active]="isGestionEtatsOpen">
+
+          <a href="javascript:void(0)" (click)="toggleGestionEtats()" role="menuitem"
+            [title]="isCollapsed ? 'Gestion des États' : ''">
+
+            <i class="bx bx-purchase-tag"></i>
+            <span>Gestion des États</span>
+
+            <i class="bx bx-chevron-down ms-auto"></i>
+          </a>
+
+          <ul *ngIf="isGestionEtatsOpen" class="submenu">
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-actifs">
+                Liste des taxis actifs
+              </a>
+            </li>
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-inactifs">
+                Liste des taxis inactifs
+              </a>
+            </li>
+
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-earnings">
+                Liste des taxis earnings
+              </a>
+            </li>
+
+
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-courses">
+                Liste des taxis courses
+              </a>
+            </li>
+            <li>
+              <a routerLink="/gestion-etats/taxis-bonus">
+                Liste des taxis bonus
+              </a>
+            </li>
+              <li>
+              <a routerLink="/gestion-etats/taxis-traffic-history">
+                Liste des taxis traffic
+              </a>
+            </li>
+          </ul>
+        </li>
+
+
         <li role="none" [class.mm-active]="activeUrl.startsWith('/affectation-client')">
           <a routerLink="/affectation-client" [class.active]="activeUrl.startsWith('/affectation-client')"
             role="menuitem" [attr.aria-current]="activeUrl.startsWith('/affectation-client') ? 'page' : null"
@@ -101,9 +155,7 @@
           </a>
         </li>
         <li role="none" [class.mm-active]="activeUrl.startsWith('/parrainages')">
-          <a routerLink="/parrainages" 
-            [class.active]="activeUrl.startsWith('/parrainages')"
-            role="menuitem" 
+          <a routerLink="/parrainages" [class.active]="activeUrl.startsWith('/parrainages')" role="menuitem"
             aria-label="Gestion des parrainages">
             <i class="bx bx-user-plus" aria-hidden="true"></i>
             <span key="t-parrainages">Gestion des parrainages</span>

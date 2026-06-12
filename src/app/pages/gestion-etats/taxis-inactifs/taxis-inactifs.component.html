@@ -1,0 +1,171 @@
+<div class="container-fluid">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE TITLE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-taxi me-2 taxi-icon"></i>Taxis Inactifs
+        </h4>
+        <div class="page-title-right d-none d-md-block">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Taxis Inactifs</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STATS CARDS
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="stats-row mb-4">
+
+    <div class="stats-card total">
+      <div class="icon"><i class="fas fa-car"></i></div>
+      <div class="info">
+        <span>Total</span>
+        <h3>{{ stats.total }}</h3>
+      </div>
+    </div>
+
+    <div class="stats-card approved">
+      <div class="icon"><i class="fas fa-check"></i></div>
+      <div class="info">
+        <span>Actifs</span>
+        <h3>{{ stats.actifs }}</h3>
+      </div>
+    </div>
+
+    <div class="stats-card rejected">
+      <div class="icon"><i class="fas fa-times"></i></div>
+      <div class="info">
+        <span>Inactifs</span>
+        <h3>{{ stats.inactifs }}</h3>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       FILTER BAR
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row align-items-end mb-4 gx-3">
+
+    <div class="col-md-3 mb-2 mb-md-0">
+      <label class="form-label small text-muted mb-1">
+        <i class="fas fa-calendar-alt me-1"></i>Date de début
+      </label>
+      <input type="date" class="form-control shadow-sm" [formControl]="filterForm.controls['from']" />
+    </div>
+
+    <div class="col-md-3 mb-2 mb-md-0">
+      <label class="form-label small text-muted mb-1">
+        <i class="fas fa-calendar-alt me-1"></i>Date de fin
+      </label>
+      <input type="date" class="form-control shadow-sm" [formControl]="filterForm.controls['to']" />
+    </div>
+
+    <div class="col-md-6 d-flex align-items-end gap-2 justify-content-md-end">
+
+      <button class="btn btn-gradient-primary shadow-sm" [disabled]="isLoading" (click)="applyFilter()">
+        <span *ngIf="!isLoading"><i class="fas fa-filter me-1"></i>Filtrer</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-1"></span>Chargement…
+        </span>
+      </button>
+
+      <button class="btn btn-outline-secondary shadow-sm" (click)="clearFilter()">
+        <i class="fas fa-times me-1"></i>Réinitialiser
+      </button>
+
+      <button class="btn btn-outline-danger shadow-sm"
+              [disabled]="isExporting || taxisInactifs.length === 0"
+              (click)="exportPdf()">
+        <span *ngIf="!isExporting"><i class="fas fa-file-pdf me-1"></i>PDF</span>
+        <span *ngIf="isExporting">
+          <span class="spinner-border spinner-border-sm me-1"></span>Export…
+        </span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       TABLE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+
+      <thead class="table-light">
+        <tr>
+          <th>ID Taxi</th>
+          <th>Nom et Prénom</th>
+          <th>N. CIN</th>
+          <th>N. Matricule</th>
+          <th>N. Plaque</th>
+          <th>Téléphone</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <!-- Skeleton -->
+        <ng-container *ngIf="isLoading">
+          <tr *ngFor="let _ of [1,2,3,4,5]">
+            <td colspan="6"><div class="skeleton-row"></div></td>
+          </tr>
+        </ng-container>
+
+        <!-- Données -->
+        <ng-container *ngIf="!isLoading">
+          <tr *ngFor="let taxi of taxisInactifs">
+            <td>{{ taxi.taxiId }}</td>
+            <td>{{ taxi.nom }}</td>
+            <td>{{ taxi.numeroCin }}</td>
+            <td>{{ taxi.numeroMatricule }}</td>
+            <td>{{ taxi.numeroTaxi }}</td>
+            <td>{{ taxi.telephone }}</td>
+          </tr>
+
+          <!-- Empty state -->
+          <tr *ngIf="taxisInactifs.length === 0">
+            <td colspan="6" class="text-center text-muted py-5">
+              <i class="fas fa-taxi fa-2x mb-2 d-block opacity-25"></i>
+              Aucun taxi inactif trouvé pour cette période.
+            </td>
+          </tr>
+        </ng-container>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       FOOTER  (pagination + lignes par page)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2 w-100">
+
+        <!-- Pagination -->
+        <app-pagination
+           [currentPage]="currentPage"
+           [totalPages]="totalPages" 
+           [totalElements]="totalElements"
+           (pageChange)="onPageChange($event)">
+        </app-pagination>
+
+    <div class="d-flex align-items-center gap-2">
+      <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
+      <select class="form-select form-select-sm page-size-select"
+              [ngModel]="itemsPerPage"
+              (ngModelChange)="onPageSizeChange($event)">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+
+  </div>
+
+</div>

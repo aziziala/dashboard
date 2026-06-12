@@ -18,6 +18,12 @@ import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sm
 import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
 import { PromoManagementComponent } from './pages/promo-management/promo-management.component';
 import { ParrainageComponent } from './pages/parrainage/parrainage.component';
+import { TaxisActifsComponent } from './pages/gestion-etats/taxis-actifs/taxis-actifs.component';
+import { TaxisInactifsComponent } from './pages/gestion-etats/taxis-inactifs/taxis-inactifs.component';
+import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/taxis-earnings.component';
+import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
+import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
+import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -38,6 +44,34 @@ const routes: Routes = [
   { path: 'reclamations', component: ReclamationsComponent },
   { path: 'promotion', component: PromoManagementComponent },
   { path: 'parrainages', component: ParrainageComponent },
+  {
+    path: 'gestion-etats/taxis-actifs',
+    component: TaxisActifsComponent
+  },
+  {
+    path: 'gestion-etats/taxis-inactifs',
+    component: TaxisInactifsComponent
+  },
+  {
+    path: 'gestion-etats/taxis-earnings',
+    component: TaxisEarningsComponent
+  },
+  {
+    path: 'gestion-etats/taxis-courses',
+    component: TaxisCoursesComponent
+  },
+  {
+    path: 'gestion-etats/taxis-bonus',
+    component: TaxisBonusComponent
+  },
+
+    {
+    path: 'gestion-etats/taxis-traffic-history',
+    component: TaxiTrafficHistoryComponent
+  },
+
+  
+
   { path: '**', redirectTo: '/dashboard' }
 ];
 
