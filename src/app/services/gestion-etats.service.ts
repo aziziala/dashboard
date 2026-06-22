@@ -13,7 +13,7 @@ import { TaxiTrafficHistoryDto } from '../models/gestionEtat/TaxiTrafficHistoryD
 export class GestionEtatsService {
 
   // private readonly BASE_URL = 'http://localhost:8442/api/statistics';
-  private readonly BASE_URL = 'http://41.225.11.231:8444/taxi-client/api/statistics';
+  private readonly BASE_URL = 'http://192.168.100.12:8444/taxi-client/api/statistics';
 
 
 

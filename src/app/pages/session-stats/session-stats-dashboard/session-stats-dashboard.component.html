@@ -1,0 +1,259 @@
+<div class="container-fluid ">
+  <div class="row">
+        <div class="col-12 my-3">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+
+                <h4 class="mb-0 page-title">
+                    <i class="bx bx-line-chart me-2 taxi-icon"></i>
+                   Statistiques de connexion
+                </h4>
+                <div class="page-title-right d-none d-md-block">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item">
+                            <a routerLink="/dashboard">
+                                Tableau de bord
+                            </a>
+                        </li>
+
+                        <li class="breadcrumb-item active">
+                            Statistiques de connexion
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+
+  <!-- Cartes statistiques globales -->
+  <div class="stats-row" *ngIf="globalStats">
+
+  <div class="stats-card total">
+    <div class="icon">
+      <i class="fas fa-taxi"></i>
+    </div>
+    <div class="info">
+      <span>Total Taxis</span>
+      <h3>{{ globalStats.totalTaxis }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card online">
+    <div class="icon">
+      <i class="fas fa-wifi"></i>
+    </div>
+    <div class="info">
+      <span>En ligne</span>
+      <h3>{{ globalStats.onlineTaxis }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card offline">
+    <div class="icon">
+      <i class="fas fa-power-off"></i>
+    </div>
+    <div class="info">
+      <span>Hors ligne</span>
+      <h3>{{ globalStats.offlineTaxis }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card active">
+    <div class="icon">
+      <i class="fas fa-trophy"></i>
+    </div>
+    <div class="info">
+      <span>Plus actif</span>
+      <h3>{{ globalStats.mostActiveTaxi }}</h3>
+      <small>{{ globalStats.mostActiveConnectionCount }} connexions</small>
+    </div>
+  </div>
+
+  <div class="stats-card session wide">
+    <div class="icon">
+      <i class="fas fa-clock"></i>
+    </div>
+    <div class="info">
+      <span>Session la plus longue</span>
+      <h3>{{ globalStats.longestSessionTaxi }}</h3>
+      <small>{{ globalStats.longestSessionDuration }}</small>
+    </div>
+  </div>
+
+</div>
+
+  <!-- Top 10 Taxis -->
+  <div class="card border-0 mt-5  shadow-sm mb-4" *ngIf="globalStats?.topTaxis?.length">
+
+  <div class="card-header bg-white fw-bold">
+    <i class="bx bx-trophy me-2 text-warning"></i>
+    Top 10 Taxis les plus actifs
+  </div>
+
+  <div class="table-responsive">
+
+    <table class="table table-hover align-middle mb-0">
+
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Taxi</th>
+          <th>Téléphone</th>
+          <th>Connexions</th>
+          <th>Durée totale</th>
+          <th>Dernière connexion</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let taxi of globalStats.topTaxis">
+
+          <td>
+            <span class="rank-badge">
+              {{ taxi.rank }}
+            </span>
+          </td>
+
+          <td class="fw-semibold">
+            {{ taxi.username }}
+          </td>
+
+          <td>{{ taxi.phone }}</td>
+
+          <td>
+            {{ taxi.totalConnections }}
+          </td>
+
+          <td>
+            {{ taxi.totalDuration }}
+          </td>
+
+          <td>
+            {{ taxi.lastConnectionAt }}
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [class.bg-success]="taxi.currentlyOnline"
+              [class.bg-danger]="!taxi.currentlyOnline">
+
+              {{ taxi.currentlyOnline ? 'En ligne' : 'Hors ligne' }}
+
+            </span>
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+  <!-- Filtres -->
+  <div class="row g-2 mb-3">
+    <div class="col-md-4">
+      <input type="text" class="form-control" placeholder="Rechercher par téléphone ou nom..."
+             [(ngModel)]="searchPhone">
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="filterStatus">
+        <option value="all">Tous les statuts</option>
+        <option value="online">En ligne</option>
+        <option value="offline">Hors ligne</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table de toutes les sessions -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white fw-bold">
+      <i class="bx bx-table me-2"></i>Sessions des taxis
+    </div>
+    <div class="card-body p-0">
+
+      <div class="text-center p-4" *ngIf="loading">
+        <div class="spinner-border text-primary"></div>
+      </div>
+
+      <table class="table table-hover mb-0" *ngIf="!loading">
+        <thead class="table-light">
+          <tr>
+            <th>Taxi</th>
+            <th>Téléphone</th>
+            <th>Statut</th>
+            <th>Dernier heartbeat</th>
+            <th>Connexions ce mois</th>
+            <th>Durée ce mois</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let session of paginatedSessions">
+            <td>{{ session.username }}</td>
+            <td>{{ session.phone }}</td>
+            <td>
+              <span class="badge" 
+                    [class.bg-success]="session.online" 
+                    [class.bg-danger]="!session.online">
+                <i class="bx me-1" 
+                   [class.bx-wifi]="session.online" 
+                   [class.bx-wifi-off]="!session.online"></i>
+                {{ session.online ? 'En ligne' : 'Hors ligne' }}
+              </span>
+            </td>
+            <td>{{ session.lastHeartbeatAt }}</td>
+            <td>{{ session.totalConnectionsThisMonth }}</td>
+            <td>{{ session.totalDurationThisMonth }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" (click)="viewDetail(session.phone)">
+                <i class="bx bx-show me-1"></i>Détail
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredSessions.length === 0">
+            <td colspan="7" class="text-center text-muted p-4">Aucun résultat</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-wrapper" *ngIf="!loading && totalPages > 1">
+
+  <button
+    class="btn btn-outline-secondary"
+    [disabled]="currentPage === 1"
+    (click)="prevPage()">
+
+    ← Précédent
+  </button>
+
+  <button
+    *ngFor="let page of pages"
+    class="btn"
+    [class.btn-primary]="page === currentPage"
+    [class.btn-outline-primary]="page !== currentPage"
+    (click)="goToPage(page)">
+
+    {{ page }}
+
+  </button>
+
+  <button
+    class="btn btn-outline-secondary"
+    [disabled]="currentPage === totalPages"
+    (click)="nextPage()">
+
+    Suivant →
+
+  </button>
+
+</div>
+
+    </div>
+  </div>
+
+</div>

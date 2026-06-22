@@ -1,0 +1,216 @@
+.container-fluid {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+// Bouton retour
+button.btn-outline-secondary {
+  border-radius: 12px;
+  padding: 8px 18px;
+  font-weight: 500;
+  transition: 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// Cartes
+.card {
+  border-radius: 18px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+// Header taxi
+.rounded-circle {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+
+  i {
+    font-size: 28px;
+  }
+}
+
+h4 {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.text-muted {
+  color: #64748b !important;
+}
+
+// Badge statut
+.badge {
+  border-radius: 999px;
+  font-weight: 600;
+
+  &.bg-success {
+    background: #16a34a !important;
+  }
+
+  &.bg-danger {
+    background: #dc2626 !important;
+  }
+}
+
+// Filtres
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-control,
+.form-select {
+  border-radius: 12px;
+  border: 1px solid #dbe2ea;
+  min-height: 44px;
+
+  &:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+  }
+}
+
+// Cartes résumé
+.row .card.text-center {
+  background: white;
+
+  .fs-2 {
+    font-size: 2rem;
+  }
+
+  &:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Tableau
+.table {
+  margin: 0;
+
+  thead {
+    background: #f8fafc;
+
+    th {
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 16px;
+      border: none;
+    }
+  }
+
+  tbody {
+
+    tr {
+      transition: 0.2s;
+
+      &:hover {
+        background: #f8fafc;
+      }
+    }
+
+    td {
+      padding: 16px;
+      vertical-align: middle;
+      color: #334155;
+      border-color: #eef2f7;
+    }
+  }
+}
+
+// Badge durée
+.table .badge {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+// Header historique
+.card-header {
+  padding: 18px 24px;
+  font-size: 16px;
+  border-bottom: 1px solid #edf2f7;
+
+  i {
+    color: #2563eb;
+  }
+}
+
+// Loader
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+// Responsive
+@media (max-width: 768px) {
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+  }
+
+  .table {
+    font-size: 13px;
+  }
+
+  .fs-2 {
+    font-size: 1.6rem !important;
+  }
+
+  .badge.fs-6 {
+    font-size: 0.8rem !important;
+  }
+}
+.pagination-wrapper {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 18px;
+
+  border-top: 1px solid #edf2f7;
+
+  flex-wrap: wrap;
+
+  .btn {
+
+    min-width: 38px;
+
+    height: 38px;
+
+    border-radius: 10px;
+
+    font-weight: 600;
+
+    transition: .2s;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+}

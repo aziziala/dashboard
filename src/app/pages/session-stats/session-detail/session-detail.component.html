@@ -1,0 +1,145 @@
+<p>session-detail works!</p>
+<div class="container-fluid p-4">
+
+    <button class="btn btn-outline-secondary mb-3" (click)="goBack()">
+        <i class="bx bx-arrow-back me-1"></i>Retour
+    </button>
+
+    <div class="text-center p-5" *ngIf="loading">
+        <div class="spinner-border text-primary"></div>
+    </div>
+
+    <ng-container *ngIf="!loading && session">
+
+        <!-- En-tête taxi -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                    style="width:56px;height:56px;font-size:1.4rem">
+                    <i class="bx bx-car"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0">{{ session.username }}</h4>
+                    <div class="text-muted">{{ session.phone }}</div>
+                </div>
+                <div class="ms-auto text-end">
+                    <span class="badge fs-6 px-3 py-2" [class.bg-success]="session.online"
+                        [class.bg-danger]="!session.online">
+                        {{ session.online ? 'En ligne' : 'Hors ligne' }}
+                    </span>
+                    <div class="text-muted small mt-1">Dernier heartbeat : {{ session.lastHeartbeatAt }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-2 align-items-end">
+
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Filtrer par</label>
+                        <select class="form-select" [(ngModel)]="filterType" (change)="onFilterChange()">
+                            <option value="all">Tout l'historique</option>
+                            <option value="month">Par mois</option>
+                            <option value="day">Par jour</option>
+                        </select>
+                    </div>
+
+                    <ng-container *ngIf="filterType === 'month'">
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted">Année</label>
+                            <input type="number" class="form-control" [(ngModel)]="selectedYear"
+                                (change)="onFilterChange()" min="2020">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted">Mois</label>
+                            <select class="form-select" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
+                                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                            </select>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="filterType === 'day'">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted">Jour</label>
+                            <input type="date" class="form-control" [(ngModel)]="selectedDay"
+                                (change)="onFilterChange()">
+                        </div>
+                    </ng-container>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Résumé période -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="text-muted small">Nombre de connexions</div>
+                    <div class="fs-2 fw-bold text-primary">{{ session.totalConnectionsThisMonth }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="text-muted small">Durée totale</div>
+                    <div class="fs-2 fw-bold text-success">{{ session.totalDurationThisMonth }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique détaillé -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold">
+                <i class="bx bx-history me-2"></i>Historique des sessions
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Heure de connexion</th>
+                            <th>Heure de déconnexion</th>
+                            <th>Durée</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let h of paginatedHistory">
+                            <td>{{ h.sessionDate }}</td>
+                            <td>{{ h.loginAt }}</td>
+                            <td>{{ h.logoutAt || '—' }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ h.duration }}</span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="session.history.length === 0">
+                            <td colspan="4" class="text-center text-muted p-4">Aucune session trouvée</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-wrapper" *ngIf="session?.history?.length && totalPages > 1">
+
+                <button class="btn btn-outline-secondary" [disabled]="currentPage === 1" (click)="prevPage()">
+
+                    ←
+                </button>
+
+                <button *ngFor="let page of pages" class="btn" [class.btn-primary]="page === currentPage"
+                    [class.btn-outline-primary]="page !== currentPage" (click)="goToPage(page)">
+
+                    {{ page }}
+
+                </button>
+
+                <button class="btn btn-outline-secondary" [disabled]="currentPage === totalPages" (click)="nextPage()">
+
+                    →
+                </button>
+
+            </div>
+        </div>
+
+    </ng-container>
+
+</div>

@@ -24,6 +24,8 @@ import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/tax
 import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
 import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
 import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
+import { SessionStatsDashboardComponent } from './pages/session-stats/session-stats-dashboard/session-stats-dashboard.component';
+import { SessionDetailComponent } from './pages/session-stats/session-detail/session-detail.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -43,6 +45,9 @@ const routes: Routes = [
   { path: 'sms-gateway', component: SmsGatewayMonitoringComponent },
   { path: 'reclamations', component: ReclamationsComponent },
   { path: 'promotion', component: PromoManagementComponent },
+  
+  { path: 'session-stats', component: SessionStatsDashboardComponent },
+  {path: 'session-stats/detail/:phone',component: SessionDetailComponent},
   { path: 'parrainages', component: ParrainageComponent },
   {
     path: 'gestion-etats/taxis-actifs',

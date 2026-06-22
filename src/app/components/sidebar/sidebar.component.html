@@ -64,6 +64,14 @@
 
           </a>
         </li>
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/session-stats')">
+          <a routerLink="/session-stats" [class.active]="activeUrl.startsWith('/session-stats')" role="menuitem"
+            [attr.aria-current]="activeUrl.startsWith('/session-stats') ? 'page' : null"
+            [title]="isCollapsed ? 'Statistiques de connexion' : ''">
+            <i class="bx bx-line-chart"></i>
+            <span>Statistiques de connexion</span>
+          </a>
+        </li>
 
 
         <li role="none" [class.mm-active]="isGestionEtatsOpen">
@@ -110,7 +118,7 @@
                 Liste des taxis bonus
               </a>
             </li>
-              <li>
+            <li>
               <a routerLink="/gestion-etats/taxis-traffic-history">
                 Liste des taxis traffic
               </a>

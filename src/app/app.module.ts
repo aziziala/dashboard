@@ -174,6 +174,8 @@ import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/tax
 import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
 import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
 import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
+import { SessionStatsDashboardComponent } from './pages/session-stats/session-stats-dashboard/session-stats-dashboard.component';
+import { SessionDetailComponent } from './pages/session-stats/session-detail/session-detail.component';
 
 
 @NgModule({
@@ -194,6 +196,8 @@ import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-
     SidebarComponent,
     RightSidebarComponent,
     PromoManagementComponent,
+    SessionStatsDashboardComponent,
+    SessionDetailComponent,
     ReclamationsComponent,
     TaxisActifsComponent,
     TaxisInactifsComponent,

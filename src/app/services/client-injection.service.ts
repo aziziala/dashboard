@@ -11,7 +11,7 @@ interface InjectSmsPayload {
   providedIn: 'root'
 })
 export class ClientInjectionService {
-  private readonly baseUrl = 'http://41.225.11.231:80/taxi-client/api';
+  private readonly baseUrl = 'http://192.168.100.12:80/taxi-client/api';
 
   constructor(private http: HttpClient) { }
 
