@@ -118,26 +118,19 @@
                     </tbody>
                 </table>
             </div>
-            <div class="pagination-wrapper" *ngIf="session?.history?.length && totalPages > 1">
-
-                <button class="btn btn-outline-secondary" [disabled]="currentPage === 1" (click)="prevPage()">
-
-                    ←
-                </button>
-
-                <button *ngFor="let page of pages" class="btn" [class.btn-primary]="page === currentPage"
-                    [class.btn-outline-primary]="page !== currentPage" (click)="goToPage(page)">
-
-                    {{ page }}
-
-                </button>
-
-                <button class="btn btn-outline-secondary" [disabled]="currentPage === totalPages" (click)="nextPage()">
-
-                    →
-                </button>
-
-            </div>
+           <nav aria-label="Page navigation" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [disabled]="currentPage === 1">
+          <a class="page-link"  (click)="prevPage()">Précédent</a>
+        </li>
+        <li class="page-item" *ngFor="let page of pages"  [class.btn-primary]="page === currentPage" [class.btn-outline-primary]="page !== currentPage">
+          <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="nextPage()">Suivant</a>
+        </li>
+      </ul>
+    </nav>
         </div>
 
     </ng-container>

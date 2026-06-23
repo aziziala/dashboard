@@ -1,3 +1,11 @@
+
+
+
+$brand-dark      : #211F54;
+$radius-sm  : 0.375rem;
+$font-sm   : 0.78rem;
+$t-fast : 0.15s ease;
+$brand-mid       : #4B4BAF;
 .container-fluid {
   background: #f8fafc;
   min-height: 100vh;
@@ -178,39 +186,36 @@ h4 {
     font-size: 0.8rem !important;
   }
 }
-.pagination-wrapper {
+.pagination {
+  gap: 0.25rem;
 
-  display: flex;
-
-  justify-content: center;
-
-  gap: 8px;
-
-  padding: 18px;
-
-  border-top: 1px solid #edf2f7;
-
-  flex-wrap: wrap;
-
-  .btn {
-
-    min-width: 38px;
-
-    height: 38px;
-
-    border-radius: 10px;
-
-    font-weight: 600;
-
-    transition: .2s;
+  .page-link {
+    cursor: pointer;
+    border: 1.5px solid rgba($brand-dark, 0.15);
+    border-radius: $radius-sm !important;
+    color: $brand-dark;
+    font-size: $font-sm;
+    padding: 0.35rem 0.65rem;
+    min-width: 2rem;
+    text-align: center;
+    transition: background-color $t-fast, border-color $t-fast, transform $t-fast;
 
     &:hover {
+      background-color: rgba($brand-dark, 0.06);
+      border-color: $brand-dark;
       transform: translateY(-1px);
     }
   }
 
-  .btn-primary {
-    background: #2563eb;
-    border-color: #2563eb;
+  .page-item.active .page-link {
+    background: linear-gradient(135deg, $brand-dark, $brand-mid);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba($brand-dark, 0.3);
+  }
+
+  .page-item.disabled .page-link {
+    opacity: 0.38;
+    pointer-events: none;
   }
 }
