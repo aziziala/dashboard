@@ -110,12 +110,43 @@
                 Liste des taxis bonus
               </a>
             </li>
-              <li>
+            <li>
               <a routerLink="/gestion-etats/taxis-traffic-history">
                 Liste des taxis traffic
               </a>
             </li>
           </ul>
+        </li>
+
+
+        <li role="none" [class.mm-active]="isGestionNotificationsOpen">
+
+          <a href="javascript:void(0)" (click)="toggleGestionNotifications()" role="menuitem"
+            [title]="isCollapsed ? 'Gestion des Notifications' : ''">
+
+            <i class="bx bx-bell"></i>
+            <span>Gestion des Notifications</span>
+
+            <i class="bx bx-chevron-down ms-auto"></i>
+          </a>
+
+          <ul *ngIf="isGestionNotificationsOpen" class="submenu">
+
+            <li>
+              <a routerLink="/gestion-notifaction/notication-send">
+
+                Envoi de notification
+              </a>
+            </li>
+
+            <li>
+              <a routerLink="/gestion-notifaction/notication-list">
+                Liste des notifications
+              </a>
+            </li>
+
+          </ul>
+
         </li>
 
 
@@ -159,6 +190,16 @@
             aria-label="Gestion des parrainages">
             <i class="bx bx-user-plus" aria-hidden="true"></i>
             <span key="t-parrainages">Gestion des parrainages</span>
+          </a>
+        </li>
+
+
+            <li role="none" [class.mm-active]="activeUrl.startsWith('/whatsapp')">
+          <a routerLink="/whatsapp" [class.active]="activeUrl.startsWith('/whatsapp')"
+            role="menuitem" [attr.aria-current]="activeUrl.startsWith('/whatsapp') ? 'page' : null"
+            [title]="isCollapsed ? 'Whatsapp' : ''">
+            <i class="bx bxl-whatsapp" aria-hidden="true"></i>
+            <span>Whatsapp</span>
           </a>
         </li>
 

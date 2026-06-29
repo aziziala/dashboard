@@ -24,6 +24,8 @@ import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/tax
 import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
 import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
 import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
+import { SendNotificationComponent } from './pages/notification/send-notification/send-notification.component';
+import { ListeNotificationComponent } from './pages/notification/liste-notification/liste-notification.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -65,12 +67,26 @@ const routes: Routes = [
     component: TaxisBonusComponent
   },
 
-    {
+  {
     path: 'gestion-etats/taxis-traffic-history',
     component: TaxiTrafficHistoryComponent
   },
+  {
+    path: 'gestion-notifaction/notication-send',
+    component: SendNotificationComponent
+  },
 
-  
+  {
+    path: 'gestion-notifaction/notication-list',
+    component: ListeNotificationComponent
+  },
+
+
+  {
+    path: 'whatsapp',
+    loadChildren: () => import('./pages/whatsapp-chat/whatsapp-chat.module').then(m => m.WhatsappChatModule)
+  },
+
 
   { path: '**', redirectTo: '/dashboard' }
 ];
