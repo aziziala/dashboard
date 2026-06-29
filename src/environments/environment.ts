@@ -2,6 +2,9 @@
 export const environment = {
   production: false,
 
+  whatsappApiUrl: 'http://localhost:8085/api',
+  whatsappWsUrl: 'http://localhost:8085/ws-chat',
+
   apiUrls: {
 
     // ======================================================

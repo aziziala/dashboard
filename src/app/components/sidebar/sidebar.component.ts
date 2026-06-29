@@ -16,6 +16,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentApp: 'SMSTaxi' | 'TaxiSelect' = 'SMSTaxi';
 
   isGestionEtatsOpen = false;
+  isGestionNotificationsOpen = false;
 
 
   // ✅ New property used in template instead of `window.innerWidth`
@@ -130,5 +131,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   toggleGestionEtats() {
     this.isGestionEtatsOpen = !this.isGestionEtatsOpen;
+  }
+  toggleGestionNotifications() {
+    this.isGestionNotificationsOpen =
+      !this.isGestionNotificationsOpen;
   }
 }

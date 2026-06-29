@@ -3,6 +3,7 @@ import { UiService } from '../../services/ui.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TaxiService } from '../../services/taxi.service';
 import { Subscription } from 'rxjs';
+import { Notificationv2Service } from '../../services/notificationv2.service';
 
 @Component({
   selector: 'app-topbar',
@@ -13,12 +14,16 @@ export class TopbarComponent implements OnInit, OnDestroy {
   currentApp: 'SMSTaxi' | 'TaxiSelect' = 'SMSTaxi';
   currentLang = 'fr';
 
+  notifications: any[] = [];
+  notificationCount = 0;
+
   private sub = new Subscription();
 
   constructor(
     private ui: UiService,
     private translate: TranslateService,
-    private taxiService: TaxiService
+    private taxiService: TaxiService,
+    private notifService: Notificationv2Service
   ) {
     this.translate.use(this.currentLang);
   }
@@ -33,6 +38,9 @@ export class TopbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const savedApp = localStorage.getItem('currentApp') as 'TaxiSelect' | 'SMSTaxi';
     const savedLang = localStorage.getItem('currentLang') || 'fr';
+
+    this.loadNotifications();
+
 
     if (savedApp) {
       this.currentApp = savedApp;
@@ -129,6 +137,37 @@ export class TopbarComponent implements OnInit, OnDestroy {
         return 'assets/flags/eng.png';
       default:
         return 'assets/flags/fr.png';
+    }
+  }
+
+
+  loadNotifications(): void {
+
+    this.notifService.getLatestByTarget('ADMIN', 0, 5)
+      .subscribe(res => {
+
+        this.notifications = res.content;   // Page content
+        this.notificationCount = res.totalElements;
+
+      });
+
+  }
+
+  getTypeIcon(type: string): string {
+    switch (type) {
+      case 'INFO': return 'fa-info-circle';
+      case 'WARNING': return 'fa-exclamation-triangle';
+      case 'ERROR': return 'fa-times-circle';
+      default: return 'fa-bell';
+    }
+  }
+
+  getTypeClass(type: string): string {
+    switch (type) {
+      case 'INFO': return 'bg-primary';
+      case 'WARNING': return 'bg-warning';
+      case 'ERROR': return 'bg-danger';
+      default: return 'bg-secondary';
     }
   }
 }

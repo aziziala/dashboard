@@ -2,12 +2,8 @@
   <div class="navbar-header">
     <!-- Mobile Menu Toggle -->
     <div class="d-flex align-items-center">
-      <button
-        class="btn header-item d-xl-none"
-        (click)="toggleMobileMenu($event)"
-        aria-label="Toggle mobile menu"
-        aria-expanded="false"
-      >
+      <button class="btn header-item d-xl-none" (click)="toggleMobileMenu($event)" aria-label="Toggle mobile menu"
+        aria-expanded="false">
         <i class="fa fa-bars" aria-hidden="true"></i>
       </button>
     </div>
@@ -15,18 +11,77 @@
     <!-- Right Side Actions -->
     <div class="d-flex align-items-center gap-1">
       <!-- App Switch -->
+
+      <!-- Notifications Dropdown -->
+      <div class="dropdown">
+
+        <!-- Bell button -->
+        <button class="btn header-item position-relative" type="button" id="notifDropdown" data-bs-toggle="dropdown"
+          aria-expanded="false">
+
+          <i class="bx bx-bell fs-5"></i>
+
+          <!-- badge -->
+          <!-- <span *ngIf="notificationCount > 0"
+            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+
+            {{ notificationCount > 9 ? '9+' : notificationCount }}
+
+          </span> -->
+
+
+        </button>
+
+        <!-- Dropdown panel -->
+        <div class="dropdown-menu dropdown-menu-end notif-dropdown p-0 shadow" aria-labelledby="notifDropdown">
+
+          <!-- Header -->
+          <div class="notif-header">
+            <span>Notifications</span>
+            <!-- <a href="#" class="text-primary small">Mark all as read</a> -->
+          </div>
+
+          <!-- List -->
+          <div class="notif-body">
+
+            <a *ngFor="let n of notifications" class="notif-item" [routerLink]="['/notifications', n.id]">
+
+              <div class="notif-icon" [ngClass]="getTypeClass(n.type)">
+                <i class="fas" [ngClass]="getTypeIcon(n.type)"></i>
+              </div>
+
+              <div class="notif-content">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.createdAt | date:'short' }}</div>
+              </div>
+
+            </a>
+
+            <!-- empty state -->
+            <div *ngIf="notifications.length === 0" class="text-center p-3 text-muted">
+              No notifications
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <!-- <div class="notif-footer">
+            <a routerLink="/notifications">View all</a>
+          </div> -->
+
+        </div>
+      </div>
+
+      
       <div class="app-switch" role="group" aria-label="Application selector">
         <span class="label left" [class.active]="currentApp === 'SMSTaxi'">
           SMS
         </span>
 
         <label class="switch">
-          <input
-            type="checkbox"
-            [checked]="currentApp === 'TaxiSelect'"
-            (change)="toggleApp($event)"
-            [attr.aria-label]="'Switch to ' + (currentApp === 'SMSTaxi' ? 'TaxiSelect' : 'SMSTaxi')"
-          />
+          <input type="checkbox" [checked]="currentApp === 'TaxiSelect'" (change)="toggleApp($event)"
+            [attr.aria-label]="'Switch to ' + (currentApp === 'SMSTaxi' ? 'TaxiSelect' : 'SMSTaxi')" />
           <span class="slider"></span>
         </label>
 
@@ -36,77 +91,43 @@
       </div>
 
       <!-- Webmail -->
-      <a
-        href="https://webmail.smstaxi.tn"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn header-item"
-        title="Webmail"
-        aria-label="Open webmail in new tab"
-      >
+      <a href="https://webmail.smstaxi.tn" target="_blank" rel="noopener noreferrer" class="btn header-item"
+        title="Webmail" aria-label="Open webmail in new tab">
         <i class="bx bx-envelope" aria-hidden="true"></i>
       </a>
 
       <!-- Fullscreen -->
-      <button
-        class="btn header-item"
-        (click)="fullscreen()"
-        title="Toggle fullscreen"
-        aria-label="Toggle fullscreen mode"
-      >
+      <button class="btn header-item" (click)="fullscreen()" title="Toggle fullscreen"
+        aria-label="Toggle fullscreen mode">
         <i class="bx bx-fullscreen" aria-hidden="true"></i>
       </button>
 
       <!-- Language Dropdown -->
       <div class="dropdown">
-        <button
-          class="btn header-item d-flex align-items-center justify-content-center"
-          type="button"
-          id="langDropdown"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          aria-label="Select language"
-          aria-haspopup="true"
-        >
-          <img
-            [src]="currentLangFlag"
-            [alt]="'Current language: ' + currentLang"
-            width="22"
-            height="16"
-          />
+        <button class="btn header-item d-flex align-items-center justify-content-center" type="button" id="langDropdown"
+          data-bs-toggle="dropdown" aria-expanded="false" aria-label="Select language" aria-haspopup="true">
+          <img [src]="currentLangFlag" [alt]="'Current language: ' + currentLang" width="22" height="16" />
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
           <li>
-            <a
-              class="dropdown-item d-flex align-items-center gap-2"
-              href="#"
-              (click)="switchLanguage('ar'); $event.preventDefault()"
-              [class.active]="currentLang === 'ar'"
-              role="menuitem"
-            >
+            <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+              (click)="switchLanguage('ar'); $event.preventDefault()" [class.active]="currentLang === 'ar'"
+              role="menuitem">
               <img src="assets/flags/ar.png" width="20" alt="Arabic flag" /> العربية
             </a>
           </li>
           <li>
-            <a
-              class="dropdown-item d-flex align-items-center gap-2"
-              href="#"
-              (click)="switchLanguage('fr'); $event.preventDefault()"
-              [class.active]="currentLang === 'fr'"
-              role="menuitem"
-            >
+            <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+              (click)="switchLanguage('fr'); $event.preventDefault()" [class.active]="currentLang === 'fr'"
+              role="menuitem">
               <img src="assets/flags/fr.png" width="20" alt="French flag" /> Français
             </a>
           </li>
           <li>
-            <a
-              class="dropdown-item d-flex align-items-center gap-2"
-              href="#"
-              (click)="switchLanguage('en'); $event.preventDefault()"
-              [class.active]="currentLang === 'en'"
-              role="menuitem"
-            >
+            <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+              (click)="switchLanguage('en'); $event.preventDefault()" [class.active]="currentLang === 'en'"
+              role="menuitem">
               <img src="assets/flags/eng.png" width="20" alt="English flag" /> English
             </a>
           </li>

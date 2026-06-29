@@ -1,0 +1,12 @@
+<div class="wa-bubble-row" [class.wa-bubble-row--out]="isOutgoing">
+  <div class="wa-bubble" [class.wa-bubble--out]="isOutgoing" [class.wa-bubble--in]="!isOutgoing">
+    <p class="wa-bubble__content">{{ message.content }}</p>
+    <div class="wa-bubble__meta">
+      <span class="wa-bubble__time">{{ message.createdAt | date:'shortTime' }}</span>
+      <span
+        *ngIf="isOutgoing"
+        class="wa-bubble__status"
+        [ngClass]="statusClass">{{ statusIcon }}</span>
+    </div>
+  </div>
+</div>

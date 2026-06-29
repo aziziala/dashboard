@@ -174,6 +174,9 @@ import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/tax
 import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
 import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
 import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
+import { SendNotificationComponent } from './pages/notification/send-notification/send-notification.component';
+import { Notificationv2Service } from './services/notificationv2.service';
+import { ListeNotificationComponent } from './pages/notification/liste-notification/liste-notification.component';
 
 
 @NgModule({
@@ -201,6 +204,8 @@ import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-
     TaxisCoursesComponent,
     TaxisBonusComponent,
     TaxiTrafficHistoryComponent,
+    SendNotificationComponent,
+    ListeNotificationComponent,
     PaginationComponent
 
   ],
@@ -244,6 +249,7 @@ import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-
     AuthService,
     NotificationService,
     GestionEtatsService,
+    Notificationv2Service,
 
     // ✅ REQUIRED for new ngx-translate-http-loader
     {

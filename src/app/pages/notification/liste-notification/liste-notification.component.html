@@ -1,0 +1,214 @@
+<div class="container-fluid">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <!-- <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h5 class="mb-0 fw-semibold">
+        <i class="fas fa-bell me-2 text-primary"></i>Historique des notifications
+      </h5>
+      <small class="text-muted">{{ totalElements }} notification{{ totalElements !== 1 ? 's' : '' }} trouvée{{
+        totalElements !== 1 ? 's' : '' }}</small>
+    </div>
+  </div> -->
+
+
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE TITLE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-bell me-2 text-primary"></i>Historique des notifications
+
+
+
+
+        </h4>
+        <div class="page-title-right d-none d-md-block">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Liste des Notifications</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Card ───────────────────────────────────────────────────────────── -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+
+      <!-- ── Filters ──────────────────────────────────────────────────── -->
+      <div class="row gx-3 gy-2 mb-3 align-items-end">
+
+        <!-- <div class="col-md-6">
+          <label class="form-label small text-muted mb-1">
+            <i class="fas fa-search me-1"></i>Rechercher
+          </label>
+
+          <div class="position-relative">
+
+            <input type="text" class="form-control shadow-sm" [(ngModel)]="taxiSearchTerm"
+              (ngModelChange)="onTaxiSearchChange()" placeholder="Ex : 98… ou Walid..." />
+
+            <button *ngIf="taxiSearchTerm" type="button"
+              class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
+              (click)="taxiSearchTerm = ''; onTaxiSearchChange()">
+
+              <i class="fas fa-times text-muted"></i>
+
+            </button>
+
+          </div>
+        </div> -->
+
+        <div class="row gx-3 gy-2 mb-3 align-items-end">
+
+          <!-- SEARCH TITLE -->
+          <div class="col-md-6">
+
+            <label class="form-label small text-muted mb-1">
+              <i class="fas fa-search me-1"></i>Rechercher par titre
+            </label>
+
+            <div class="position-relative">
+
+              <input type="text" class="form-control shadow-sm" [(ngModel)]="titleSearchTerm"
+                (ngModelChange)="onTitleSearchChange()" placeholder="Ex : Promotion, SMS, Alert..." />
+
+              <!-- clear button -->
+              <button *ngIf="titleSearchTerm" type="button"
+                class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
+                (click)="titleSearchTerm = ''; onTitleSearchChange()">
+
+                <i class="fas fa-times text-muted"></i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+      </div>
+
+      <!-- ── Table ─────────────────────────────────────────────────────── -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 42px;">#</th>
+              <th>Titre</th>
+              <th>Message</th>
+              <!-- <th>Type</th> -->
+              <th>Canal</th>
+              <th>Cible</th>
+              <!-- <th>IDs ciblés</th> -->
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- ── Skeleton loading ──────────────────────────────────── -->
+            <ng-container *ngIf="isLoading">
+              <tr *ngFor="let _ of [1,2,3,4,5]">
+                <td colspan="8">
+                  <div class="skeleton-row"></div>
+                </td>
+              </tr>
+            </ng-container>
+
+            <!-- ── Data rows ─────────────────────────────────────────── -->
+            <ng-container *ngIf="!isLoading">
+              <tr *ngFor="let notif of notifications; let i = index">
+
+                <!-- Index -->
+                <td class="text-muted small">
+                  {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+                </td>
+
+                <!-- Title -->
+                <td>
+                  <span class="fw-semibold">{{ notif.title }}</span>
+                </td>
+
+                <!-- Message -->
+                <td class="text-muted" style="max-width: 260px;">
+                  <span class="d-inline-block text-truncate" style="max-width: 240px;" [title]="notif.message">
+                    {{ notif.message }}
+                  </span>
+                </td>
+
+                <!-- Type badge -->
+                <!-- <td>
+                  <span [class]="getTypeBadgeClass(notif.type)">
+                    <i [class]="getTypeIcon(notif.type) + ' me-1'"></i>
+                    {{ notif.type }}
+                  </span>
+                </td> -->
+
+                <!-- Channel -->
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    <i [class]="getChannelIcon(notif.channel) + ' me-1'"></i>
+                    {{ notif.channel }}
+                  </span>
+                </td>
+
+                <!-- Target type -->
+                <td>
+                  <span class="badge" [class]="getTargetBadgeClass(notif.targetType)">
+                    {{ notif.targetType }}
+                  </span>
+                </td>
+
+                <!-- Target IDs -->
+                <!-- <td class="small text-muted">
+                  {{ formatTargetIds(notif.targetIds) }}
+                </td> -->
+
+                <!-- Date -->
+                <td class="small text-nowrap text-muted">
+                  {{ notif.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                </td>
+
+              </tr>
+
+              <!-- ── Empty state ──────────────────────────────────────── -->
+              <tr *ngIf="notifications.length === 0">
+                <td colspan="8" class="text-center text-muted py-5">
+                  <i class="fas fa-bell-slash fa-2x mb-2 d-block opacity-25"></i>
+                  Aucune notification trouvée.
+                </td>
+              </tr>
+            </ng-container>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Pagination ─────────────────────────────────────────────────── -->
+      <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+        <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" [totalElements]="totalElements"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+
+        <div class="d-flex align-items-center gap-2">
+          <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
+          <select class="form-select form-select-sm page-size-select" [ngModel]="itemsPerPage"
+            (ngModelChange)="onPageSizeChange($event)">
+            <option *ngFor="let s of pageSizeOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
