@@ -177,6 +177,8 @@ import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-
 import { SendNotificationComponent } from './pages/notification/send-notification/send-notification.component';
 import { Notificationv2Service } from './services/notificationv2.service';
 import { ListeNotificationComponent } from './pages/notification/liste-notification/liste-notification.component';
+import { AllTrafficHistoryComponent } from './pages/gestion-etats/all-traffic-history/all-traffic-history.component';
+import { AllDemandesByStateComponent } from './pages/gestion-etats/all-demandes-by-state/all-demandes-by-state.component';
 
 
 @NgModule({
@@ -206,6 +208,8 @@ import { ListeNotificationComponent } from './pages/notification/liste-notificat
     TaxiTrafficHistoryComponent,
     SendNotificationComponent,
     ListeNotificationComponent,
+    AllTrafficHistoryComponent,
+    AllDemandesByStateComponent,
     PaginationComponent
 
   ],

@@ -8,6 +8,8 @@ import { TaxiEarningsResultDto } from '../models/gestionEtat/TaxiEarningsResultD
 import { TaxiCoursesResultDto } from '../models/gestionEtat/Taxicoursesresultdto.model';
 import { TaxiBonusResultDto } from '../models/gestionEtat/Taxibonusresultdto.model';
 import { TaxiTrafficHistoryDto } from '../models/gestionEtat/TaxiTrafficHistoryDto.model';
+import { AllTaxiTrafficHistoryDto } from '../models/gestionEtat/AllTaxiTrafficHistoryDto.model';
+import { DemandeByStateResultDto } from '../models/gestionEtat/DemandeByStateResultDto.model';
 
 @Injectable({ providedIn: 'root' })
 export class GestionEtatsService {
@@ -106,8 +108,8 @@ export class GestionEtatsService {
   }
 
 
-   // ── Historique des courses d'un taxi ──────────────────────────────────────
- 
+  // ── Historique des courses d'un taxi ──────────────────────────────────────
+
   getTaxiTrafficHistory(
     telephone: string,
     page: number,
@@ -120,10 +122,54 @@ export class GestionEtatsService {
       { params: this.buildParams(page, size, from, to) }
     );
   }
- 
+
   exportTaxiTrafficHistoryPdf(telephone: string, from?: string, to?: string): Observable<Blob> {
     return this.http.get(`${this.BASE_URL}/taxi-traffic-history/${telephone}/pdf`,
       { params: this.buildDateParams(from, to), responseType: 'blob' }
+    );
+  }
+
+  // ── Historique de toutes les courses (tous taxis confondus) ───────────────
+
+  getAllTaxiTrafficHistory(
+    page: number,
+    size: number,
+    from?: string,
+    to?: string
+  ): Observable<AllTaxiTrafficHistoryDto> {
+    return this.http.get<AllTaxiTrafficHistoryDto>(
+      `${this.BASE_URL}/all-traffic-history`,
+      { params: this.buildParams(page, size, from, to) }
+    );
+  }
+
+  exportAllTaxiTrafficHistoryPdf(from?: string, to?: string): Observable<Blob> {
+    return this.http.get(`${this.BASE_URL}/all-traffic-history/pdf`,
+      { params: this.buildDateParams(from, to), responseType: 'blob' }
+    );
+  }
+
+
+  // ── Demandes par état de satisfaction ──────────────────────────────────────
+
+  getAllDemandesByState(
+    page: number,
+    size: number,
+    state?: string,
+    from?: string,
+    to?: string
+  ): Observable<DemandeByStateResultDto> {
+    return this.http.get<DemandeByStateResultDto>(
+      `${this.BASE_URL}/all-demandes-by-state`,
+      { params: this.buildStateParams(page, size, state, from, to) }
+    );
+  }
+
+  exportAllDemandesByStatePdf(state?: string, from?: string, to?: string): Observable<Blob> {
+    let params = this.buildDateParams(from, to);
+    if (state) params = params.set('state', state);
+    return this.http.get(`${this.BASE_URL}/all-demandes-by-state/pdf`,
+      { params, responseType: 'blob' }
     );
   }
 
@@ -135,6 +181,18 @@ export class GestionEtatsService {
       .set('page', page.toString())
       .set('size', size.toString());
     return this.appendDates(params, from, to);
+  }
+
+  private buildStateParams(
+    page: number,
+    size: number,
+    state?: string,
+    from?: string,
+    to?: string
+  ): HttpParams {
+    let params = this.buildParams(page, size, from, to);
+    if (state) params = params.set('state', state);
+    return params;
   }
 
   private buildDateParams(from?: string, to?: string): HttpParams {

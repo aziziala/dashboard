@@ -26,6 +26,8 @@ import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bon
 import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
 import { SendNotificationComponent } from './pages/notification/send-notification/send-notification.component';
 import { ListeNotificationComponent } from './pages/notification/liste-notification/liste-notification.component';
+import { AllTrafficHistoryComponent } from './pages/gestion-etats/all-traffic-history/all-traffic-history.component';
+import { AllDemandesByStateComponent } from './pages/gestion-etats/all-demandes-by-state/all-demandes-by-state.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -81,6 +83,16 @@ const routes: Routes = [
     component: ListeNotificationComponent
   },
 
+  {
+    path: 'gestion-notifaction/all-taxis-traffic-history',
+    component: AllTrafficHistoryComponent
+  },
+
+
+    {
+    path: 'gestion-notifaction/all-demandes-By-state',
+    component: AllDemandesByStateComponent
+  },
 
   {
     path: 'whatsapp',
