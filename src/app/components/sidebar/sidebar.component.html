@@ -69,10 +69,10 @@
         <li role="none" [class.mm-active]="isGestionEtatsOpen">
 
           <a href="javascript:void(0)" (click)="toggleGestionEtats()" role="menuitem"
-            [title]="isCollapsed ? 'Gestion des États' : ''">
+            [title]="isCollapsed ? 'Gestion des états' : ''">
 
             <i class="bx bx-purchase-tag"></i>
-            <span>Gestion des États</span>
+            <span>Gestion des états</span>
 
             <i class="bx bx-chevron-down ms-auto"></i>
           </a>
@@ -81,40 +81,52 @@
 
             <li>
               <a routerLink="/gestion-etats/taxis-actifs">
-                Liste des taxis actifs
+                Rapport des taxis actifs
               </a>
             </li>
 
             <li>
               <a routerLink="/gestion-etats/taxis-inactifs">
-                Liste des taxis inactifs
+                Rapport des taxis inactifs
               </a>
             </li>
-
 
             <li>
               <a routerLink="/gestion-etats/taxis-earnings">
-                Liste des taxis earnings
+                Rapport des revenus des taxis
               </a>
             </li>
-
-
 
             <li>
               <a routerLink="/gestion-etats/taxis-courses">
-                Liste des taxis courses
+                Rapport des courses des taxis
               </a>
             </li>
+
             <li>
               <a routerLink="/gestion-etats/taxis-bonus">
-                Liste des taxis bonus
+                Rapport des bonus des taxis
               </a>
             </li>
+
             <li>
               <a routerLink="/gestion-etats/taxis-traffic-history">
-                Liste des taxis traffic
+                Historique des trajets d'un taxi
               </a>
             </li>
+
+            <li>
+              <a routerLink="/gestion-notifaction/all-taxis-traffic-history">
+                Historique de tous les trajets
+              </a>
+            </li>
+
+            <li>
+              <a routerLink="/gestion-notifaction/all-demandes-By-state">
+                Rapport des demandes par état
+              </a>
+            </li>
+
           </ul>
         </li>
 
@@ -194,9 +206,9 @@
         </li>
 
 
-            <li role="none" [class.mm-active]="activeUrl.startsWith('/whatsapp')">
-          <a routerLink="/whatsapp" [class.active]="activeUrl.startsWith('/whatsapp')"
-            role="menuitem" [attr.aria-current]="activeUrl.startsWith('/whatsapp') ? 'page' : null"
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/whatsapp')">
+          <a routerLink="/whatsapp" [class.active]="activeUrl.startsWith('/whatsapp')" role="menuitem"
+            [attr.aria-current]="activeUrl.startsWith('/whatsapp') ? 'page' : null"
             [title]="isCollapsed ? 'Whatsapp' : ''">
             <i class="bx bxl-whatsapp" aria-hidden="true"></i>
             <span>Whatsapp</span>
