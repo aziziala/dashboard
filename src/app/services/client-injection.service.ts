@@ -20,6 +20,3 @@ export class ClientInjectionService {
     return this.http.post(`${this.baseUrl}/inject-sms`, payload);
   }
 }
-
-
-

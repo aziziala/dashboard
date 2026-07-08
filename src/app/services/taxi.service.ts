@@ -82,15 +82,6 @@ export class TaxiService {
   // BASIC CRUD
   // ======================================================
 
-  getTaxis(
-    page: number = 0,
-    size: number = 5
-  ): Observable<PagedTaxisResponse> {
-
-    return this.http.get<PagedTaxisResponse>(
-      `${this.baseUrl}/get-all-taxis?page=${page}&size=${size}`
-    );
-  }
 
   getTaxiById(id: number): Observable<Taxi> {
 
@@ -125,7 +116,7 @@ export class TaxiService {
     );
 
     const signupRequest = this.http.post(
-      `${this.auth}/jwt-authentication/api/auth/signup`,
+      `${this.auth}/auth/signup`,
       {
         username: taxi.nom,
         email: taxi.email,
@@ -137,6 +128,8 @@ export class TaxiService {
 
     return forkJoin([taxiRequest, signupRequest]);
   }
+
+
 
   addTaxiAdmin(taxi: Taxi): Observable<Taxi> {
 
@@ -166,7 +159,7 @@ export class TaxiService {
     );
 
     const updateUser$ = this.http.patch(
-      `${this.auth}/jwt-authentication/api/auth/users-update/${taxi.telephone}`,
+      `${this.auth}/auth/users-update/${taxi.telephone}`,
       {
         username: taxi.nom,
         email: taxi.email,
@@ -179,6 +172,12 @@ export class TaxiService {
       user: updateUser$
     });
   }
+
+  getCountByHide(hide: boolean): Observable<PagedTaxisResponse> {
+  return this.http.get<PagedTaxisResponse>(
+    `${this.baseUrl}/get-all-taxis-criteria?page=0&size=1&hide=${hide}`
+  );
+}
 
   // ======================================================
   // DELETE
@@ -194,7 +193,7 @@ export class TaxiService {
   deleteAccount(phone: string): Observable<void> {
 
     return this.http.delete<void>(
-      `${this.authUrl}/jwt-authentication/api/auth/delete-account`,
+      `${this.authUrl}/auth/delete-account`,
       {
         params: { phone }
       }
@@ -279,12 +278,16 @@ export class TaxiService {
   // STATISTICS
   // ======================================================
 
-  getTaxiCount(): Observable<number> {
 
-    return this.http.get<number>(
-      `${this.baseUrl}/nbr-taxi`
-    );
-  }
+getTaxiStats(phone: string): Observable<any> {
+  return this.http.get<any>(
+    `${this.baseUrl}/taxi/stats/${phone}`
+  );
+}
+
+
+
+
 
   simulateGPSLocation(taxi: Taxi): Observable<Taxi> {
 
@@ -412,38 +415,48 @@ export class TaxiService {
   // SEARCH
   // ======================================================
 
-  searchTaxis(
-    page: number,
-    size: number,
-    phone?: string,
-    name?: string
-  ): Observable<any> {
 
-    let params = new HttpParams()
-      .set('page', page)
-      .set('size', size);
 
-    if (phone) {
-      params = params.set('phone', phone);
-    }
 
-    if (name) {
-      params = params.set('name', name);
-    }
+  getTaxisCriteria(
+  page: number,
+  size: number,
+  filters: {
+    hide?: boolean;
+    phone?: string;
+    name?: string;
+    status?: TaxiStatus | '';
+  } = {}
+): Observable<PagedTaxisResponse> {
 
-    return this.http.get(
-      `${this.baseUrl}/get-all-taxis-criteria`,
-      { params }
-    );
+  let params = new HttpParams()
+    .set('page', page)
+    .set('size', size)
+    .set('sort', 'id,asc');
+    
+
+  if (filters.hide !== undefined) {
+    params = params.set('hide', filters.hide);
   }
 
-  filterTaxis(filters: any): Observable<Taxi[]> {
-
-    return this.http.post<Taxi[]>(
-      `${this.baseUrl}/filter-taxis`,
-      filters
-    );
+  if (filters.phone) {
+    params = params.set('phone', filters.phone);
   }
+
+  if (filters.name) {
+    params = params.set('name', filters.name);
+  }
+
+  if (filters.status) {
+    params = params.set('status', filters.status);
+  }
+
+  return this.http.get<PagedTaxisResponse>(
+    `${this.baseUrl}/get-all-taxis-criteria`,
+    { params }
+  );
+}
+
 
   // ======================================================
   // ASSIGNMENT
@@ -562,7 +575,7 @@ export class TaxiService {
   }) {
 
     return this.http.post<any>(
-      `${this.auth}/jwt-authentication/api/auth/forgot-password-admin`,
+      `${this.auth}/auth/forgot-password-admin`,
       payload
     );
   }
@@ -570,7 +583,7 @@ export class TaxiService {
   verifyResetCode(token: string) {
 
     const url =
-      `${this.auth}/jwt-authentication/api/auth/password-reset/validate-token`;
+      `${this.auth}/auth/password-reset/validate-token`;
 
     return this.http.post<any>(
       url,
@@ -584,8 +597,24 @@ export class TaxiService {
   ) {
 
     return this.http.post(
-      `${this.auth}/jwt-authentication/api/auth/reset-password?token=${token}`,
+      `${this.auth}/auth/reset-password?token=${token}`,
       payload
     );
   }
+
+  getTaxiCount(): Observable<number> {
+  return this.http.get<number>(`${this.baseUrl}/nbr-taxi`);
+}
+
+getTaxiSimStats(): Observable<{
+  avecSim: number;
+  sansSim: number;
+}> {
+  return this.http.get<{
+    avecSim: number;
+    sansSim: number;
+  }>(`${this.baseUrl}/taxi-sim-stats`);
+}
+
+
 }

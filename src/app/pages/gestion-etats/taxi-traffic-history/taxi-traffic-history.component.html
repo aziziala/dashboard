@@ -1,0 +1,256 @@
+<div class="container-fluid">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE TITLE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-history me-2 taxi-icon"></i>Historique des Courses
+        </h4>
+        <div class="page-title-right d-none d-md-block">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Historique des Courses</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       SEARCH BAR  (téléphone + dates + actions)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="search-panel mb-4">
+    <div class="row align-items-end gx-3">
+
+      <!-- Téléphone -->
+      <div class="col-md-3 mb-2 mb-md-0">
+        <label class="form-label small text-muted mb-1">
+          <i class="fas fa-phone me-1"></i>Numéro de téléphone
+        </label>
+        <input
+          type="text"
+          class="form-control shadow-sm"
+          placeholder="Ex : 50992121"
+          [formControl]="searchForm.controls['telephone']"
+          [class.is-invalid]="isInvalid('telephone')"
+          (keydown.enter)="search()"
+        />
+        <div class="invalid-feedback">
+          <span *ngIf="searchForm.get('telephone')?.errors?.['required']">Champ obligatoire</span>
+          <span *ngIf="searchForm.get('telephone')?.errors?.['pattern']">8 chiffres requis</span>
+        </div>
+      </div>
+
+      <!-- Date début -->
+      <div class="col-md-2 mb-2 mb-md-0">
+        <label class="form-label small text-muted mb-1">
+          <i class="fas fa-calendar-alt me-1"></i>Date de début
+        </label>
+        <input type="date" class="form-control shadow-sm" [formControl]="searchForm.controls['from']" />
+      </div>
+
+      <!-- Date fin -->
+      <div class="col-md-2 mb-2 mb-md-0">
+        <label class="form-label small text-muted mb-1">
+          <i class="fas fa-calendar-alt me-1"></i>Date de fin
+        </label>
+        <input type="date" class="form-control shadow-sm" [formControl]="searchForm.controls['to']" />
+      </div>
+
+      <!-- Actions -->
+      <div class="col-md-5 d-flex align-items-end gap-2 justify-content-md-end">
+
+        <button class="btn btn-gradient-primary shadow-sm" [disabled]="isLoading" (click)="search()">
+          <span *ngIf="!isLoading"><i class="fas fa-search me-1"></i>Rechercher</span>
+          <span *ngIf="isLoading">
+            <span class="spinner-border spinner-border-sm me-1"></span>Chargement…
+          </span>
+        </button>
+
+        <button class="btn btn-outline-secondary shadow-sm" (click)="reset()" [disabled]="isLoading">
+          <i class="fas fa-times me-1"></i>Réinitialiser
+        </button>
+
+        <button class="btn btn-outline-danger shadow-sm"
+                [disabled]="isExporting || !isFound"
+                (click)="exportPdf()">
+          <span *ngIf="!isExporting"><i class="fas fa-file-pdf me-1"></i>PDF</span>
+          <span *ngIf="isExporting">
+            <span class="spinner-border spinner-border-sm me-1"></span>Export…
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       IDLE STATE  (aucune recherche encore effectuée)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="viewState === 'idle'" class="empty-state">
+    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+    <p class="text-muted">Saisissez un numéro de téléphone pour afficher l'historique des courses.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ERROR STATES
+  ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Taxi introuvable -->
+  <div *ngIf="viewState === 'not_found'" class="alert-state alert alert-warning d-flex align-items-start gap-3">
+    <i class="fas fa-exclamation-triangle fa-lg mt-1 text-warning"></i>
+    <div>
+      <strong>Taxi introuvable</strong>
+      <p class="mb-0 small mt-1">{{ errorMessage }}</p>
+    </div>
+  </div>
+
+  <!-- Aucune course dans la période -->
+  <div *ngIf="viewState === 'no_data'" class="alert-state alert alert-info d-flex align-items-start gap-3">
+    <i class="fas fa-info-circle fa-lg mt-1 text-info"></i>
+    <div>
+      <strong>Aucune course disponible</strong>
+      <p class="mb-0 small mt-1">{{ errorMessage }}</p>
+    </div>
+  </div>
+
+  <!-- Erreur générique -->
+  <div *ngIf="viewState === 'error'" class="alert-state alert alert-danger d-flex align-items-start gap-3">
+    <i class="fas fa-times-circle fa-lg mt-1 text-danger"></i>
+    <div>
+      <strong>Erreur</strong>
+      <p class="mb-0 small mt-1">{{ errorMessage }}</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       RESULTS  (found)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="isFound">
+
+    <!-- Taxi info card -->
+    <div class="taxi-info-card mb-4">
+      <div class="taxi-info-header">
+        <div class="taxi-avatar">
+          <i class="fas fa-taxi"></i>
+        </div>
+        <div class="taxi-meta">
+          <h5 class="mb-1">{{ taxiInfo?.nom }}</h5>
+          <span class="text-muted small">
+            Tél : <strong>{{ taxiInfo?.telephone }}</strong> &nbsp;·&nbsp;
+            CIN : <strong>{{ taxiInfo?.numeroCin }}</strong> &nbsp;·&nbsp;
+            Matricule : <strong>{{ taxiInfo?.numeroMatricule }}</strong> &nbsp;·&nbsp;
+            Plaque : <strong>{{ taxiInfo?.numeroTaxi }}</strong>
+          </span>
+        </div>
+        <div class="taxi-badge ms-auto">
+          <span class="badge bg-primary fs-6">
+            <i class="fas fa-route me-1"></i>{{ totalCourses }} course(s)
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+
+        <thead class="table-light">
+          <tr>
+            <th>ID Offre</th>
+            <th>Date</th>
+            <th>Départ</th>
+            <th>Destination</th>
+            <th class="text-center">Durée</th>
+            <th class="text-center">Distance</th>
+            <th>Prix Total</th>
+            <th>Client</th>
+            <th class="text-center">Statut</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <!-- Skeleton -->
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let _ of [1,2,3,4,5]">
+              <td colspan="9"><div class="skeleton-row"></div></td>
+            </tr>
+          </ng-container>
+
+          <!-- Data rows -->
+          <ng-container *ngIf="!isLoading">
+            <tr *ngFor="let course of courses">
+              <td class="fw-semibold">#{{ course.offreId }}</td>
+              <td class="text-nowrap">
+                {{ course.dateDepot | date:'dd/MM/yyyy' }}<br>
+                <small class="text-muted">{{ course.dateDepot | date:'HH:mm' }}</small>
+              </td>
+              <td class="location-cell" [title]="course.locationHistory">
+                <i class="fas fa-map-marker-alt text-success me-1"></i>
+                {{ course.locationHistory }}
+              </td>
+              <td class="location-cell" [title]="course.destinationHistory">
+                <i class="fas fa-flag-checkered text-danger me-1"></i>
+                {{ course.destinationHistory }}
+              </td>
+              <td class="text-center text-nowrap">
+                <i class="fas fa-clock text-muted me-1"></i>{{ course.duration }}
+              </td>
+              <td class="text-center text-nowrap">
+                <i class="fas fa-road text-muted me-1"></i>{{ course.distance }}
+              </td>
+              <td class="text-nowrap price-cell">{{ course.totalPrice }}</td>
+              <td>
+                <div class="client-info">
+                  <span class="fw-semibold">{{ course.clientName }}</span><br>
+                  <small class="text-muted">{{ course.clientTelephone }}</small>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="getEtatBadgeClass(course.etat)">
+                  {{ course.etat }}
+                </span>
+              </td>
+            </tr>
+
+            <!-- Empty page (shouldn't happen but safety net) -->
+            <tr *ngIf="courses.length === 0">
+              <td colspan="9" class="text-center text-muted py-5">
+                <i class="fas fa-history fa-2x mb-2 d-block opacity-25"></i>
+                Aucune course sur cette page.
+              </td>
+            </tr>
+          </ng-container>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer (pagination + lignes par page) -->
+    <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2 w-100">
+
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalPages]="totalPages"
+        [totalElements]="totalElements"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+
+      <div class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
+        <select class="form-select form-select-sm page-size-select"
+                [ngModel]="itemsPerPage"
+                (ngModelChange)="onPageSizeChange($event)">
+          <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+        </select>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

@@ -1,0 +1,104 @@
+<div class="container-fluid sync-taxi-page">
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 page-title">
+          <i class="bx bx-sync me-2"></i>
+          Sync Taxi Account
+        </h4>
+        <div class="page-title-right d-none d-md-block">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Sync Taxi Account</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <p class="text-muted mb-3">
+            Synchronise le compte taxi pour un numéro : le backend vérifie la présence du taxi
+            côté <strong>client API</strong> (gateway <code>/taxi-client/api</code>) et du compte
+            côté <strong>JWT</strong> (service sync via <code>/api/sync-taxi-account</code>).
+            Tout passe par le <strong>même origine</strong> que le dashboard (proxy / nginx) — pas d’URL directe vers les ports internes, donc pas de CORS navigateur.
+          </p>
+          <p class="text-muted mb-4">
+            Si le serveur demande des données d’immatriculation, le formulaire ci-dessous s’affiche automatiquement après la première tentative.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="sync-phone">Numéro de téléphone taxi</label>
+            <input
+              id="sync-phone"
+              type="text"
+              class="form-control form-control-lg"
+              [(ngModel)]="phone"
+              placeholder="Ex. 52917133"
+              [disabled]="loading"
+              autocomplete="tel"
+            />
+          </div>
+
+          <div *ngIf="showRegistration" class="registration-panel border rounded-3 p-3 mb-4 bg-light">
+            <h6 class="fw-semibold mb-3">Données d’immatriculation (si requis)</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nom</label>
+                <input class="form-control" [(ngModel)]="registration.nom" [disabled]="loading" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">N° CIN</label>
+                <input class="form-control" [(ngModel)]="registration.numeroCin" [disabled]="loading" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">N° matricule</label>
+                <input class="form-control" [(ngModel)]="registration.numeroMatricule" [disabled]="loading" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">N° taxi</label>
+                <input class="form-control" [(ngModel)]="registration.numeroTaxi" [disabled]="loading" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Constructeur</label>
+                <input class="form-control" [(ngModel)]="registration.constructeur" [disabled]="loading" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Type</label>
+                <select class="form-select" [(ngModel)]="registration.type" [disabled]="loading">
+                  <option [ngValue]="''">—</option>
+                  <option value="SMART">SMART</option>
+                  <option value="GSM">GSM</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Contenu <span class="text-muted">(optionnel)</span></label>
+                <textarea
+                  class="form-control"
+                  rows="2"
+                  [(ngModel)]="registration.contenu"
+                  [disabled]="loading"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button
+              type="button"
+              class="btn btn-primary px-4"
+              (click)="submit()"
+              [disabled]="loading"
+            >
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              {{ loading ? 'Synchronisation…' : 'Synchroniser' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

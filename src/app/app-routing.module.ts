@@ -16,7 +16,19 @@ import { RideManagementComponent } from './pages/ride-management/ride-management
 import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-time-monitoring.component';
 import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sms-gateway-monitoring.component';
 import { ReclamationsComponent } from './pages/reclamations/reclamations/reclamations.component';
+import { SyncTaxiAccountComponent } from './pages/sync-taxi-account/sync-taxi-account.component';
+import { ChiffreAffaireComponent } from './pages/chiffre-affaire/chiffre-affaire.component';
 
+import { TaxisActifsComponent } from './pages/gestion-etats/taxis-actifs/taxis-actifs.component';
+import { TaxisInactifsComponent } from './pages/gestion-etats/taxis-inactifs/taxis-inactifs.component';
+import { TaxisEarningsComponent } from './pages/gestion-etats/taxis-earnings/taxis-earnings.component';
+import { TaxisCoursesComponent } from './pages/gestion-etats/taxis-courses/taxis-courses.component';
+import { TaxisBonusComponent } from './pages/gestion-etats/taxis-bonus/taxis-bonus.component';
+import { TaxiTrafficHistoryComponent } from './pages/gestion-etats/taxi-traffic-history/taxi-traffic-history.component';
+import { AllTrafficHistoryComponent } from './pages/gestion-etats/all-traffic-history/all-traffic-history.component';
+import { AllDemandesByStateComponent } from './pages/gestion-etats/all-demandes-by-state/all-demandes-by-state.component';
+import { SendNotificationComponent } from './pages/notification/send-notification/send-notification.component';
+import { ListeNotificationComponent } from './pages/notification/liste-notification/liste-notification.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -35,6 +47,63 @@ const routes: Routes = [
   { path: 'monitoring', component: RealTimeMonitoringComponent },
   { path: 'sms-gateway', component: SmsGatewayMonitoringComponent },
   { path: 'reclamations', component: ReclamationsComponent },
+  {
+  path: 'chiffre-affaire',
+  component: ChiffreAffaireComponent
+},
+  { path: 'sync-taxi-account', component: SyncTaxiAccountComponent },
+  {
+    path: 'gestion-etats/taxis-actifs',
+    component: TaxisActifsComponent
+  },
+  {
+    path: 'gestion-etats/taxis-inactifs',
+    component: TaxisInactifsComponent
+  },
+  {
+    path: 'gestion-etats/taxis-earnings',
+    component: TaxisEarningsComponent
+  },
+  {
+    path: 'gestion-etats/taxis-courses',
+    component: TaxisCoursesComponent
+  },
+  {
+    path: 'gestion-etats/taxis-bonus',
+    component: TaxisBonusComponent
+  },
+
+  {
+    path: 'gestion-notifaction/all-taxis-traffic-history',
+    component: AllTrafficHistoryComponent
+  },
+
+    {
+    path: 'gestion-notifaction/all-demandes-By-state',
+    component: AllDemandesByStateComponent
+  },
+
+    {
+    path: 'gestion-etats/taxis-traffic-history',
+    component: TaxiTrafficHistoryComponent
+  },
+    {
+    path: 'gestion-notifaction/notication-send',
+    component: SendNotificationComponent
+  },
+
+  {
+    path: 'gestion-notifaction/notication-list',
+    component: ListeNotificationComponent
+  },
+
+
+    {
+    path: 'whatsapp',
+    loadChildren: () => import('./pages/whatsapp-chat/whatsapp-chat.module').then(m => m.WhatsappChatModule)
+  },
+
+  
   { path: '**', redirectTo: '/dashboard' }
 ];
 

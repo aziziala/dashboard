@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class RideService {
-  private baseUrl = `${environment.apiUrls}`;
+  private baseUrl = `${environment.apiUrls.taxiSelect}`;
 
   constructor(private http: HttpClient) { }
 

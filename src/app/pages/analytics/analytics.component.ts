@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 import {
   StatisticsService,
   StatisticsOverviewDto,
@@ -25,7 +26,7 @@ export class AnalyticsComponent implements OnInit {
 
   selectedPeriod: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' = 'monthly';
   selectedYear = new Date().getFullYear();
-  years = [2022, 2023, 2024, 2025, 2026];
+  years = [2026];
 
   // ── KPI values ────────────────────────────────────────────────────────────
   totalRevenue  = 0;
@@ -48,6 +49,7 @@ export class AnalyticsComponent implements OnInit {
   constructor(
     private modalService: NgbModal,
     private statisticsService: StatisticsService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -98,7 +100,7 @@ export class AnalyticsComponent implements OnInit {
     });
 
     // 3. Top taxis + top clients
-    this.statisticsService.getTopTaxis(from, to, 'REVENUE', 0, 5).subscribe({
+    this.statisticsService.getTopTaxis(from, to, 'RIDES', 0, 10).subscribe({
       next: (taxis) => {
         this.topTaxis = taxis;
         // derive average rating from list
@@ -110,7 +112,7 @@ export class AnalyticsComponent implements OnInit {
       error: () => {},
     });
 
-    this.statisticsService.getTopClients(from, to, 'RIDES', 0, 5).subscribe({
+    this.statisticsService.getTopClients(from, to, 'RIDES', 0, 10).subscribe({
       next: (clients) => { this.topClients = clients; },
       error: () => {},
       complete: check,
@@ -216,4 +218,28 @@ get avgRidesPerDayBarWidth(): number {
     if (this.bucket === 'MONTH') return d.toLocaleDateString('fr-TN', { month: 'short', year: 'numeric' });
     return String(d.getFullYear());
   }
+
+  viewAllTaxis(): void {
+
+  this.router.navigate(['/rides'], {
+    queryParams: {
+      filter: 'taxi',
+      sort: 'rides'
+    }
+  });
+
+}
+
+viewAllClients(): void {
+
+  this.router.navigate(['/rides'], {
+    queryParams: {
+      filter: 'client',
+      sort: 'rides'
+    }
+  });
+
+}
+
+
 }

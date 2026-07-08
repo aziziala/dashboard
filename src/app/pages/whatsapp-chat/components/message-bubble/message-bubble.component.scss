@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+.wa-bubble-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 4px;
+
+  &--out {
+    justify-content: flex-end;
+  }
+  
+}
+
+.wa-bubble {
+  margin-left: 0px;
+  max-width: 65%;
+  padding: 6px 9px 6px 9px;
+  border-radius: 8px;
+  box-shadow: var(--wa-shadow-soft);
+  position: relative;
+  word-break: break-word;
+
+  // ── Pointe ("queue") façon WhatsApp ──────────────────────────────────────
+  // Un petit triangle collé exactement au coin aplati (border-top-*-radius: 0),
+  // de la même couleur que la bulle, pour reproduire la vraie forme.
+  &--in,
+  &--out {
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 10px;
+      height: 11px;
+    }
+  }
+
+  &--in {
+    background: var(--wa-color-bubble-in);
+    border-top-left-radius: 0;
+
+    &::before {
+      left: -10px;
+      background: var(--wa-color-bubble-in);
+      clip-path: polygon(100% 0, 100% 100%, 0 0);
+    }
+  }
+
+  &--out {
+    background: var(--wa-color-bubble-out);
+    border-top-right-radius: 0;
+
+    &::before {
+      right: -10px;
+      background: var(--wa-color-bubble-out);
+      clip-path: polygon(0 0, 0 100%, 100% 0);
+    }
+  }
+
+  &__content {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.4;
+    color: var(--wa-color-text-primary);
+    white-space: pre-wrap;
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  &__time {
+    font-size: 11px;
+    color: var(--wa-color-text-secondary);
+  }
+
+  &__status {
+    font-size: 12px;
+    color: var(--wa-color-text-secondary);
+    line-height: 1;
+
+    &--read {
+      color: #53bdeb; // bleu des accusés de lecture : convention universelle, conservée telle quelle
+    }
+
+    &--failed {
+      color: var(--wa-color-danger);
+    }
+  }
+}

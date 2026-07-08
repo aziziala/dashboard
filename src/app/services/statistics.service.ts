@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // ─── Response DTOs (match Swagger schemas exactly) ──────────────────────────
 
@@ -113,57 +114,64 @@ export type BucketSize = 'DAY' | 'MONTH' | 'YEAR';
 @Injectable({ providedIn: 'root' })
 export class StatisticsService {
 
-  /** Base URL — matches the Swagger server: http://41.225.11.231:8444/taxi-client */
-  private readonly base = 'http://41.225.11.231:8444/taxi-client/api/statistics';
+  /** Base URL — proxied through dev server (see `proxy.conf.js` → /taxi-client/api) */
+  private readonly base = `${environment.apiUrls.taxiSelect}/statistics`;
 
   constructor(private http: HttpClient) {}
 
   // ── Date helpers ────────────────────────────────────────────────────────────
 
   /** Build from/to params from period + year selections */
-  static buildDateRange(
-    period: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly',
-    year: number
-  ): { from: string; to: string } {
-    const pad = (n: number) => String(n).padStart(2, '0');
-    const fmt = (y: number, m: number, d: number) =>
-      `${y}-${pad(m)}-${pad(d)}`;
+static buildDateRange(period: string, year?: number): { from: string; to: string } {
+  const now = new Date();
 
-    const now = new Date();
+  let from: Date;
+  let to: Date = new Date();
 
-    switch (period) {
-      case 'daily': {
-        const d = fmt(now.getFullYear(), now.getMonth() + 1, now.getDate());
-        return { from: d, to: d };
-      }
-      case 'weekly': {
-        const day = now.getDay(); // 0=Sun
-        const monday = new Date(now);
-        monday.setDate(now.getDate() - ((day + 6) % 7));
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-        return {
-          from: fmt(monday.getFullYear(), monday.getMonth() + 1, monday.getDate()),
-          to:   fmt(sunday.getFullYear(), sunday.getMonth() + 1, sunday.getDate()),
-        };
-      }
-      case 'monthly': {
-        const m = now.getMonth() + 1;
-        const lastDay = new Date(year, m, 0).getDate();
-        return { from: fmt(year, m, 1), to: fmt(year, m, lastDay) };
-      }
-      case 'quarterly': {
-        const q = Math.floor((now.getMonth()) / 3); // 0-based quarter
-        const startMonth = q * 3 + 1;
-        const endMonth = startMonth + 2;
-        const lastDay = new Date(year, endMonth, 0).getDate();
-        return { from: fmt(year, startMonth, 1), to: fmt(year, endMonth, lastDay) };
-      }
-      case 'yearly':
-      default:
-        return { from: fmt(year, 1, 1), to: fmt(year, 12, 31) };
-    }
+  switch (period) {
+
+    case 'daily':
+      from = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0, 0, 0
+      );
+
+      to = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        23, 59, 59
+      );
+      break;
+
+    case 'weekly':
+      from = new Date(now);
+      from.setDate(now.getDate() - 7);
+      break;
+
+    case 'monthly':
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+
+    case 'quarterly':
+      from = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+      break;
+
+    case 'yearly':
+      from = new Date(now.getFullYear(), 0, 1);
+      break;
+
+    default:
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
   }
+
+  return {
+    from: from.toISOString(),
+    to: to.toISOString()
+  };
+}
 
   /** Map period → best bucket size for charts */
   static periodToBucket(period: string): BucketSize {

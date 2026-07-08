@@ -66,7 +66,21 @@ export class WebsocketService {
       console.error('STOMP client not initialized');
       return;
     }
-    return this.client.subscribe(destination, cb);
+  
+    return this.client.subscribe(destination, (msg: IMessage) => {
+      console.log('[WebSocket] Destination:', destination);
+      console.log('[WebSocket] Raw Message:', msg);
+      console.log('[WebSocket] Body:', msg.body);
+  
+      // If JSON payload
+      try {
+        console.log('[WebSocket] Parsed Body:', JSON.parse(msg.body));
+      } catch (e) {
+        console.warn('[WebSocket] Non-JSON message');
+      }
+  
+      cb(msg);
+    });
   }
 
   send(destination: string, body: any): void {

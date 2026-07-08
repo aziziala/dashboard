@@ -7,6 +7,11 @@ export interface FleetLocation {
   latitude?: number;
   longitude?: number;
   status: FleetStatus;
+  /** Raw ride status from fleet v2 WebSocket (e.g. WAITING, EXPIRED, IN_PROGRESS). */
+  rideStatus?: string;
+  offreId?: number | null;
+  feesOption?: string | null;
+  totalPrice?: number | null;
   lastUpdate?: Date;
   speed?: number;
   direction?: string;

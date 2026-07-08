@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SmsService } from '../../services/sms.service';
 import { FleetService } from '../../services/fleet.service';
 import { SmsRecord, SmsStatus } from '../../models/sms-record.model';
 import { ChartType, smsChartOptions } from '../../models/chart.model';
+import { RoleUiService } from '../../services/role-ui.service';
 
 @Component({
   selector: 'app-sms-gateway-monitoring',
@@ -11,6 +12,8 @@ import { ChartType, smsChartOptions } from '../../models/chart.model';
   styleUrls: ['./sms-gateway-monitoring.component.scss']
 })
 export class SmsGatewayMonitoringComponent implements OnInit, OnDestroy {
+  readonly roleUi = inject(RoleUiService);
+
   // SMS Gateway data
   gatewayStatus: any[] = [];
   smsQueue: SmsRecord[] = [];

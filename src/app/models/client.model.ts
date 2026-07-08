@@ -1,28 +1,33 @@
 export interface Client {
   id?: number;
+
   nom?: string;
-  prenom?: string;
+
   telephone: string;
+
   email?: string;
-  adresse?: string;
-  status?: string;
-  note?: string;
-  date_enregistrement?: Date;
-  contenu?: string;
-  masquerNumero?: boolean;
+
   latitude?: number;
   longitude?: number;
-  traitement?: boolean;
-  etat?: string;
+
   destination?: string;
   location?: string;
-  dest_latitude?: number;
-  dest_longitude?: number;
-  type?: PhoneType;
-  offres?: any[];
-  demandes?: any[];
-}
 
+  destLatitude?: number;
+  destLongitude?: number;
+
+ // dateEnregistrement?: Date;
+dateEnregistrement?: string;
+  contenu?: string;
+
+  masquerNumero?: boolean;
+
+  traitement?: boolean;
+
+  etat?: string;
+
+  type?: PhoneType;
+}
 
 export enum PhoneType {
   gsm = 'GSM',

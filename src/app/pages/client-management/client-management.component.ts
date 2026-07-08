@@ -31,8 +31,7 @@ type ExportType = 'excel' | 'csv' | 'pdf';
 // ─── App switcher type ────────────────────────────────────────────────────────
 type AppType = 'SMSTaxi' | 'TaxiSelect';
 
-// ─── Search mode ──────────────────────────────────────────────────────────────
-type SearchMode = 'phone' | 'name' | 'none';
+
 
 @Component({
   selector: 'app-client-management',
@@ -44,8 +43,7 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
 
   // ─── Data ────────────────────────────────────────────────────────────────────
   clients: Client[]          = [];
-  filteredClients: Client[]  = [];
-  paginatedClients: Client[] = [];
+
   selectedClient: Client | null = null;
 
   // ─── UI state ────────────────────────────────────────────────────────────────
@@ -59,18 +57,40 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
 
   // ─── Search ───────────────────────────────────────────────────────────────────
   searchTerm  = '';
-  searchMode: SearchMode = 'none';
+
   statusFilter = '';
 
   // ─── Pagination ───────────────────────────────────────────────────────────────
   currentPage  = 1;
-  itemsPerPage = 10;
+  itemsPerPage = 100;
   totalItems   = 0;
 
   // ─── Computed pagination helpers ─────────────────────────────────────────────
   get totalPages(): number {
     return Math.ceil(this.totalItems / this.itemsPerPage);
   }
+
+  get visiblePages(): number[] {
+
+  const maxVisible = 5;
+
+  let start = Math.max(
+    1,
+    this.currentPage - Math.floor(maxVisible / 2)
+  );
+
+  let end = start + maxVisible - 1;
+
+  if (end > this.totalPages) {
+    end = this.totalPages;
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  return Array.from(
+    { length: end - start + 1 },
+    (_, i) => start + i
+  );
+}
   get pageNumbers(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
@@ -191,102 +211,77 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
       debounceTime(350),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
-    ).subscribe(term => this.performSearch(term));
+    ).subscribe(() => this.performSearch());
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
   // DATA LOADING
   // ══════════════════════════════════════════════════════════════════════════════
 
-  loadClients(): void {
-    this.isLoading = true;
+loadClients(page: number = this.currentPage - 1): void {
 
-    this.clientService.getAllClients()
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.markForCheck();  // notify OnPush
-        })
-      )
-      .subscribe({
-        next: (clients) => {
-          this.clients           = clients;
-          this.clientStats.total = clients.length;
-          this.applyFilters();
-        },
-        error: (err) => {
-          console.error('Error loading clients:', err);
-          this.toastr.error('Impossible de charger les clients.', 'Erreur');
-        }
-      });
-  }
+  this.isLoading = true;
 
-  // ══════════════════════════════════════════════════════════════════════════════
-  // FILTERING & PAGINATION  (single source of truth)
-  // ══════════════════════════════════════════════════════════════════════════════
+  const term = this.searchTerm.trim();
 
-  /**
-   * Central filter method — always call this instead of touching
-   * filteredClients / paginatedClients manually.
-   */
-  private applyFilters(): void {
-    const term = this.searchTerm.trim().toLowerCase();
+  const phone = /^\d+$/.test(term) ? term : undefined;
+  const name  = term && !/^\d+$/.test(term) ? term : undefined;
 
-    this.filteredClients = this.clients.filter(client => {
-      const matchesSearch = this.matchesSearchTerm(client, term);
-      const matchesStatus = !this.statusFilter || (client as any).status === this.statusFilter;
-      return matchesSearch && matchesStatus;
-    });
+  this.clientService.getClients(
+    page,
+    this.itemsPerPage,
+    phone,
+    name
+  )
+  .pipe(
+    takeUntil(this.destroy$),
+    finalize(() => {
+      this.isLoading = false;
+      this.cdr.markForCheck();
+    })
+  )
+  .subscribe({
+    next: response => {
 
-    this.clientStats.filtered = this.filteredClients.length;
-    this.totalItems           = this.filteredClients.length;
+      this.clients = response.content;
 
-    // Keep current page valid
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = this.totalPages;
+      this.totalItems = response.totalElements;
+      this.currentPage = response.number + 1;
+      this.itemsPerPage = response.size;
+      this.clientStats.total = response.totalElements;
+
+    },
+    error: err => {
+      console.error(err);
+      this.toastr.error(
+        'Impossible de charger les clients.',
+        'Erreur'
+      );
     }
+  });
 
-    this.refreshPage();
-    this.cdr.markForCheck();
+}
+onPageChange(page: number): void {
+
+  if (
+    page < 1 ||
+    page > this.totalPages ||
+    page === this.currentPage
+  ) {
+    return;
   }
 
-  private matchesSearchTerm(client: Client, term: string): boolean {
-    if (!term) return true;
+  this.currentPage = page;
 
-    switch (this.searchMode) {
-      case 'phone':
-        return client.telephone?.includes(term) ?? false;
-
-      case 'name':
-        return (
-          client.nom?.toLowerCase().includes(term)  ||
-          client.email?.toLowerCase().includes(term) ||
-          false
-        );
-
-      default:
-        // Fallback: try everything
-        return (
-          client.nom?.toLowerCase().includes(term)       ||
-          client.telephone?.includes(this.searchTerm.trim()) ||
-          client.email?.toLowerCase().includes(term)     ||
-          false
-        );
-    }
-  }
-
-  private refreshPage(): void {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedClients = this.filteredClients.slice(start, start + this.itemsPerPage);
-  }
+  this.loadClients(page - 1);
+}
 
   // ── Public filter helpers (called from template) ──────────────────────────
 
   /** Called by status dropdown */
   onStatusFilterChange(): void {
-    this.currentPage = 1;
-    this.applyFilters();
+  this.currentPage = 1;
+this.loadClients(0);
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -298,32 +293,29 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
     this.searchSubject.next(this.searchTerm);
   }
 
-  private performSearch(term: string): void {
-    const value = term.trim();
+private performSearch(): void {
+
     this.currentPage = 1;
 
-    if (!value) {
-      this.searchMode = 'none';
-    } else if (/^\d+$/.test(value)) {
-      this.searchMode = 'phone';
-    } else {
-      this.searchMode = 'name';
-    }
+    this.loadClients(0);
 
-    this.applyFilters();
-  }
+}
 
-  clearSearch(): void {
-    this.resetSearch();
-    this.applyFilters();
-  }
+clearSearch(): void {
 
-  private resetSearch(): void {
-    this.searchTerm  = '';
-    this.searchMode  = 'none';
+    this.searchTerm = '';
+
     this.currentPage = 1;
-  }
 
+    this.loadClients(0);
+
+}
+private resetSearch(): void {
+
+  this.searchTerm = '';
+  this.currentPage = 1;
+
+}
   get isSearching(): boolean {
     return this.searchTerm.trim().length > 0;
   }
@@ -332,16 +324,11 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
   // PAGINATION
   // ══════════════════════════════════════════════════════════════════════════════
 
-  onPageChange(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-    this.refreshPage();
-    this.cdr.markForCheck();
-  }
+
 
   onItemsPerPageChange(): void {
-    this.currentPage = 1;
-    this.applyFilters();
+ this.currentPage = 1;
+this.loadClients(0);
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -519,34 +506,46 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
   // DELETE
   // ══════════════════════════════════════════════════════════════════════════════
 
-  confirmDelete(): void {
-    if (this.isDeleting) return;
+confirmDelete(): void {
 
-    this.isDeleting = true;
-
-    this.clientService
-      .deleteClient(this.selectedClientId)
-      .pipe(
-        switchMap(() => this.clientService.deleteAccount(this.selectedClientPhone)),
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isDeleting = false;
-          this.cdr.markForCheck();
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.toastr.success('Le client a été supprimé.', 'Suppression réussie');
-          this.deleteModalRef?.close();
-
-          // Optimistic local removal — no full reload needed
-          this.clients = this.clients.filter(c => c.id !== this.selectedClientId);
-          this.clientStats.total = this.clients.length;
-          this.applyFilters();
-        },
-        error: (err) => this.handleHttpError(err, 'Suppression échouée')
-      });
+  if (this.isDeleting) {
+    return;
   }
+
+  this.isDeleting = true;
+
+  this.clientService.deleteClient(this.selectedClientId)
+    .pipe(
+      switchMap(() =>
+        this.clientService.deleteAccount(this.selectedClientPhone)
+      ),
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.isDeleting = false;
+        this.cdr.markForCheck();
+      })
+    )
+    .subscribe({
+      next: () => {
+
+        this.toastr.success(
+          'Le client a été supprimé.',
+          'Suppression réussie'
+        );
+
+        this.deleteModalRef.close();
+
+        if (this.clients.length === 1 && this.currentPage > 1) {
+          this.currentPage--;
+        }
+
+        this.loadClients(this.currentPage - 1);
+
+      },
+      error: err => this.handleHttpError(err, 'Suppression échouée')
+    });
+
+}
 
   // ══════════════════════════════════════════════════════════════════════════════
   // VALIDATION
@@ -630,28 +629,41 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
   // EXPORT
   // ══════════════════════════════════════════════════════════════════════════════
 
-  async exportData(type: ExportType): Promise<void> {
-    const source = this.filteredClients.length ? this.filteredClients : this.clients;
+async exportData(type: ExportType): Promise<void> {
 
-    if (!source.length) {
-      this.toastr.warning('Aucune donnée à exporter.', 'Export');
-      return;
-    }
+  const rows = this.clients.map(c => ({
+    ID: c.id,
+    Nom: c.nom ?? '',
+    Téléphone: c.telephone ?? '',
+    Email: c.email ?? '',
+ "Date d'inscription": c.dateEnregistrement
+    ? new Date(c.dateEnregistrement).toLocaleString('fr-FR')
+    : '—'
+  }));
 
-    const rows = source.map(c => ({
-      ID:         c.id,
-      Nom:        c.nom        ?? '',
-      Téléphone:  c.telephone  ?? '',
-      Email:      c.email      ?? '',
-      Type:       this.getTypeLabel(c.type ?? '')
-    }));
-
-    switch (type) {
-      case 'excel': this.exportExcel(rows); break;
-      case 'csv':   this.exportCsv(rows);   break;
-      case 'pdf':   await this.exportPdf(rows); break;
-    }
+  if (!rows.length) {
+    this.toastr.warning(
+      'Aucune donnée à exporter.',
+      'Export'
+    );
+    return;
   }
+
+  switch (type) {
+    case 'excel':
+      this.exportExcel(rows);
+      break;
+
+    case 'csv':
+      this.exportCsv(rows);
+      break;
+
+    case 'pdf':
+      await this.exportPdf(rows);
+      break;
+  }
+
+}
 
  private exportExcel(rows: object[]): void {
   // ✅ Step 1: create sheet normally (no origin)
@@ -662,7 +674,7 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
   // ✅ Step 2: shift all existing cells down by 6 rows manually
   //    to make room for branding header rows above the data
   const range = XLSX.utils.decode_range(ws['!ref'] ?? 'A1');
-  
+
   // Shift cells from bottom-up to avoid overwriting
   for (let R = range.e.r; R >= range.s.r; R--) {
     for (let C = range.s.c; C <= range.e.c; C++) {
@@ -757,8 +769,14 @@ export class ClientManagementComponent implements OnInit, OnDestroy {
 
     // ── Table ─────────────────────────────────────────────────────────────
     autoTable(doc, {
-      head: [['ID', 'Nom et Prénom', 'Email', 'Téléphone', 'Type']],
-      body: (rows as any[]).map(r => [r.ID, r.Nom, r.Email, r.Téléphone, r.Type]),
+head: [['ID', 'Nom et Prénom', 'Email', 'Téléphone', "Date d'inscription"]],
+body: (rows as any[]).map(r => [
+  r.ID,
+  r.Nom,
+  r.Email,
+  r.Téléphone,
+  r["Date d'inscription"]
+]),
       startY: 58,
       theme: 'grid',
       headStyles: {

@@ -42,6 +42,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -69,14 +75,18 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.js",
+            "host": "0.0.0.0",
+            "port": 5000
+          },
           "configurations": {
             "production": {
               "buildTarget": "sms-taxi-admin:build:production"
-              
             },
             "development": {
               "buildTarget": "sms-taxi-admin:build:development",
-              "proxyConfig": "proxy.conf.json"
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"
@@ -84,8 +94,6 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "host": "0.0.0.0",
-            "allowedHosts": ["sms-taxi.tn"],
             "browserTarget": "sms-taxi-admin:build"
           }
         },

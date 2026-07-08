@@ -11,7 +11,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  
+
   // Dashboard statistics
   totalTaxis: number = 0;
   activeTaxis: number = 0;
@@ -26,18 +26,18 @@ export class DashboardComponent implements OnInit {
   smsChartOptions: ChartType = smsChartOptions;
   taxiActivityChartOptions: ChartType = taxiActivityChartOptions;
   monthlyEarningChartOptions: ChartType = monthlyEarningChartOptions;
-  
+
   // Recent activities
   recentTaxis: any[] = [];
   recentClients: any[] = [];
   recentSms: any[] = [];
-  
+
   constructor(
     private taxiService: TaxiService,
     private smsService: SmsService,
     private fleetService: FleetService,
     private clientService: ClientService,
-    private sanitizer: DomSanitizer 
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
     this.smsService.getTotalSmsCount().subscribe(count => {
       this.totalSmsSent = count;
     });
-    
+
     // Load fleet data
     this.fleetService.getFleetLocations().subscribe(locations => {
       this.fleetLocations = locations;
@@ -78,21 +78,14 @@ export class DashboardComponent implements OnInit {
   }
 
 
+loadRecentActivities(): void {
 
-  loadRecentActivities(): void {
-    // Load recent taxis
-    /*this.taxiService.getTaxis().subscribe(taxis => {
-      this.recentTaxis = taxis.slice(0, 5);
-    });
-    */
-    // Load recent clients
-    this.clientService.getAllClients().subscribe(clients => {
-      this.recentClients = clients.slice(0, 5);
-    });
-    
-    // Load recent SMS
-    this.smsService.getSmsRecords().subscribe(sms => {
-      this.recentSms = sms.slice(0, 5);
-    });
-  }
+  this.clientService.getClients(0, 50).subscribe(response => {
+    this.recentClients = response.content;
+  });
+
+  this.smsService.getSmsRecords().subscribe(sms => {
+    this.recentSms = sms.slice(0, 5);
+  });
+}
 }

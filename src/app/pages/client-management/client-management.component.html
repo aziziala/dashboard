@@ -78,13 +78,13 @@
 </div>
 
 </div>
-<div class="col-md-3 mb-2 mb-md-0">
+<!--<div class="col-md-3 mb-2 mb-md-0">
 <select class="form-select shadow-sm rounded border-0"
 [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
 <option value="">Tous les statuts</option>
 <option >...</option>
 </select>
-</div>
+</div>-->
 <div class="col-md-3 text-end mb-2 mb-md-0">
 <button class="btn btn-outline-success me-1 shadow-sm" (click)="exportData('excel')">
 <i class="fas fa-file-excel me-1"></i>Excel
@@ -110,20 +110,29 @@
       <tr>
         <th>ID</th>
         <th>Nom et Prénom</th>
-        <th>Email</th>
-        <th>T.Téléphone</th>
         <th>Téléphone</th>
-        <th>Actions</th>
+<th>Date d'inscription</th>
+<th>Actions</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr *ngFor="let client of paginatedClients">
+      <tr *ngFor="let client of clients">
         <td>{{ client.id }}</td>
         <td>{{ client.nom }}</td>
-        <td>{{ client.email || 'N/A' }}</td>
-        <td>{{ client.type }}</td>
+
+
         <td>{{ client.telephone }}</td>
+
+<td>
+  <span *ngIf="client.dateEnregistrement; else noDate">
+    {{ client.dateEnregistrement | date:'dd/MM/yyyy HH:mm' }}
+  </span>
+
+  <ng-template #noDate>
+    <span class="text-muted">—</span>
+  </ng-template>
+</td>
         <td>
           <div class="btn-group-actions">
             <button
@@ -141,6 +150,7 @@
             <button
   class="btn btn-sm btn-danger"
   (click)="openDeleteModal(deleteConfirmModal, client)"
+
 >
   <i class="fas fa-trash"></i>
 </button>
@@ -149,7 +159,7 @@
         </td>
       </tr>
 
-      <tr *ngIf="paginatedClients.length === 0">
+      <tr *ngIf="clients.length === 0">
         <td colspan="8" class="text-center text-muted py-4">
           Aucun client trouvé
         </td>
@@ -158,33 +168,100 @@
   </table>
 </div>
 
-      <!-- Pagination -->
-      <div class="row mt-3" *ngIf="totalItems > itemsPerPage">
-        <div class="col-12">
-          <nav>
-            <ul class="pagination justify-content-center">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
-                  Previous
-                </a>
-              </li>
-              <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalItems / itemsPerPage)); let i = index"
-                  [class.active]="currentPage === i + 1">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(i + 1)">
-                  {{ i + 1 }}
-                </a>
-              </li>
-              <li class="page-item" [class.disabled]="currentPage === Math.ceil(totalItems / itemsPerPage)">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
-                  Next
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
- 
+<!-- Pagination -->
+<nav *ngIf="totalPages > 1" class="mt-3">
+  <ul class="pagination justify-content-center align-items-center">
+
+    <!-- First -->
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <button
+        class="page-link"
+        (click)="onPageChange(1)"
+        [disabled]="currentPage === 1">
+        Première
+      </button>
+    </li>
+
+    <!-- Previous -->
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <button
+        class="page-link"
+        (click)="onPageChange(currentPage - 1)"
+        [disabled]="currentPage === 1">
+        Précédent
+      </button>
+    </li>
+
+    <!-- First page -->
+    <li class="page-item" *ngIf="visiblePages[0] > 1">
+      <button class="page-link" (click)="onPageChange(1)">
+        1
+      </button>
+    </li>
+
+    <li class="page-item disabled" *ngIf="visiblePages[0] > 2">
+      <span class="page-link">...</span>
+    </li>
+
+    <!-- Visible pages -->
+    <li
+      class="page-item"
+      *ngFor="let page of visiblePages"
+      [class.active]="page === currentPage">
+
+      <button
+        class="page-link"
+        (click)="onPageChange(page)">
+        {{ page }}
+      </button>
+
+    </li>
+
+    <!-- Last page -->
+    <li
+      class="page-item disabled"
+      *ngIf="visiblePages[visiblePages.length - 1] < totalPages - 1">
+
+      <span class="page-link">...</span>
+
+    </li>
+
+    <li
+      class="page-item"
+      *ngIf="visiblePages[visiblePages.length - 1] < totalPages">
+
+      <button
+        class="page-link"
+        (click)="onPageChange(totalPages)">
+
+        {{ totalPages }}
+
+      </button>
+
+    </li>
+
+    <!-- Next -->
+    <li class="page-item" [class.disabled]="currentPage === totalPages">
+      <button
+        class="page-link"
+        (click)="onPageChange(currentPage + 1)"
+        [disabled]="currentPage === totalPages">
+        Suivant
+      </button>
+    </li>
+
+    <!-- Last -->
+    <li class="page-item" [class.disabled]="currentPage === totalPages">
+      <button
+        class="page-link"
+        (click)="onPageChange(totalPages)"
+        [disabled]="currentPage === totalPages">
+        Dernière
+      </button>
+    </li>
+
+  </ul>
+</nav>
 
   <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="text-center py-5">
@@ -232,8 +309,6 @@
             <label for="nomPrenom">Nom et Prénom</label>
           </div>
 
-
-
           <!-- Téléphone -->
           <div class="form-floating input-icon-top">
             <i class="fas fa-phone"></i>
@@ -246,20 +321,6 @@
             <label for="telephone">Téléphone</label>
           </div>
 
-          <!-- Type Téléphone -->
-           <div class="form-floating input-icon-top">
-            <i class="fas fa-mobile-alt"></i>
-            <select class="form-select"
-                    id="type"
-                    formControlName="type"
-                    [class.is-invalid]="isInvalid('type')">
-              <option value="" disabled>Type de téléphone</option>
-              <option *ngFor="let type of phoneTypeList" [value]="type">
-                {{ getTypeLabel(type) }}
-              </option>
-            </select>
-            <label for="type">Type de Téléphone</label>
-          </div>
 
           <!-- Email -->
           <div class="form-floating input-icon-top">
@@ -298,75 +359,6 @@
 </ng-template>
 
 
-<!-- Add/Edit Client Modal 
-<ng-template #addClientModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">{{ isEditing ? 'Edit Client' : 'Add New Client' }}</h5>
-    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
-  </div>
-  <div class="modal-body">
-    <form>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">First Name</label>
-            <input type="text" class="form-control" [(ngModel)]="clientForm.prenom" name="prenom" required>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Last Name</label>
-            <input type="text" class="form-control" [(ngModel)]="clientForm.nom" name="nom" required>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" [(ngModel)]="clientForm.telephone" name="telephone" required>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" [(ngModel)]="clientForm.email" name="email">
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select class="form-select" [(ngModel)]="clientForm.status" name="status" required>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-              <option value="BLOCKED">Blocked</option>
-              <option value="PENDING">Pending</option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Address</label>
-            <input type="text" class="form-control" [(ngModel)]="clientForm.adresse" name="adresse">
-          </div>
-        </div>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Notes</label>
-        <textarea class="form-control" rows="3" [(ngModel)]="clientForm.note" name="note"></textarea>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
-    <button type="button" class="btn btn-primary" (click)="saveClient()">
-      {{ isEditing ? 'Update' : 'Save' }}
-    </button>
-  </div>
-</ng-template>
--->
 <ng-template #addEditModal let-modal>
   <div class="modal-content modal-animated compact-modal">
 
@@ -416,7 +408,7 @@
 
           <div class="form-floating input-icon-top email-autocomplete">
             <i class="fas fa-envelope"></i>
-        
+
             <input type="email"
               class="form-control"
               id="email"
@@ -424,7 +416,7 @@
               placeholder="Email"
               (input)="onEmailInput()"
               (focus)="showDropdown = true"
-              (blur)="onBlur()"
+              (blur)="onEmailBlur()"
               autocomplete="off"
               [class.is-invalid]="isInvalid('email')">
 
@@ -433,7 +425,7 @@
         <!-- Dropdown inside input -->
         <ul *ngIf="showDropdown && filteredDomains.length > 0" class="email-suggestions">
           <li *ngFor="let domain of filteredDomains" (mousedown)="selectDomain(domain)">
-            {{ getInputName() }}<strong>{{ domain }}</strong>
+            {{ emailLocalPart }}<strong>{{ domain }}</strong>
           </li>
         </ul>
       </div>
@@ -454,13 +446,13 @@
 
     <!-- FOOTER -->
     <div class="modal-footer compact-footer">
-<button 
+<button
   *ngIf="isEditing"
   type="button"
   class="btn btn-outline-danger"
   (click)="openChangePasswordModal()">
 </button>
-      
+
       <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
         <i class="bi bi-x-circle"></i> Annuler
       </button>
@@ -496,7 +488,7 @@
 <div class="header-avatar">
 <i class="fas fa-eye taxi-icon"></i>
 </div>
-<h5 class="modal-title">&ensp;Détails du Taxi</h5>
+<h5 class="modal-title">&ensp;Détails du Client</h5>
 <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
 </div>
 

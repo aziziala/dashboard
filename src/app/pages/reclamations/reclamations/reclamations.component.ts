@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { RoleUiService } from '../../../services/role-ui.service';
 
 // ─── Models (adapt to your real models) ──────────────────────────────────────
 export interface Parrainage {
@@ -24,6 +25,8 @@ type SearchMode = 'phone' | 'name' | 'none';
   styleUrls: ['./reclamations.component.scss']
 })
 export class ReclamationsComponent implements OnInit, OnDestroy {
+
+  readonly roleUi = inject(RoleUiService);
 
   // ─── Data ──────────────────────────────────────────────────────────────────
   items: Parrainage[]          = [];

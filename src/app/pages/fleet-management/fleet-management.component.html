@@ -19,33 +19,59 @@
 </div>
 </div>
 </div>
+<div class="row mb-4 justify-content-center g-3">
 
+<div class="col-6 col-md-4"
+  *ngFor="let stat of [
 
-  <!-- Fleet Statistics Cards -->
-  
+    {
+      label: 'Taxis visibles',
+      value:
+        (fleetV2Stats?.totalTaxis || 0)
+        -
+        (fleetV2Stats?.expiredCount || 0),
 
-  <div class="row mb-4 justify-content-center g-3">
-  <div class="col-md-2" *ngFor="let stat of [
-    {label: 'Total', value: fleetStats.totalTaxis, color: 'primary', icon: 'fa-car'},
-    {label: 'Occupé', value: fleetStats.busyTaxis, color: 'success', icon: 'fa-check'},
-    {label: 'En route', value: fleetStats.enrouteTaxis, color: 'warning', icon: 'fa-clock'},
-    {label: 'Libre', value: fleetStats.activeTaxis, color: 'danger', icon: 'fa-times'}
+      color: 'primary',
+      icon: 'fa-taxi'
+    },
+
+    {
+      label: 'En attente',
+      value: fleetV2Stats?.waitingCount || 0,
+
+      color: 'warning',
+      icon: 'fa-clock'
+    },
+
+    {
+      label: 'En course',
+      value:
+        (fleetV2Stats?.startedCount || 0)
+        +
+        (fleetV2Stats?.inProgressCount || 0),
+
+      color: 'success',
+      icon: 'fa-road'
+    }
+
   ]">
 
-    <div class="stats-card" [ngClass]="stat.color">
-      <div class="icon">
-        <i class="fas" [ngClass]="stat.icon"></i>
-      </div>
+  <div class="stats-card" [ngClass]="stat.color">
 
-      <div class="content">
-        <span class="label">{{ stat.label }}</span>
-        <h3>{{ stat.value }}</h3>
-      </div>
+    <div class="icon">
+      <i class="fas" [ngClass]="stat.icon"></i>
+    </div>
+
+    <div class="content">
+      <span class="label">{{ stat.label }}</span>
+      <h3>{{ stat.value }}</h3>
     </div>
 
   </div>
+
 </div>
-  
+
+</div>
    <!--
     <div class="col-xl-2 col-md-4">
       <div class="card mini-stats-wid">
@@ -164,20 +190,22 @@
             
             <!-- Map Legend -->
             <div class="map-legend">
-              <div class="d-flex justify-content-center">
-               <span class="badge bg-success text-dark me-3">
-                  <i class="fas fa-check me-1"></i>Taxi occupé
-               </span>
-               <span class="badge bg-warning text-dark me-3">
-                  <i class="fas fa-spinner me-1"></i>Taxi À proximité
-               </span>
-                <span class="badge bg-danger text-dark me-3">
-                  <i class="fas fa-times me-1"></i>Taxi libre
+              <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 py-2">
+                <span class="badge border-0" style="background:#22c55e;color:#fff">
+                  <i class="fas fa-taxi me-1"></i>T1 — vert
                 </span>
-
-               <!-- <span class="badge bg-info">
-                  <i class="fas fa-circle me-1"></i>Maintenance
-                </span>-->
+                <span class="badge border-0" style="background:#2563eb;color:#fff">
+                  <i class="fas fa-taxi me-1"></i>T2 — bleu
+                </span>
+                <span class="badge border-0" style="background:#ef4444;color:#fff">
+                  <i class="fas fa-taxi me-1"></i>T3 — rouge
+                </span>
+                <span class="badge border-0" style="background:#f97316;color:#fff">
+                  <i class="fas fa-taxi me-1"></i>En course — orange
+                </span>
+                <span class="badge bg-secondary">
+                  <i class="fas fa-taxi me-1"></i>Autre / inconnu — gris
+                </span>
               </div>
             </div>
           </div>
@@ -248,9 +276,9 @@
                 <strong>{{ location.driverName }}</strong>
               </td>
               <td>
-                <span class="badge" [ngClass]="getStatusBadgeClass(location.status)">
+                <span class="badge" [ngClass]="getLocationBadgeClass(location)">
                   <i [class]="getStatusIcon(location.status)"></i>
-                  {{ location.status }}
+                  {{ getRideStatusLabel(location) }}
                 </span>
               </td>
               <td>
@@ -340,11 +368,15 @@
         <p><strong>N.Taxi:</strong> {{ selectedLocation.taxiNumber }}</p>
         <p><strong>Conducteur(trise):</strong> {{ selectedLocation.driverName }}</p>
         <p><strong>N.téléphone:</strong> {{ selectedLocation.telephone }}</p>
-        <p><strong>Status:</strong> 
-          <span class="badge" [ngClass]="getStatusBadgeClass(selectedLocation.status)">
-            {{ selectedLocation.status }}
+        <p><strong>Course:</strong>
+          <span class="badge" [ngClass]="getLocationBadgeClass(selectedLocation)">
+            {{ getRideStatusLabel(selectedLocation) }}
           </span>
         </p>
+        <p *ngIf="selectedLocation.offreId != null"><strong>Offre:</strong> {{ selectedLocation.offreId }}</p>
+        <p *ngIf="selectedLocation.feesOption"><strong>Tarif:</strong> {{ selectedLocation.feesOption }}</p>
+        <p *ngIf="selectedLocation.totalPrice != null"><strong>Prix:</strong> {{ selectedLocation.totalPrice }}</p>
+        <p *ngIf="selectedLocation.destination"><strong>Destination client:</strong> {{ selectedLocation.destination }}</p>
       </div>
       <div class="col-md-6">
         <h6>Informations sur la localisation</h6>

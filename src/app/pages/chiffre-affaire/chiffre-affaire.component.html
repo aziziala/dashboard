@@ -1,0 +1,334 @@
+<div class="container-fluid">
+
+  <!-- PAGE TITLE -->
+  <div class="row">
+    <div class="col-12 my-3">
+
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-chart-line me-2 taxi-icon"></i>
+          Analyse de l'activité
+        </h4>
+
+        <div class="page-title-right d-none d-md-block">
+
+          <ol class="breadcrumb m-0">
+
+            <li class="breadcrumb-item">
+              <a>Tableau de bord</a>
+            </li>
+
+            <li class="breadcrumb-item active">
+              Analyse de l'activité
+            </li>
+
+          </ol>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="row mb-4">
+
+    <div class="col-12">
+
+      <div class="stats-row">
+
+        <!-- TOTAL COURSES -->
+        <div class="stats-card total">
+
+          <div class="icon">
+            <i class="fas fa-route"></i>
+          </div>
+
+          <div class="info">
+            <span>Total Courses</span>
+
+            <h3>
+              {{ sommesTotalCourses }}
+            </h3>
+          </div>
+
+        </div>
+
+        <!-- TOTAL COMPTEUR -->
+        <div class="stats-card approved">
+
+          <div class="icon">
+            <i class="fas fa-taxi"></i>
+          </div>
+
+          <div class="info">
+
+            <span>Total Compteur</span>
+
+            <h3>
+              {{ sommesTotalCompteur.toFixed(3) }} DT
+            </h3>
+
+          </div>
+
+        </div>
+
+        <!-- TOTAL EXTRA -->
+        <div class="stats-card pending">
+
+          <div class="icon">
+            <i class="fas fa-coins"></i>
+          </div>
+
+          <div class="info">
+
+            <span>Total Extra</span>
+
+            <h3>
+              {{ sommesTotalExtrat.toFixed(3) }} DT
+            </h3>
+
+          </div>
+
+        </div>
+
+        <!-- TOTAL -->
+        <div class="stats-card rejected">
+
+          <div class="icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+
+          <div class="info">
+
+            <span>Chiffre d'affaire</span>
+
+            <h3>
+              {{ sommeTotal.toFixed(3) }} DT
+            </h3>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FILTERS -->
+  <div class="row align-items-center mb-4 gx-3">
+
+    <!-- SEARCH -->
+    <div class="col-md-4 mb-2 mb-md-0">
+
+      <div class="input-group shadow-sm rounded">
+
+        <div class="search-wrapper">
+
+          <i class="fas fa-search search-icon"></i>
+
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Rechercher par chauffeur ou téléphone..."
+          />
+
+          <button class="clear-btn">
+            ✕
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FILTER -->
+    <div class="col-md-3 mb-2 mb-md-0">
+
+      <select class="form-select shadow-sm rounded border-0">
+
+        <option>Toutes les périodes</option>
+
+        <option>Aujourd'hui</option>
+
+        <option>Cette semaine</option>
+
+        <option>Ce mois</option>
+
+      </select>
+
+    </div>
+
+    <!-- EXPORT -->
+    <div class="col-md-3 text-end mb-2 mb-md-0">
+
+      <button class="btn btn-outline-success me-1 shadow-sm">
+
+        <i class="fas fa-file-excel me-1"></i>
+
+        Excel
+
+      </button>
+
+      <button
+        class="btn btn-outline-danger me-1 shadow-sm"
+        (click)="exportPdf()"
+      >
+
+        <i class="fas fa-file-pdf me-1"></i>
+
+        PDF
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-responsive">
+
+    <table class="table table-hover align-middle">
+
+      <thead class="table-light">
+
+        <tr>
+
+          <th>ID Taxi</th>
+
+          <th>Nom Chauffeur</th>
+
+          <th>Téléphone</th>
+
+          <th>Matricule</th>
+
+          <th>N° Taxi</th>
+
+          <th>Total Courses</th>
+
+          <th>Compteur</th>
+
+          <th>Extra</th>
+
+          <th>Total</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <!-- EMPTY -->
+        <tr *ngIf="!taxiEarnings.length">
+
+          <td colspan="9" class="text-center text-muted py-4">
+            Aucune donnée disponible
+          </td>
+
+        </tr>
+
+        <!-- DATA -->
+        <tr *ngFor="let taxi of taxiEarnings">
+
+          <td>
+            {{ taxi.taxiId }}
+          </td>
+
+          <td>
+            {{ taxi.nom }}
+          </td>
+
+          <td>
+            {{ taxi.telephone }}
+          </td>
+
+          <td>
+            {{ taxi.numeroMatricule }}
+          </td>
+
+          <td>
+            {{ taxi.numeroTaxi }}
+          </td>
+
+          <td>
+            {{ taxi.totalCourses }}
+          </td>
+
+          <td>
+            {{ taxi.totalCompteur.toFixed(3) }} DT
+          </td>
+
+          <td>
+            {{ taxi.totalExtrat.toFixed(3) }} DT
+          </td>
+
+          <td>
+
+            <strong>
+
+              {{
+                (
+                  taxi.totalCompteur +
+                  taxi.totalExtrat
+                ).toFixed(3)
+              }} DT
+
+            </strong>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="row mt-3">
+
+    <div class="col-12">
+
+      <nav>
+
+        <ul class="pagination justify-content-center">
+
+          <li class="page-item">
+
+            <a class="page-link">
+              Previous
+            </a>
+
+          </li>
+
+          <li class="page-item active">
+
+            <a class="page-link">
+              1
+            </a>
+
+          </li>
+
+          <li class="page-item">
+
+            <a class="page-link">
+              Next
+            </a>
+
+          </li>
+
+        </ul>
+
+      </nav>
+
+    </div>
+
+  </div>
+
+</div>

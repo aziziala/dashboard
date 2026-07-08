@@ -4,8 +4,21 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FleetService } from '../../services/fleet.service';
 import { FleetLocation, FleetStatus } from '../../models/fleet-location.model';
+import {
+  FLEET_LOCATIONS_V2_TOPIC,
+  FLEET_SUBSCRIBE_APP_DESTINATION
+} from '../../models/fleet-locations-v2.model';
+import {
+  isFleetLocationsV2Payload,
+  isRideActiveForAssignment,
+  mapFleetLocationsV2Payload
+} from '../../utils/fleet-locations-v2.mapper';
 import { ClientInjectionService } from '../../services/client-injection.service';
 import { WebsocketService } from '../../services/websocket.service';
+import {
+  buildTariffTaxiMarkerHtml,
+  feesOptionToTariffPinClass
+} from '../../utils/taxi-tariff-marker.util';
 
 @Component({
   selector: 'app-affectation-client',
@@ -22,19 +35,6 @@ export class AffectationClientComponent implements OnInit, AfterViewInit, OnDest
 
   pickupLatLng: L.LatLng | null = null;
   destinationLatLng: L.LatLng | null = null;
-
-  // Icons
-  private activeCarIcon = L.icon({
-    iconUrl: 'assets/car_icon.png',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
-  });
-
-  private busyCarIcon = L.icon({
-    iconUrl: 'assets/car-booked.png',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
-  });
 
   private pickupIcon = L.divIcon({
     className: 'custom-pickup-marker',
@@ -138,10 +138,10 @@ export class AffectationClientComponent implements OnInit, AfterViewInit, OnDest
       console.log('[AffectationClient] WebSocket connection status:', connected ? 'connected' : 'disconnected');
       if (connected) {
         this.wsSubscription = this.wsService.subscribe(
-          '/topic/fleet/locations',
+          FLEET_LOCATIONS_V2_TOPIC,
           (message) => this.handleFleetLocationsFromSocket(message)
         );
-        this.wsService.send('/app/fleet.subscribe', {});
+        this.wsService.send(FLEET_SUBSCRIBE_APP_DESTINATION, {});
       }
     });
   }
@@ -153,27 +153,17 @@ export class AffectationClientComponent implements OnInit, AfterViewInit, OnDest
       try {
         const body = JSON.parse(message.body);
 
-        if (!Array.isArray(body) || body.length === 0) {
-          console.warn('[AffectationClient] Empty fleet array received.');
+        if (!isFleetLocationsV2Payload(body)) {
+          console.warn('[AffectationClient] Unexpected fleet WS payload (expected v2 object with statistics + locations).');
           return;
         }
 
-        this.taxis = body.map(taxi => ({
-          taxiId: taxi.taxiId,
-          taxiNumber: taxi.taxiNumber,
-          driverName: taxi.driverName || '',
-          telephone: taxi.phone || '',
-          latitude: taxi.latitude,
-          longitude: taxi.longitude,
-          status: ['IN_PROGRESS', 'TERMINATED'].includes(taxi.rideStatus?.toUpperCase())
-            ? FleetStatus.BUSY
-            : FleetStatus.ACTIVE,
-          isOnline: true,
-          waitingCount: taxi.waitingCount || 0,
-          inProgressCount: taxi.inProgressCount || 0,
-          startedRide: taxi.startedRide || 0,
-          feesOption: taxi.feesOption ?? 0,
-          totalTaxis: taxi.totalTaxis || 0
+        const { locations } = mapFleetLocationsV2Payload(body);
+
+        this.taxis = locations.map((loc) => ({
+          ...loc,
+          status: isRideActiveForAssignment(loc.rideStatus) ? FleetStatus.BUSY : FleetStatus.ACTIVE,
+          feesOption: loc.feesOption ?? undefined
         }));
 
         this.updateTaxiMarkers();
@@ -193,13 +183,14 @@ export class AffectationClientComponent implements OnInit, AfterViewInit, OnDest
 
     this.taxis.forEach(location => {
       if (location.latitude && location.longitude) {
-        const icon = this.getTaxiIcon(location.status);
+        const icon = this.getTaxiIcon(location);
         const marker = L.marker([location.latitude, location.longitude], { icon }).addTo(this.map);
         marker.bindPopup(`
           <div class="info-window">
             <h6>${location.taxiNumber}</h6>
-            <p><strong>Driver:</strong> ${location.driverName}</p>
-            <p><strong>Phone:</strong> ${location.telephone}</p>
+            <p><strong>Conducteur:</strong> ${location.driverName}</p>
+            <p><strong>Téléphone:</strong> ${location.telephone}</p>
+            ${location.feesOption ? `<p><strong>Tarif:</strong> ${location.feesOption}</p>` : ''}
           </div>
         `);
         this.taxiMarkers.push(marker);
@@ -207,11 +198,14 @@ export class AffectationClientComponent implements OnInit, AfterViewInit, OnDest
     });
   }
 
-  private getTaxiIcon(status: FleetStatus | undefined): L.Icon {
-    if (status === FleetStatus.BUSY) {
-      return this.busyCarIcon;
-    }
-    return this.activeCarIcon;
+  private getTaxiIcon(location: FleetLocation): L.DivIcon {
+    const inProgress = isRideActiveForAssignment(location.rideStatus);
+    return L.divIcon({
+      className: 'leaflet-taxi-tariff-marker',
+      html: buildTariffTaxiMarkerHtml(feesOptionToTariffPinClass(location.feesOption), { inProgress }),
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
   }
 
   onMapClick(event: L.LeafletMouseEvent): void {

@@ -178,7 +178,7 @@
                       title="Modifier">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-sm btn-danger"
+              <button *ngIf="roleUi.canShowDestructiveActions()" class="btn btn-sm btn-danger"
                       (click)="openDeleteModal(deleteModal, p)"
                       title="Supprimer">
                 <i class="fas fa-trash"></i>
@@ -455,7 +455,7 @@
         <button class="btn btn-outline-secondary me-2" (click)="modal.dismiss()">
           Annuler
         </button>
-        <button class="btn btn-danger"
+        <button *ngIf="roleUi.canShowDestructiveActions()" class="btn btn-danger"
                 [disabled]="isDeleting"
                 (click)="confirmDelete(modal)">
           <span class="spinner-border spinner-border-sm me-1" *ngIf="isDeleting"></span>

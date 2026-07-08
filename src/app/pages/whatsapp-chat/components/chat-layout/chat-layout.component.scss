@@ -1,0 +1,235 @@
+// // // Variables CSS partagées par tout le module chat
+// // // vers les composants enfants, même avec l'encapsulation de vues Angular,
+// // // car ce ne sont que des sélecteurs de descendants classiques).
+
+$brand-dark      : #211F54;
+$brand-mid       : #4B4BAF;
+$brand-accent    : #FFC900;
+$brand-purple    : #56289e;
+
+// Status palette
+$status-approved : #22c55e;
+$status-pending  : #f59e0b;
+$status-rejected : #ef4444;
+
+// Radii
+$radius-sm  : 0.375rem;
+$radius-md  : 0.5rem;
+$radius-lg  : 0.75rem;
+$radius-xl  : 1rem;
+$radius-2xl : 0.875rem;
+
+// Shadows
+$shadow-xs    : 0 1px 3px  rgba(0, 0, 0, 0.07);
+$shadow-sm    : 0 2px 8px  rgba(0, 0, 0, 0.09);
+$shadow-md    : 0 4px 16px rgba(0, 0, 0, 0.11);
+$shadow-lg    : 0 8px 28px rgba(0, 0, 0, 0.14);
+$shadow-modal : 0 0.75rem 2rem rgba(0, 0, 0, 0.22);
+
+// Transitions
+$t-fast : 0.15s ease;
+$t-base : 0.25s ease;
+$t-slow : 0.35s ease;
+
+// Font scale
+$font-xs   : 0.70rem;
+$font-sm   : 0.78rem;
+$font-base : 0.875rem;
+$font-md   : 1rem;
+$font-lg   : 1.25rem;
+
+/* =========================
+   GLOBAL RESET
+========================= */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================
+   HOST
+========================= */
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  /* Variables WhatsApp */
+  --wa-sidebar-width: 380px;
+  --wa-header-height: 60px;
+
+  --wa-color-header: #1f2c34;
+  --wa-color-header-text: #e9edef;
+  --wa-color-sidebar-bg: #ffffff;
+  --wa-color-sidebar-border: #e9edef;
+  --wa-color-chat-bg: #efeae2;
+  --wa-color-bubble-out: #d9fdd3;
+  --wa-color-bubble-in: #ffffff;
+  --wa-color-text-primary: #111b21;
+  --wa-color-text-secondary: #667781;
+  --wa-color-accent: #00a884;
+  --wa-color-accent-dark: #008069;
+  --wa-color-unread-badge: #25d366;
+  --wa-color-danger: #f15c6d;
+  --wa-color-hover: #f5f6f6;
+  --wa-color-active: #f0f2f1;
+  --wa-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+
+  
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+.wa-layout {
+  display: flex;
+
+  width: 100%;
+  height: 100%;
+
+  /* Seulement en haut */
+  padding-top: 30px;
+  // padding-bottom: -100px !important;
+  box-sizing: border-box;
+
+  background: var(--wa-color-chat-bg);
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--wa-color-text-primary);
+
+  overflow: hidden;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.wa-layout__sidebar {
+  flex: 0 0 var(--wa-sidebar-width);
+  width: var(--wa-sidebar-width);
+  max-width: var(--wa-sidebar-width);
+
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--wa-color-sidebar-bg);
+  border-right: 1px solid var(--wa-color-sidebar-border);
+
+  overflow: hidden;
+}
+
+/* =========================
+   MAIN CHAT
+========================= */
+.wa-layout__main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--wa-color-chat-bg);
+
+  overflow: hidden;
+}
+
+/* =========================
+   SCROLL AREA
+========================= */
+.wa-scroll {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: thin;
+}
+
+/* =========================
+   RESPONSIVE MOBILE
+========================= */
+@media (max-width: 900px) {
+  .wa-layout__sidebar {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .wa-layout__main {
+    display: none;
+  }
+}
+
+
+
+
+
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PAGE TITLE BOX
+// ══════════════════════════════════════════════════════════════════════════════
+
+.page-title-box {
+  padding: 1rem 1.5rem;
+  border-radius: $radius-xl;
+  background: linear-gradient(
+    135deg,
+    rgba($brand-dark, 0.05),
+    rgba($brand-mid,  0.05)
+  );
+  box-shadow: $shadow-md;
+  flex-wrap: wrap;
+  transition: box-shadow $t-base;
+
+  &:hover { box-shadow: $shadow-lg; }
+}
+
+.page-title {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $brand-dark;
+
+  @media (max-width: 576px) { font-size: $font-md; }
+
+  .taxi-icon { color: $brand-accent; }
+}
+
+.page-title-right {
+  margin-top: 0.5rem;
+
+  @media (max-width: 576px) { width: 100%; }
+
+  ol.breadcrumb {
+    margin: 0;
+
+    li.breadcrumb-item {
+      font-weight: 500;
+      font-size: $font-base;
+      color: $brand-mid;
+
+      a {
+        color: $brand-mid;
+        text-decoration: none;
+        transition: color $t-base;
+        &:hover { color: $brand-dark; }
+      }
+
+      &.active { color: #495057; }
+
+      &:not(:last-child)::after {
+        content: "›";
+        margin: 0 0.4rem;
+        color: $brand-dark;
+        opacity: 0.45;
+      }
+    }
+  }
+}

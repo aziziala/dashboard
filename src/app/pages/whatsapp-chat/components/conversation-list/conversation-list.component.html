@@ -1,0 +1,45 @@
+<div class="wa-sidebar">
+
+  <div class="wa-sidebar__header">
+    <h1 class="wa-sidebar__title">Discussions</h1>
+  </div>
+
+  <div class="wa-sidebar__search">
+    <span class="wa-sidebar__search-icon"><i class="fas fa-search me-1"></i></span>
+    <input
+      type="text"
+      class="wa-sidebar__search-input"
+      placeholder="Rechercher une conversation ou un numéro"
+      (input)="onSearchChange($event?.target?.value)">
+  </div>
+
+  <div class="wa-sidebar__list">
+     <a
+      *ngFor="let conv of (filteredConversations$ | async); trackBy: trackById"
+      class="wa-conv-item"
+      [routerLink]="['/whatsapp', conv.id]"
+      routerLinkActive="wa-conv-item--active">
+
+      <div class="wa-avatar" [style.background]="avatarColor(conv)">
+        {{ initials(conv) }}
+      </div>
+
+      <div class="wa-conv-item__body">
+        <div class="wa-conv-item__top">
+          <span class="wa-conv-item__name">{{ displayName(conv) }}</span>
+          <span class="wa-conv-item__time" *ngIf="conv.lastMessageAt">
+            {{ conv.lastMessageAt | date:'shortTime' }}
+          </span>
+        </div>
+        <div class="wa-conv-item__bottom">
+          <span class="wa-conv-item__preview">{{ conv.lastMessage || 'Aucun message' }}</span>
+          <span class="wa-badge" *ngIf="conv.unreadCount > 0">{{ conv.unreadCount }}</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="wa-sidebar__empty" *ngIf="(filteredConversations$ | async)?.length === 0">
+      Aucune conversation trouvée
+    </div>
+  </div>
+</div>

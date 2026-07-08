@@ -145,16 +145,16 @@ export class RideManagementComponent implements OnInit {
     });
   }
 
-  loadAvailableClients(): void {
-    this.clientService.getAllClients().subscribe({
-      next: (clients) => {
-        this.availableClients = clients;
-      },
-      error: (error) => {
-        console.error('Error loading clients:', error);
-      }
-    });
-  }
+loadAvailableClients(): void {
+  this.clientService.getClients().subscribe({
+    next: (response) => {
+      this.availableClients = response.content;
+    },
+    error: (error) => {
+      console.error('Error loading clie0nts:', error);
+    }
+  });
+}
 
   // Ride request management
   approveRideRequest(request: RideRequest): void {

@@ -1,0 +1,420 @@
+<div class="container-fluid">
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE TITLE
+  ══════════════════════════════════════════════════════════════════════ -->
+    <div class="row">
+        <div class="col-12 my-3">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <h4 class="mb-0 page-title">
+                    <i class="fas fa-paper-plane me-2 taxi-icon"></i>Envoyer une Notification
+                </h4>
+                <div class="page-title-right d-none d-md-block">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+                        <li class="breadcrumb-item active">Envoyer une Notification</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+       STEPPER HEADER
+  ══════════════════════════════════════════════════════════════════════ -->
+    <div class="stepper-header mb-4">
+
+        <div class="step-item" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
+            <div class="step-circle">
+                <i *ngIf="currentStep > 1" class="fas fa-check"></i>
+                <span *ngIf="currentStep <= 1">1</span>
+            </div>
+            <span class="step-label">Contenu</span>
+        </div>
+
+        <div class="step-line" [class.done]="currentStep > 1"></div>
+
+        <div class="step-item" [class.active]="currentStep === 2">
+            <div class="step-circle">
+                <span>2</span>
+            </div>
+            <span class="step-label">Destinataires</span>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 1 — CONTENT FORM
+  ══════════════════════════════════════════════════════════════════════ -->
+    <div *ngIf="currentStep === 1" [formGroup]="notifForm">
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+
+                <div class="row gx-4 gy-3">
+
+                    <!-- Title -->
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-heading me-1"></i>Titre <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control shadow-sm" [class.is-invalid]="isInvalid('title')"
+                            formControlName="title" placeholder="Ex : Offre spéciale ce weekend" />
+                        <div class="invalid-feedback">Le titre est requis.</div>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-tag me-1"></i>Type <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select shadow-sm" formControlName="type"
+                            [class.is-invalid]="isInvalid('type')">
+                            <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+                        </select>
+                        <div class="invalid-feedback">Le type est requis.</div>
+                    </div>
+
+                    <!-- Channel -->
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-satellite-dish me-1"></i>Canal <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select shadow-sm" formControlName="channel"
+                            [class.is-invalid]="isInvalid('channel')">
+                            <option *ngFor="let c of channelOptions" [value]="c">{{ c }}</option>
+                        </select>
+                        <div class="invalid-feedback">Le canal est requis.</div>
+                    </div>
+
+                    <!-- Message -->
+                    <div class="col-12">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-comment-alt me-1"></i>Message <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control shadow-sm" rows="4" [class.is-invalid]="isInvalid('message')"
+                            formControlName="message" placeholder="Rédigez votre message ici…"></textarea>
+                        <div class="invalid-feedback">Le message est requis.</div>
+                    </div>
+
+                </div>
+
+                <!-- Preview badge -->
+                <div class="notif-preview mt-4 p-3 rounded" *ngIf="notifForm.value.title || notifForm.value.message">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i [class]="getTypeIcon(notifForm.value.type)"></i>
+                        <i [class]="getChannelIcon(notifForm.value.channel) + ' text-muted'"></i>
+                        <strong class="small">{{ notifForm.value.title || '—' }}</strong>
+                    </div>
+                    <p class="mb-0 small text-muted">{{ notifForm.value.message || '—' }}</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-gradient-primary shadow-sm" (click)="goToStep2()">
+                Suivant <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 2 — TARGET SELECTION
+  ══════════════════════════════════════════════════════════════════════ -->
+    <div *ngIf="currentStep === 2">
+
+        <!-- Tab buttons -->
+        <div class="target-tabs mb-3">
+            <button class="tab-btn" [class.active]="activeTab === 'TAXI'" (click)="setTab('TAXI')">
+                <i class="fas fa-taxi me-1"></i>Taxis
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'CLIENT'" (click)="setTab('CLIENT')">
+                <i class="fas fa-users me-1"></i>Clients
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'ADMIN'" (click)="setTab('ADMIN')">
+                <i class="fas fa-user-shield me-1"></i>Admin
+            </button>
+        </div>
+
+        <!-- ── TAXI TAB ─────────────────────────────────────────────────── -->
+        <div *ngIf="activeTab === 'TAXI'" class="card shadow-sm border-0">
+            <div class="card-body p-4">
+
+                <!-- Search + Select All -->
+                <div class="row gx-3 gy-2 mb-3 align-items-end">
+
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-search me-1"></i>Rechercher
+                        </label>
+
+                        <div class="position-relative">
+
+                            <input type="text" class="form-control shadow-sm" [(ngModel)]="taxiSearchTerm"
+                                (ngModelChange)="onTaxiSearchChange()" placeholder="Ex : 98… ou Walid..." />
+
+                            <button *ngIf="taxiSearchTerm" type="button"
+                                class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
+                                (click)="taxiSearchTerm = ''; onTaxiSearchChange()">
+
+                                <i class="fas fa-times text-muted"></i>
+
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end gap-2 justify-content-md-end">
+                        <button class="btn btn-sm shadow-sm" [class.btn-gradient-primary]="!allTaxisSelected"
+                            [class.btn-success]="allTaxisSelected" (click)="toggleAllTaxis()">
+                            <i class="fas me-1" [class.fa-check-double]="allTaxisSelected"
+                                [class.fa-list-check]="!allTaxisSelected"></i>
+                            {{ allTaxisSelected ? 'Désélectionner tout' : 'Sélectionner tout' }}
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Selection badge -->
+                <div class="selection-badge mb-3" [class.has-selection]="allTaxisSelected || selectedTaxiIds.size > 0">
+                    <i class="fas fa-check-circle me-1"></i>{{ taxiSelectionLabel }}
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:42px"></th>
+                                <th>ID</th>
+                                <th>Nom et Prénom</th>
+                                <th>Téléphone</th>
+                                <th>N. Matricule</th>
+                                <th>N. Plaque</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngIf="isTaxiLoading">
+                                <tr *ngFor="let _ of [1,2,3,4,5]">
+                                    <td colspan="7">
+                                        <div class="skeleton-row"></div>
+                                    </td>
+                                </tr>
+                            </ng-container>
+                            <ng-container *ngIf="!isTaxiLoading">
+                                <tr *ngFor="let taxi of taxis"
+                                    [class.table-primary]="allTaxisSelected || isTaxiSelected(taxi.id.toString())"
+                                    (click)="toggleTaxi(taxi.id.toString())" style="cursor:pointer">
+                                    <td>
+                                        <input type="checkbox" class="form-check-input"
+                                            [checked]="allTaxisSelected || isTaxiSelected(taxi.id.toString())"
+                                            (click)="$event.stopPropagation()"
+                                            (change)="toggleTaxi(taxi.id.toString())" />
+                                    </td>
+                                    <td>{{ taxi.id }}</td>
+                                    <td>{{ taxi.nom }}</td>
+                                    <td>{{ taxi.telephone }}</td>
+                                    <td>{{ taxi.numeroMatricule }}</td>
+                                    <td>{{ taxi.numeroTaxi }}</td>
+                                    <td>
+                                        <span class="badge" [class.bg-success]="taxi.taxiStatus === 'APPROVED'"
+                                            [class.bg-danger]="taxi.taxiStatus === 'REJECTED'"
+                                            [class.bg-secondary]="taxi.taxiStatus !== 'APPROVED' && taxi.taxiStatus !== 'REJECTED'">
+                                            {{ taxi.taxiStatus }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="taxis.length === 0">
+                                    <td colspan="7" class="text-center text-muted py-5">
+                                        <i class="fas fa-taxi fa-2x mb-2 d-block opacity-25"></i>
+                                        Aucun taxi trouvé.
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+                    <app-pagination [currentPage]="taxiPage + 1" [totalPages]="taxiTotalPages"
+                        [totalElements]="taxiTotalEls" (pageChange)="onTaxiPageChange($event)">
+                    </app-pagination>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
+                        <select class="form-select form-select-sm page-size-select" [ngModel]="taxiPageSize"
+                            (ngModelChange)="onTaxiPageSizeChange($event)">
+                            <option *ngFor="let s of pageSizeOptions" [value]="s">{{ s }}</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── CLIENT TAB ───────────────────────────────────────────────── -->
+        <div *ngIf="activeTab === 'CLIENT'" class="card shadow-sm border-0">
+            <div class="card-body p-4">
+
+                <!-- Search + Select All -->
+                <div class="row gx-3 gy-2 mb-3 align-items-end">
+
+                    <!-- ► Champ unique : chiffres = phone, texte = nom -->
+                    <!-- <div class="col-md-6">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-search me-1"></i>Rechercher
+                            
+                        </label>
+                        <div class="input-group input-group-sm shadow-sm">
+                            <span class="input-group-text">
+                                <i class="fas"
+                                   [class.fa-phone]="clientSearchTerm && clientSearchTerm.match('^\\d+$')"
+                                   [class.fa-user]="clientSearchTerm && !clientSearchTerm.match('^\\d+$')"
+                                   [class.fa-search]="!clientSearchTerm"></i>
+                            </span>
+                            <input type="text" class="form-control"
+                                [(ngModel)]="clientSearchTerm"
+                                (ngModelChange)="onClientSearchChange()"
+                                placeholder="Ex : 25… ou Oussama…" />
+                            <button class="btn btn-outline-secondary" type="button"
+                                *ngIf="clientSearchTerm"
+                                (click)="clientSearchTerm = ''; onClientSearchChange()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div> -->
+
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-search me-1"></i>Rechercher
+                        </label>
+
+                        <div class="position-relative">
+                            <input type="text" class="form-control shadow-sm" [(ngModel)]="clientSearchTerm"
+                                (ngModelChange)="onClientSearchChange()" placeholder="Ex : 25… ou Oussama..." />
+
+                            <button *ngIf="clientSearchTerm" type="button"
+                                class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
+                                (click)="clientSearchTerm = ''; onClientSearchChange()">
+
+                                <i class="fas fa-times text-muted"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end gap-2 justify-content-md-end">
+                        <button class="btn btn-sm shadow-sm" [class.btn-gradient-primary]="!allClientsSelected"
+                            [class.btn-success]="allClientsSelected" (click)="toggleAllClients()">
+                            <i class="fas me-1" [class.fa-check-double]="allClientsSelected"
+                                [class.fa-list-check]="!allClientsSelected"></i>
+                            {{ allClientsSelected ? 'Désélectionner tout' : 'Sélectionner tout' }}
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Selection badge -->
+                <div class="selection-badge mb-3"
+                    [class.has-selection]="allClientsSelected || selectedClientIds.size > 0">
+                    <i class="fas fa-check-circle me-1"></i>{{ clientSelectionLabel }}
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:42px"></th>
+                                <th>ID</th>
+                                <th>Nom et Prénom</th>
+                                <th>Téléphone</th>
+                                <th>Email</th>
+                                <th>État</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngIf="isClientLoading">
+                                <tr *ngFor="let _ of [1,2,3,4,5]">
+                                    <td colspan="7">
+                                        <div class="skeleton-row"></div>
+                                    </td>
+                                </tr>
+                            </ng-container>
+                            <ng-container *ngIf="!isClientLoading">
+                                <tr *ngFor="let client of clients"
+                                    [class.table-primary]="allClientsSelected || isClientSelected(client.id.toString())"
+                                    (click)="toggleClient(client.id.toString())" style="cursor:pointer">
+                                    <td>
+                                        <input type="checkbox" class="form-check-input"
+                                            [checked]="allClientsSelected || isClientSelected(client.id.toString())"
+                                            (click)="$event.stopPropagation()"
+                                            (change)="toggleClient(client.id.toString())" />
+                                    </td>
+                                    <td>{{ client.id }}</td>
+                                    <td>{{ client.nom }}</td>
+                                    <td>{{ client.telephone }}</td>
+                                    <td>{{ client.email }}</td>
+                                    <td><span class="badge bg-secondary">{{ client.etat }}</span></td>
+                                    <td>{{ client.type }}</td>
+                                </tr>
+                                <tr *ngIf="clients.length === 0">
+                                    <td colspan="7" class="text-center text-muted py-5">
+                                        <i class="fas fa-users fa-2x mb-2 d-block opacity-25"></i>
+                                        Aucun client trouvé.
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+                    <app-pagination [currentPage]="clientPage + 1" [totalPages]="clientTotalPages"
+                        [totalElements]="clientTotalEls" (pageChange)="onClientPageChange($event)">
+                    </app-pagination>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
+                        <select class="form-select form-select-sm page-size-select" [ngModel]="clientPageSize"
+                            (ngModelChange)="onClientPageSizeChange($event)">
+                            <option *ngFor="let s of pageSizeOptions" [value]="s">{{ s }}</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── ADMIN TAB ─────────────────────────────────────────────────── -->
+        <div *ngIf="activeTab === 'ADMIN'" class="card shadow-sm border-0">
+            <div class="card-body p-5 text-center">
+                <i class="fas fa-user-shield fa-3x text-muted opacity-50 mb-3 d-block"></i>
+                <p class="text-muted mb-0">
+                    La notification sera envoyée à <strong>tous les administrateurs</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+            <button class="btn btn-outline-secondary shadow-sm" (click)="goBackToStep1()">
+                <i class="fas fa-arrow-left me-1"></i> Retour
+            </button>
+            <button class="btn btn-gradient-primary shadow-sm" [disabled]="!canSend || isSending" (click)="send()">
+                <span *ngIf="!isSending">
+                    <i class="fas fa-paper-plane me-1"></i>Envoyer
+                </span>
+                <span *ngIf="isSending">
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                    Envoi en cours…
+                </span>
+            </button>
+        </div>
+
+    </div>
+
+</div>

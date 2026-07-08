@@ -1,44 +1,51 @@
 export const environment = {
   production: false,
 
+
+    whatsappApiUrl: 'http://localhost:8085/api',
+    whatsappWsUrl: 'http://localhost:8085/ws-chat',
+  /**
+   * Dev: AuthService.login() can use mock user when true (see auth.service).
+   * JWT for API calls: interceptor uses localStorage currentUser token, then
+   * `devHardcodedBearerToken`, then localStorage key `DEV_GATEWAY_JWT`.
+   */
+  devBypassBackendAuth: false,
+
+  devHardcodedBearerToken: '',
+
   apiUrls: {
+    /** Proxied by ng serve / nginx → gateway :8444 (no browser CORS). */
+    smsTaxi: '/taxi-client/api',
 
-    // ======================================================
-    // SMS TAXI
-    // ======================================================
+    smsClient: '/taxi-client/api',
 
-    smsTaxi: 'http://41.225.11.231:8777/taxi-client/api',
+    /** Proxied → :8777 (see `proxy.conf.js` `/public-8777`). */
+    smsOut: '/public-8777/api',
 
-    smsClient: 'http://41.225.11.231:8777/taxi-client/api',
+    smsTaxidelete: '',
 
-    smsOut: 'http://41.225.11.231:8777/api',
+    /** Empty prefix so auth calls are `/jwt-authentication/...` on same origin. */
+    smsAuth: '/jwt-authentication/api',
 
-    smsTaxidelete: 'http://41.225.11.231:8777',
+    taxiSelect: '/taxi-client/api',
 
-    smsAuth: 'http://41.225.11.231:8444',
+    fleet: '/fleet-api',
 
-    // ======================================================
-    // TAXI SELECT
-    // ======================================================
+    discovery: '/public-8777/discovery',
 
-    taxiSelect: 'http://41.225.11.231:8444/taxi-client/api',
+    apiGateway: '/public-8777/api-gateway',
 
-    // ======================================================
-    // OTHER SERVICES
-    // ======================================================
+    /** Proxied → :8666 `POST /api/sync-taxi-account/{phone}` (see `proxy.conf.js`). */
+    jwtBackend: '/api/sync-taxi-account',
 
-    fleet: 'http://41.225.11.231:8444/fleet-api',
+    taxiUpdateDirectAuth: '/taxi-direct-auth',
 
-    discovery: 'http://41.225.11.231:8777/discovery',
-
-    apiGateway: 'http://41.225.11.231:8777/api-gateway'
+    taxiUpdateDirectTaxi: '/taxi-direct-taxi'
   },
 
-  // ======================================================
-  // WEBSOCKETS
-  // ======================================================
+  wsBaseUrl: '/fleet-api-base-url',
 
-  wsBaseUrl: 'http://41.225.11.231:8981/ws',
+  adminWsBaseUrl: '/fleet-admin-ws-base-url',
 
-  adminWsBaseUrl: 'http://41.225.11.231:8981/admin-ws'
+  kannelEmbedBaseUrl: ''
 };

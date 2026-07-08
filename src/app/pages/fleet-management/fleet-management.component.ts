@@ -1,31 +1,77 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  NgZone
+} from '@angular/core';
+
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FleetService } from '../../services/fleet.service';
 import { TaxiService } from '../../services/taxi.service';
-import { FleetLocation, FleetStatus, FleetStatistics, NearbyTaxiResponse } from '../../models/fleet-location.model';
-import { Taxi } from '../../models/taxi.model';
-import { ChartType, revenueChartOptions, smsChartOptions, taxiActivityChartOptions, monthlyEarningChartOptions } from '../../models/chart.model';
+
+import {
+  FleetLocation,
+  FleetStatus,
+  FleetStatistics,
+  NearbyTaxiResponse
+} from '../../models/fleet-location.model';
+
+import {
+  FleetV2Statistics,
+  FLEET_LOCATIONS_V2_TOPIC,
+  FLEET_SUBSCRIBE_APP_DESTINATION
+} from '../../models/fleet-locations-v2.model';
+
+import {
+  isFleetLocationsV2Payload,
+  isRideActiveForAssignment,
+  mapFleetLocationsV2Payload,
+  mergeV2StatisticsIntoFleetStats
+} from '../../utils/fleet-locations-v2.mapper';
+
+import {
+  buildTariffTaxiMarkerHtml,
+  feesOptionToTariffPinClass
+} from '../../utils/taxi-tariff-marker.util';
+
+import {
+  ChartType,
+  revenueChartOptions,
+  taxiActivityChartOptions
+} from '../../models/chart.model';
+
 import { WebsocketService } from '../../services/websocket.service';
+
 import * as L from 'leaflet';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
+
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'assets/marker-icon-2x.png',
   iconUrl: 'assets/marker-icon.png',
   shadowUrl: 'assets/marker-shadow.png',
 });
+
 @Component({
   selector: 'app-fleet-management',
   templateUrl: './fleet-management.component.html',
   styleUrls: ['./fleet-management.component.scss']
 })
-export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewInit {
+export class FleetManagementComponent
+  implements OnInit, OnDestroy, AfterViewInit {
+
   fleetLocations: FleetLocation[] = [];
   nearbyTaxis: NearbyTaxiResponse[] = [];
   selectedLocation: FleetLocation | null = null;
+
   isLoading = false;
+
   searchTerm = '';
   statusFilter = '';
+
   currentPage = 1;
   itemsPerPage = 10;
   totalItems = 0;
@@ -33,25 +79,61 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
   Math = Math;
   FleetStatus = FleetStatus;
 
-  @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
+  @ViewChild('mapContainer', { static: false })
+  mapContainer!: ElementRef;
+
   private map!: L.Map;
-  private markers: L.Marker[] = [];
+
+  /**
+   * ✅ IMPORTANT
+   * Store markers by taxiId
+   * instead of recreating all markers every update
+   */
+  private markers: Map<number, L.Marker> = new Map();
+
   private wsSubscription: any;
   private locationUpdateInterval: any;
 
-  mapCenter = { lat: 34.0, lng: 9.0 };
+  /**
+   * ✅ Prevent map auto recenter every websocket update
+   */
+  private isFirstMapLoad = true;
+
+  mapCenter = {
+    lat: 34.0,
+    lng: 9.0
+  };
+
   mapZoom = 6;
+
   showMap = true;
 
+  fleetV2Stats: FleetV2Statistics | null = null;
+
   fleetStats: FleetStatistics = {
-    totalTaxis: 0, activeTaxis: 0, busyTaxis: 0, enrouteTaxis: 0,
-    offlineTaxis: 0, totalRevenue: 0, averageRating: 0, totalRides: 0,
-    averageResponseTime: 0, coverageArea: 0, averageEarnings: 0,
-    topPerformers: [], statusDistribution: [], revenueTrend: [],
+    totalTaxis: 0,
+    activeTaxis: 0,
+    busyTaxis: 0,
+    enrouteTaxis: 0,
+    offlineTaxis: 0,
+    totalRevenue: 0,
+    averageRating: 0,
+    totalRides: 0,
+    averageResponseTime: 0,
+    coverageArea: 0,
+    averageEarnings: 0,
+
+    topPerformers: [],
+    statusDistribution: [],
+    revenueTrend: [],
+
     performanceMetrics: {
-      averageResponseTime: 0, averageCompletionTime: 0,
-      customerSatisfaction: 0, fleetUtilization: 0,
-      fuelEfficiency: 0, maintenanceCosts: 0
+      averageResponseTime: 0,
+      averageCompletionTime: 0,
+      customerSatisfaction: 0,
+      fleetUtilization: 0,
+      fuelEfficiency: 0,
+      maintenanceCosts: 0
     }
   };
 
@@ -71,32 +153,42 @@ export class FleetManagementComponent implements OnInit, OnDestroy, AfterViewIni
     this.initFleetWebSocket();
   }
 
-ngAfterViewInit(): void {
-  this.initializeMap();
-  // ✅ Force map to recalculate size after DOM settles
-  setTimeout(() => {
-    if (this.map) {
-      this.map.invalidateSize();
-    }
-  }, 200);
-}
+  ngAfterViewInit(): void {
+    this.initializeMap();
 
-ngOnDestroy(): void {
-  if (this.locationUpdateInterval) {
-    clearInterval(this.locationUpdateInterval);
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 200);
   }
-  if (this.wsSubscription) {
-    this.wsSubscription.unsubscribe(); // ✅ Unsubscribe STOMP topic
+
+  ngOnDestroy(): void {
+
+    if (this.locationUpdateInterval) {
+      clearInterval(this.locationUpdateInterval);
+    }
+
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+
+    if (this.map) {
+      this.map.remove();
+    }
+
+    this.wsService.disconnect();
   }
-  if (this.map) {
-    this.map.remove(); // ✅ Destroy Leaflet map to prevent DOM leaks
-    this.map = null as any;
-  }
-  this.wsService.disconnect();
-}
+
+  // ======================================================
+  // MAP
+  // ======================================================
 
   initializeMap(): void {
-    if (!this.mapContainer?.nativeElement) return;
+
+    if (!this.mapContainer?.nativeElement) {
+      return;
+    }
 
     this.map = L.map(this.mapContainer.nativeElement, {
       center: [34.0, 9.0],
@@ -104,200 +196,366 @@ ngOnDestroy(): void {
       zoomControl: false
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        attribution: '© OpenStreetMap contributors'
+      }
+    ).addTo(this.map);
+
+    L.control.zoom({
+      position: 'topright'
     }).addTo(this.map);
 
-    L.control.zoom({ position: 'topright' }).addTo(this.map);
-
-    this.map.on('click', (e: L.LeafletMouseEvent) => this.onMapClick(e));
+    this.map.on(
+      'click',
+      (e: L.LeafletMouseEvent) => this.onMapClick(e)
+    );
   }
 
-  // ─── WebSocket ──────────────────────────────────────────
+  // ======================================================
+  // WEBSOCKET
+  // ======================================================
+
   private initFleetWebSocket(): void {
+
     this.wsService.connect(true);
+
     this.wsService.onConnected().subscribe((connected) => {
+
       if (connected) {
+
         this.wsSubscription = this.wsService.subscribe(
-          '/topic/fleet/locations',
+          FLEET_LOCATIONS_V2_TOPIC,
           (message) => this.handleFleetLocationsFromSocket(message)
         );
-        this.wsService.send('/app/fleet.subscribe', {});
+
+        this.wsService.send(
+          FLEET_SUBSCRIBE_APP_DESTINATION,
+          {}
+        );
       }
     });
   }
 
   private handleFleetLocationsFromSocket(message: any): void {
+
     this.ngZone.run(() => {
+
       try {
+
         const body = JSON.parse(message.body);
-        if (!Array.isArray(body) || body.length === 0) return;
 
-        this.fleetLocations = body.map(taxi => {
-          const rideStatus = taxi.rideStatus?.toUpperCase();
-          return {
-            taxiId: taxi.taxiId,
-            taxiNumber: taxi.taxiNumber,
-            driverName: taxi.driverName || '',
-            telephone: taxi.phone || '',
-            latitude: taxi.latitude,
-            longitude: taxi.longitude,
-            totalTaxis: taxi.totalTaxis,
-            inProgressCount: taxi.inProgressCount,
-            startedRide: taxi.startedRide,
-            waitingCount: taxi.waitingCount,
-            status:
-              rideStatus === 'IN_PROGRESS' ? FleetStatus.BUSY
-              : rideStatus === 'EN_ROUTE' ? FleetStatus.EN_ROUTE
-              : FleetStatus.ACTIVE,
-            isOnline: true
-          };
-        });
+        if (!isFleetLocationsV2Payload(body)) {
+          return;
+        }
 
-        this.totalItems = this.fleetLocations.length;
+        const { locations, statistics } =
+          mapFleetLocationsV2Payload(body);
 
-        this.fleetStats = {
-          ...this.fleetStats,
-          totalTaxis: body.length,
-          activeTaxis: body.filter(t => !t.rideStatus || t.rideStatus?.toUpperCase() === 'WAITING').length,
-          busyTaxis: body.filter(t => t.rideStatus?.toUpperCase() === 'IN_PROGRESS').length,
-          enrouteTaxis: body.filter(t => t.rideStatus?.toUpperCase() === 'EN_ROUTE').length
-        };
+        this.fleetLocations = locations;
 
-        this.updateMapCenter();
+        this.totalItems = locations.length;
+
+        this.fleetV2Stats = statistics;
+
+        this.fleetStats =
+          mergeV2StatisticsIntoFleetStats(
+            this.fleetStats,
+            statistics
+          );
+
+        /**
+         * ✅ Center map ONLY first time
+         */
+        if (this.isFirstMapLoad) {
+          this.updateMapCenter();
+          this.isFirstMapLoad = false;
+        }
+
+        /**
+         * ✅ Smooth marker update
+         */
         this.updateMapMarkers();
+
         this.updateCharts();
 
       } catch (e) {
-        console.error('[FleetManagement] Parse error:', e);
+
+        console.error(
+          '[FleetManagement] Parse error:',
+          e
+        );
       }
     });
   }
 
-  // ─── Map Helpers ────────────────────────────────────────
-updateMapCenter(): void {
-  if (!this.map || this.fleetLocations.length === 0) return;
+  // ======================================================
+  // MAP CENTER
+  // ======================================================
 
-  const avgLat = this.fleetLocations.reduce((sum, loc) => sum + (loc.latitude || 0), 0) / this.fleetLocations.length;
-  const avgLng = this.fleetLocations.reduce((sum, loc) => sum + (loc.longitude || 0), 0) / this.fleetLocations.length;
-  this.mapCenter = { lat: avgLat, lng: avgLng };
-  this.map.setView([avgLat, avgLng], 8);
-}
+  updateMapCenter(): void {
 
- updateMapMarkers(): void {
+    if (!this.map || this.fleetLocations.length === 0) {
+      return;
+    }
+
+    const avgLat =
+      this.fleetLocations.reduce(
+        (sum, loc) => sum + (loc.latitude || 0),
+        0
+      ) / this.fleetLocations.length;
+
+    const avgLng =
+      this.fleetLocations.reduce(
+        (sum, loc) => sum + (loc.longitude || 0),
+        0
+      ) / this.fleetLocations.length;
+
+    this.mapCenter = {
+      lat: avgLat,
+      lng: avgLng
+    };
+
+    this.map.setView([avgLat, avgLng], 8);
+  }
+
+  // ======================================================
+  // MARKERS
+  // ======================================================
+
+updateMapMarkers(): void {
+
   if (!this.map) {
-    console.warn('[FleetManagement] Map not initialized yet, skipping marker update.');
     return;
   }
 
-  this.map.eachLayer((layer: any) => {
-    if (layer instanceof L.Marker) {
-      this.map.removeLayer(layer);
-    }
-  });
+  const activeTaxiIds = new Set<number>();
 
-  this.markers = [];
+  this.fleetLocations
 
-  this.fleetLocations.forEach(location => {
-    if (location.latitude && location.longitude) {
-      const icon = this.getMarkerIcon(location.status);
-      const marker = L.marker([location.latitude, location.longitude], { icon }).addTo(this.map);
+    // ✅ Hide expired taxis from map
+    .filter(location => location.rideStatus !== 'EXPIRED')
 
-      marker.bindPopup(`
-        <div class="info-window">
-          <h6>${location.taxiNumber}</h6>
-          <p><strong>Driver:</strong> ${location.driverName}</p>
-          <p><strong>Status:</strong> ${location.status}</p>
-          <p><strong>Phone:</strong> ${location.telephone}</p>
-        </div>
-      `);
+    .forEach((location) => {
 
-      this.markers.push(marker);
+      if (!location.latitude || !location.longitude) {
+        return;
+      }
+
+      activeTaxiIds.add(location.taxiId);
+
+      const existingMarker =
+        this.markers.get(location.taxiId);
+
+      if (existingMarker) {
+
+        existingMarker.setLatLng([
+          location.latitude,
+          location.longitude
+        ]);
+
+        const icon =
+          this.createTariffMarkerIcon(location);
+
+        existingMarker.setIcon(icon);
+
+      } else {
+
+        const icon =
+          this.createTariffMarkerIcon(location);
+
+        const marker = L.marker(
+          [location.latitude, location.longitude],
+          { icon }
+        ).addTo(this.map);
+
+        marker.bindPopup(`
+          <div class="info-window">
+            <h6>${location.taxiNumber}</h6>
+
+            <p>
+              <strong>Conducteur:</strong>
+              ${location.driverName}
+            </p>
+
+            <p>
+              <strong>Course:</strong>
+              ${this.getRideStatusLabel(location)}
+            </p>
+          </div>
+        `);
+
+        this.markers.set(location.taxiId, marker);
+      }
+    });
+
+  this.markers.forEach((marker, taxiId) => {
+
+    if (!activeTaxiIds.has(taxiId)) {
+
+      this.map.removeLayer(marker);
+
+      this.markers.delete(taxiId);
     }
   });
 }
+  // ======================================================
+  // MARKER ICON
+  // ======================================================
 
-  private getMarkerIcon(status: FleetStatus): L.DivIcon {
-    switch (status) {
-      case FleetStatus.BUSY:     return this.createModernIcon('green');
-      case FleetStatus.EN_ROUTE: return this.createModernIcon('yellow');
-      case FleetStatus.ACTIVE:
-      default:                   return this.createModernIcon('red');
-    }
-  }
+  private createTariffMarkerIcon(
+    location: FleetLocation
+  ): L.DivIcon {
 
-  private createModernIcon(color: 'green' | 'red' | 'yellow'): L.DivIcon {
+    const tariffClass =
+      feesOptionToTariffPinClass(
+        location.feesOption
+      );
+
+    const inProgress =
+      isRideActiveForAssignment(
+        location.rideStatus
+      );
+
     return L.divIcon({
-      className: 'modern-marker',
-      html: `<div class="marker ${color}"><span class="pulse"></span><i class="fas fa-car"></i></div>`,
+      className: 'leaflet-taxi-tariff-marker',
+
+      html: buildTariffTaxiMarkerHtml(
+        tariffClass,
+        { inProgress }
+      ),
+
       iconSize: [40, 40],
       iconAnchor: [20, 20]
     });
   }
 
-  // ─── Filtering ──────────────────────────────────────────
-  get filteredFleetLocations(): FleetLocation[] {
-  let result = this.fleetLocations;
+  // ======================================================
+  // FILTERING
+  // ======================================================
 
-  // Search filter
-  if (this.searchTerm) {
-    const term = this.searchTerm.toLowerCase();
-    result = result.filter(loc =>
-      loc.taxiNumber?.toLowerCase().includes(term) ||
-      loc.driverName?.toLowerCase().includes(term) ||
-      loc.telephone?.toLowerCase().includes(term)
+  get filteredFleetLocations(): FleetLocation[] {
+
+    let result = this.fleetLocations;
+
+    if (this.searchTerm) {
+
+      const term = this.searchTerm.toLowerCase();
+
+      result = result.filter(loc =>
+        loc.taxiNumber?.toLowerCase().includes(term) ||
+        loc.driverName?.toLowerCase().includes(term) ||
+        loc.telephone?.toLowerCase().includes(term)
+      );
+    }
+
+    if (this.statusFilter) {
+
+      result = result.filter(
+        loc => loc.status === this.statusFilter
+      );
+    }
+
+    return result;
+  }
+
+  get paginatedFleet(): FleetLocation[] {
+
+    const data = this.filteredFleetLocations;
+
+    this.totalItems = data.length;
+
+    const startIndex =
+      (this.currentPage - 1) * this.itemsPerPage;
+
+    return data.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
     );
   }
 
-  // Status filter
-  if (this.statusFilter) {
-    result = result.filter(loc => loc.status === this.statusFilter);
+  filterFleet(): void {
+    this.currentPage = 1;
   }
 
-  return result;
-}
+  // ======================================================
+  // ACTIONS
+  // ======================================================
 
-get paginatedFleet(): FleetLocation[] {
-  const data = this.filteredFleetLocations;
-  this.totalItems = data.length; // ✅ Update total for pagination
-  const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-  return data.slice(startIndex, startIndex + this.itemsPerPage);
-}
+  refreshFleetData(): void {
 
-filterFleet(): void {
-  this.currentPage = 1; // Reset to first page on filter change
-}
-  // ─── Actions ────────────────────────────────────────────
-refreshFleetData(): void {
-    this.wsService.send('/app/fleet.subscribe', {});
-}
-onMarkerClick(location: FleetLocation): void {
-  this.selectedLocation = location;
-  if (this.map && location.latitude && location.longitude) {
-    this.map.setView([location.latitude, location.longitude], 15, { animate: true });
+    this.wsService.send(
+      FLEET_SUBSCRIBE_APP_DESTINATION,
+      {}
+    );
   }
-}
+
+  onMarkerClick(location: FleetLocation): void {
+
+    this.selectedLocation = location;
+
+    if (
+      this.map &&
+      location.latitude &&
+      location.longitude
+    ) {
+
+      this.map.setView(
+        [location.latitude, location.longitude],
+        15,
+        { animate: true }
+      );
+    }
+  }
 
   onPageChange(page: number): void {
     this.currentPage = page;
   }
 
-  openLocationModal(modal: any, location: FleetLocation): void {
-    this.selectedLocation = location;
-    this.modalService.open(modal, { size: 'lg' });
-  }
+  openLocationModal(
+    modal: any,
+    location: FleetLocation
+  ): void {
 
-  updateTaxiStatus(taxiId: number, newStatus: FleetStatus): void {
-    this.fleetService.updateFleetStatus(taxiId, newStatus).subscribe({
-      next: () => this.refreshFleetData(),
-      error: (err) => console.error('Error updating taxi status:', err)
+    this.selectedLocation = location;
+
+    this.modalService.open(modal, {
+      size: 'lg'
     });
   }
 
+  updateTaxiStatus(
+    taxiId: number,
+    newStatus: FleetStatus
+  ): void {
+
+    this.fleetService
+      .updateFleetStatus(taxiId, newStatus)
+      .subscribe({
+        next: () => this.refreshFleetData(),
+
+        error: (err) =>
+          console.error(
+            'Error updating taxi status:',
+            err
+          )
+      });
+  }
+
   toggleMapView(): void {
+
     this.showMap = !this.showMap;
+
     if (this.showMap) {
-      setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 100);
+
+      setTimeout(() => {
+
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+
+      }, 100);
     }
   }
 
@@ -305,40 +563,123 @@ onMarkerClick(location: FleetLocation): void {
     console.log('Map clicked at:', event.latlng);
   }
 
-getStatusBadgeClass(status: FleetStatus): string {
-  switch (status) {
-    case FleetStatus.ACTIVE:    // Libre (free)
-      return 'bg-danger';       // Red — matches map
-    case FleetStatus.BUSY:      // Occupé (busy)
-      return 'bg-success';      // Green — matches map
-    case FleetStatus.EN_ROUTE:  // En approche
-      return 'bg-warning';      // Yellow — matches map
-    default:
+  // ======================================================
+  // STATUS
+  // ======================================================
+
+  getLocationBadgeClass(
+    location: FleetLocation
+  ): string {
+
+    const rs =
+      (location.rideStatus || '').toUpperCase();
+
+    if (rs === 'IN_PROGRESS') {
+      return 'bg-success';
+    }
+
+    if (
+      rs === 'STARTED' ||
+      rs === 'EN_ROUTE'
+    ) {
+      return 'bg-warning';
+    }
+
+    if (
+      rs === 'WAITING' ||
+      rs === 'EXPIRED' ||
+      !rs
+    ) {
+      return 'bg-danger';
+    }
+
+    if (
+      rs === 'TERMINATED' ||
+      rs.includes('CANCEL')
+    ) {
       return 'bg-secondary';
-  }
-}
+    }
 
-getStatusIcon(status: FleetStatus): string {
-  switch (status) {
-    case FleetStatus.ACTIVE:
-      return 'fas fa-times me-1';           // ❌ Free
-    case FleetStatus.BUSY:
-      return 'fas fa-check me-1';           // ✅ Busy
-    case FleetStatus.EN_ROUTE:
-      return 'fas fa-spinner me-1';         // ⏳ En route
-    default:
-      return 'fas fa-circle me-1';
+    return this.getStatusBadgeClass(location.status);
   }
-}
 
-  // ─── Charts ─────────────────────────────────────────────
-  initializeCharts(): void { /* keep existing */ }
+  getRideStatusLabel(
+    location: FleetLocation
+  ): string {
+
+    const raw =
+      (location.rideStatus || '').toUpperCase();
+
+    const labels: Record<string, string> = {
+
+      WAITING: 'En attente',
+      EXPIRED: 'Expirée',
+      IN_PROGRESS: 'En course',
+      STARTED: 'Démarrée',
+      EN_ROUTE: 'En approche',
+      TERMINATED: 'Terminée',
+      CANCELLED: 'Annulée',
+      CANCELLED_BY_CLIENT: 'Annulée (client)',
+      CANCELLED_BY_TAXI: 'Annulée (taxi)'
+    };
+
+    return labels[raw]
+      || location.rideStatus
+      || location.status;
+  }
+
+  getStatusBadgeClass(
+    status: FleetStatus
+  ): string {
+
+    switch (status) {
+
+      case FleetStatus.ACTIVE:
+        return 'bg-danger';
+
+      case FleetStatus.BUSY:
+        return 'bg-success';
+
+      case FleetStatus.EN_ROUTE:
+        return 'bg-warning';
+
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  getStatusIcon(
+    status: FleetStatus
+  ): string {
+
+    switch (status) {
+
+      case FleetStatus.ACTIVE:
+        return 'fas fa-times me-1';
+
+      case FleetStatus.BUSY:
+        return 'fas fa-check me-1';
+
+      case FleetStatus.EN_ROUTE:
+        return 'fas fa-spinner me-1';
+
+      default:
+        return 'fas fa-circle me-1';
+    }
+  }
+
+  // ======================================================
+  // CHARTS
+  // ======================================================
+
+  initializeCharts(): void {}
+
   updateCharts(): void {
+
     this.fleetChartOptions.series = [
       this.fleetStats.activeTaxis,
       this.fleetStats.busyTaxis,
       this.fleetStats.enrouteTaxis
     ];
   }
-  
 }

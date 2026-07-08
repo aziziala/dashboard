@@ -84,6 +84,58 @@
           </a>
         </li>
 
+
+        <li role="none" [class.mm-active]="isGestionEtatsOpen">
+
+          <a href="javascript:void(0)" (click)="toggleGestionEtats()" role="menuitem"
+            [title]="isCollapsed ? 'Gestion des États' : ''">
+
+            <i class="bx bx-purchase-tag"></i>
+            <span>Gestion des États</span>
+
+            <i class="bx bx-chevron-down ms-auto"></i>
+          </a>
+
+          <ul *ngIf="isGestionEtatsOpen" class="submenu">
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-actifs">
+                Liste des taxis actifs
+              </a>
+            </li>
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-inactifs">
+                Liste des taxis inactifs
+              </a>
+            </li>
+
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-earnings">
+                Liste des taxis earnings
+              </a>
+            </li>
+
+
+
+            <li>
+              <a routerLink="/gestion-etats/taxis-courses">
+                Liste des taxis courses
+              </a>
+            </li>
+            <li>
+              <a routerLink="/gestion-etats/taxis-bonus">
+                Liste des taxis bonus
+              </a>
+            </li>
+              <li>
+              <a routerLink="/gestion-etats/taxis-traffic-history">
+                Liste des taxis traffic
+              </a>
+            </li>
+          </ul>
+        </li>
         <li role="none" [class.mm-active]="activeUrl.startsWith('/affectation-client')">
           <a
             routerLink="/affectation-client"
@@ -109,7 +161,7 @@
             <span key="t-analytics">Gestion des statistiques</span>
           </a>
         </li>
-
+<!--
         <li role="none" [class.mm-active]="activeUrl.startsWith('/rides')">
           <a
             routerLink="/rides"
@@ -141,6 +193,75 @@
             <span key="t-rides">Gestion des réclamations</span>
           </a>
         </li>
+-->
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/sync-taxi-account')">
+          <a
+            routerLink="/sync-taxi-account"
+            class="waves-effect"
+            [class.active]="activeUrl.startsWith('/sync-taxi-account')"
+            role="menuitem"
+            [attr.aria-current]="activeUrl.startsWith('/sync-taxi-account') ? 'page' : null"
+            [title]="isCollapsed ? 'Sync Taxi Account' : ''"
+          >
+            <i class="bx bx-sync" aria-hidden="true"></i>
+            <span>Sync Taxi Account</span>
+          </a>
+        </li>
+
+
+                <li role="none" [class.mm-active]="isGestionNotificationsOpen">
+
+          <a href="javascript:void(0)" (click)="toggleGestionNotifications()" role="menuitem"
+            [title]="isCollapsed ? 'Gestion des Notifications' : ''">
+
+            <i class="bx bx-bell"></i>
+            <span>Gestion des Notifications</span>
+
+            <i class="bx bx-chevron-down ms-auto"></i>
+          </a>
+
+          <ul *ngIf="isGestionNotificationsOpen" class="submenu">
+
+            <li>
+              <a routerLink="/gestion-notifaction/notication-send">
+
+                Envoi de notification
+              </a>
+            </li>
+
+            <li>
+              <a routerLink="/gestion-notifaction/notication-list">
+                Liste des notifications
+              </a>
+            </li>
+
+          </ul>
+
+        </li>
+
+        <li role="none" [class.mm-active]="activeUrl.startsWith('/whatsapp')">
+          <a routerLink="/whatsapp" [class.active]="activeUrl.startsWith('/whatsapp')" role="menuitem"
+            [attr.aria-current]="activeUrl.startsWith('/whatsapp') ? 'page' : null"
+            [title]="isCollapsed ? 'Whatsapp' : ''">
+            <i class="bx bxl-whatsapp" aria-hidden="true"></i>
+            <span>Whatsapp</span>
+          </a>
+        </li>
+<!--
+<li role="none" [class.mm-active]="activeUrl.startsWith('/chiffre-affaire')">
+  <a
+    routerLink="/chiffre-affaire"
+    class="waves-effect"
+    [class.active]="activeUrl.startsWith('/chiffre-affaire')"
+    role="menuitem"
+    [attr.aria-current]="activeUrl.startsWith('/chiffre-affaire') ? 'page' : null"
+    [title]="isCollapsed ? 'Analyse de l’activité' : ''"
+  >
+    <i class="bx bx-bar-chart-alt-2" aria-hidden="true"></i>
+    <span>Analyse de l'activité</span>
+  </a>
+</li>
+-->   
         <!--
         <li ... commented code unchanged -->
       </ul>

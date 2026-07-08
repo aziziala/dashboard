@@ -405,48 +405,209 @@ $shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
 }
 
+/* ═══════════════════════════════════════
+   MODAL DESIGN — TAXISELECT
+═══════════════════════════════════════ */
+
 .modal-content {
   border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  
-  .modal-header {
-    border-bottom: 1px solid #dee2e6;
-    padding: 1.5rem;
-    
-    .modal-title {
-      font-weight: 600;
-      color: #495057;
-    }
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.08),
+    0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* HEADER */
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #211F54, #4B4BAF);
+  border-bottom: none;
+
+  .modal-title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.2px;
   }
-  
-  .modal-body {
-    padding: 1.5rem;
-    
-    h6 {
-      color: #495057;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #dee2e6;
+
+  .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.85;
+    box-shadow: none;
+
+    &:hover {
+      opacity: 1;
+      transform: rotate(90deg);
+      transition: 0.3s ease;
     }
-    
-    p {
-      margin-bottom: 0.75rem;
-      
-      strong {
-        color: #495057;
-        font-weight: 600;
-      }
-    }
-  }
-  
-  .modal-footer {
-    border-top: 1px solid #dee2e6;
-    padding: 1.5rem;
   }
 }
 
+/* BODY */
+
+.modal-body {
+  padding: 1.5rem;
+  background: #fff;
+
+  .row {
+    margin-bottom: 1rem;
+  }
+
+  h6 {
+    position: relative;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #211F54;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eef1f6;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 45px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #FFC900, #ffdb4d);
+    }
+  }
+
+  p {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+    margin-bottom: 0.9rem;
+    color: #4b5563;
+    font-size: 0.88rem;
+    line-height: 1.45;
+
+    strong {
+      min-width: 130px;
+      color: #111827;
+      font-weight: 700;
+    }
+  }
+}
+
+/* STATUS BADGE */
+
+.modal-body .badge {
+  border-radius: 999px;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* MINI MAP */
+
+.mini-map {
+  height: 220px;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(75, 75, 175, 0.04),
+      rgba(255, 201, 0, 0.04)
+    );
+
+  border: 1px solid #e5e7eb;
+
+  .d-flex {
+    height: 100%;
+  }
+
+  .text-center {
+
+    i {
+      font-size: 2rem;
+      color: #4B4BAF;
+      margin-bottom: 0.8rem;
+    }
+
+    p {
+      justify-content: center;
+      color: #6b7280;
+      font-size: 0.84rem;
+      margin: 0;
+    }
+  }
+}
+
+/* FOOTER */
+
+.modal-footer {
+  border-top: 1px solid #eef1f6;
+  background: #fff;
+  padding: 1rem 1.5rem;
+
+  .btn {
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.84rem;
+    padding: 0.65rem 1rem;
+    min-width: 120px;
+    transition: all 0.25s ease;
+  }
+
+  .btn-secondary {
+    border: none;
+    background: #e5e7eb;
+    color: #374151;
+
+    &:hover {
+      background: #d1d5db;
+    }
+  }
+
+  .btn-primary {
+    border: none;
+    background: linear-gradient(135deg, #211F54, #4B4BAF);
+    color: #fff;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(75, 75, 175, 0.25);
+    }
+  }
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+  .modal-body {
+    padding: 1rem;
+
+    p {
+      flex-direction: column;
+      gap: 0.2rem;
+
+      strong {
+        min-width: auto;
+      }
+    }
+  }
+
+  .mini-map {
+    height: 180px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
 .spinner-border {
   width: 3rem;
   height: 3rem;
@@ -569,63 +730,7 @@ apx-chart {
 }
 
 
-/* ===== Leaflet Custom Marker Styles ===== */
-.modern-marker {
-  background: transparent !important;
-  border: none !important;
-}
-
-.marker {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-
-  i {
-    color: white;
-    font-size: 16px;
-    z-index: 2;
-  }
-
-  &.green {
-    background: #22c55e;
-  }
-  &.red {
-    background: #ef4444;
-  }
-  &.yellow {
-    background: #f59e0b;
-  }
-
-  .pulse {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    animation: pulse-ring 1.5s ease-out infinite;
-    z-index: 1;
-  }
-
-  &.green .pulse { background: rgba(34, 197, 94, 0.4); }
-  &.red .pulse   { background: rgba(239, 68, 68, 0.4); }
-  &.yellow .pulse { background: rgba(245, 158, 11, 0.4); }
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(2);
-    opacity: 0;
-  }
-}
-
+/* ===== Leaflet: tariff markers moved to global styles.scss (.leaflet-taxi-tariff-marker) ===== */
 // Responsive adjustments
 @media (max-width: 768px) {
 

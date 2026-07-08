@@ -1,0 +1,223 @@
+<div class="container-fluid">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE TITLE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 page-title">
+          <i class="fas fa-clipboard-list me-2 taxi-icon"></i>Demandes par État de Satisfaction
+        </h4>
+        <div class="page-title-right d-none d-md-block">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Demandes par État</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STATS CARDS  (totalDemandes)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="stats-row mb-4">
+
+    <div class="stats-card total">
+      <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+      <div class="info">
+        <span>Total Demandes</span>
+        <h3>{{ totalDemandes }}</h3>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       FILTER BAR  (état + dates + export)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row align-items-end mb-4 gx-3">
+
+    <!-- État -->
+    <div class="col-md-3 mb-2 mb-md-0">
+      <label class="form-label small text-muted mb-1">
+        <i class="fas fa-filter me-1"></i>État de satisfaction
+      </label>
+      <select class="form-select shadow-sm" [formControl]="filterForm.controls['state']">
+        <option *ngFor="let opt of stateOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+
+    <!-- Date début -->
+    <div class="col-md-2 mb-2 mb-md-0">
+      <label class="form-label small text-muted mb-1">
+        <i class="fas fa-calendar-alt me-1"></i>Date de début
+      </label>
+      <input type="date" class="form-control shadow-sm" [formControl]="filterForm.controls['from']" />
+    </div>
+
+    <!-- Date fin -->
+    <div class="col-md-2 mb-2 mb-md-0">
+      <label class="form-label small text-muted mb-1">
+        <i class="fas fa-calendar-alt me-1"></i>Date de fin
+      </label>
+      <input type="date" class="form-control shadow-sm" [formControl]="filterForm.controls['to']" />
+    </div>
+
+    <!-- Actions -->
+    <div class="col-md-5 d-flex align-items-end gap-2 justify-content-md-end">
+
+      <button class="btn btn-gradient-primary shadow-sm" [disabled]="isLoading" (click)="applyFilter()">
+        <span *ngIf="!isLoading"><i class="fas fa-filter me-1"></i>Filtrer</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-1"></span>Chargement…
+        </span>
+      </button>
+
+      <button class="btn btn-outline-secondary shadow-sm" (click)="clearFilter()">
+        <i class="fas fa-times me-1"></i>Réinitialiser
+      </button>
+
+      <button class="btn btn-outline-danger shadow-sm"
+              [disabled]="isExporting || demandes.length === 0"
+              (click)="exportPdf()">
+        <span *ngIf="!isExporting"><i class="fas fa-file-pdf me-1"></i>PDF</span>
+        <span *ngIf="isExporting">
+          <span class="spinner-border spinner-border-sm me-1"></span>Export…
+        </span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       TABLE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+
+      <thead class="table-light">
+        <tr>
+          <th>ID Demande</th>
+          <th>Date</th>
+          <!-- <th class="text-center">Satisfaction</th> -->
+          <th>État Demande</th>
+          <th>Client</th>
+          <th>Taxi</th>
+          <th>Départ</th>
+          <th>Destination</th>
+          <th>Prix Total</th>
+          <!-- <th class="text-center">État Offre</th> -->
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <!-- Skeleton -->
+        <ng-container *ngIf="isLoading">
+          <tr *ngFor="let _ of [1,2,3,4,5]">
+            <td colspan="10"><div class="skeleton-row"></div></td>
+          </tr>
+        </ng-container>
+
+        <!-- Données -->
+        <ng-container *ngIf="!isLoading">
+          <tr *ngFor="let demande of demandes">
+            <td class="fw-semibold">#{{ demande.demandeId }}</td>
+            <td class="text-nowrap">
+              {{ demande.dateDepot | date:'dd/MM/yyyy' }}<br>
+              <small class="text-muted">{{ demande.dateDepot | date:'HH:mm' }}</small>
+            </td>
+
+            <!-- Badge SATISFAIT / NON_SATISFAIT dérivé -->
+            <!-- <td class="text-center">
+              <span class="badge" [ngClass]="getSatisfactionBadge(demande.etatDemande).class">
+                {{ getSatisfactionBadge(demande.etatDemande).label }}
+              </span>
+            </td> -->
+
+            <td>
+              <span class="badge" [ngClass]="getEtatDemandeBadgeClass(demande.etatDemande)">
+                {{ demande.etatDemande }}
+              </span>
+            </td>
+
+            <td>
+              <span class="fw-semibold">{{ demande.clientName || '—' }}</span><br>
+              <small class="text-muted">{{ demande.clientTelephone || '—' }}</small>
+            </td>
+
+            <!-- Taxi peut être null si pas d'offre -->
+            <td>
+              <ng-container *ngIf="hasOffre(demande); else noTaxi">
+                <span class="fw-semibold">{{ demande.nom }}</span><br>
+                <small class="text-muted">{{ demande.numeroTaxi }}</small>
+              </ng-container>
+              <ng-template #noTaxi>
+                <span class="text-muted fst-italic">Aucune offre</span>
+              </ng-template>
+            </td>
+
+            <td class="location-cell" [title]="demande.locationHistory || ''">
+              <ng-container *ngIf="demande.locationHistory">
+                <i class="fas fa-map-marker-alt text-success me-1"></i>{{ demande.locationHistory }}
+              </ng-container>
+              <span *ngIf="!demande.locationHistory" class="text-muted">—</span>
+            </td>
+
+            <td class="location-cell" [title]="demande.destinationHistory || ''">
+              <ng-container *ngIf="demande.destinationHistory">
+                <i class="fas fa-flag-checkered text-danger me-1"></i>{{ demande.destinationHistory }}
+              </ng-container>
+              <span *ngIf="!demande.destinationHistory" class="text-muted">—</span>
+            </td>
+
+            <td class="text-nowrap price-cell">{{ demande.totalPrice || '—' }}</td>
+
+            <!-- <td class="text-center">
+              <span *ngIf="demande.etatOffre" class="badge" [ngClass]="getEtatDemandeBadgeClass(demande.etatOffre)">
+                {{ demande.etatOffre }}
+              </span>
+              <span *ngIf="!demande.etatOffre" class="text-muted">—</span>
+            </td> -->
+
+          </tr>
+
+          <!-- Empty state -->
+          <tr *ngIf="demandes.length === 0">
+            <td colspan="10" class="text-center text-muted py-5">
+              <i class="fas fa-clipboard-list fa-2x mb-2 d-block opacity-25"></i>
+              Aucune demande trouvée pour ces critères.
+            </td>
+          </tr>
+        </ng-container>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       FOOTER  (pagination + lignes par page)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2 w-100">
+
+    <app-pagination
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [totalElements]="totalElements"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+
+    <div class="d-flex align-items-center gap-2">
+      <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
+      <select class="form-select form-select-sm page-size-select"
+              [ngModel]="itemsPerPage"
+              (ngModelChange)="onPageSizeChange($event)">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+
+  </div>
+
+</div>

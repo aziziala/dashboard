@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SmsService } from '../../services/sms.service';
+import { buildKannelEmbedBaseUrl } from '../../utils/kannel-embed-url';
 import { SmsRecord, SmsStatus, SmsType, SmsStatistics, SmsInStatistics } from '../../models/sms-record.model';
 import { ChartType, smsChartOptions } from '../../models/chart.model';
 
@@ -66,6 +68,8 @@ monthlyStats = {
 };
   // Chart options
   smsChartOptions: ChartType = smsChartOptions;
+
+  kannelEmbedUrl!: SafeResourceUrl;
   
   // Chart data placeholders (replaced with simple HTML displays)
   
@@ -79,10 +83,12 @@ monthlyStats = {
 
   constructor(
     private modalService: NgbModal,
-    private smsService: SmsService
+    private smsService: SmsService,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
+    this.kannelEmbedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(buildKannelEmbedBaseUrl());
     this.loadSmsRecords();
     this.loadSmsStatistics();
     this.loadTotalSmsCount();

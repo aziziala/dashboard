@@ -1,0 +1,17 @@
+<div class="wa-input-bar">
+  <textarea
+    class="wa-input-bar__textarea"
+    rows="1"
+    placeholder="Tapez un message"
+    [(ngModel)]="content"
+    [disabled]="disabled"
+    (keydown)="onKeyDown($event)">
+  </textarea>
+  <button
+    type="button"
+    class="wa-input-bar__send"
+    [disabled]="disabled || !content.trim()"
+    (click)="onSubmit()">
+    ➤
+  </button>
+</div>

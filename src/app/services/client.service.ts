@@ -37,12 +37,33 @@ export class ClientService {
   // BASIC CRUD
   // ======================================================
 
-  getAllClients(): Observable<Client[]> {
+getClients(
+  page: number = 0,
+  size: number = 5,
+  phone?: string,
+  name?: string,
+  sort: string = 'id,desc'
+): Observable<PagedClientsResponse> {
 
-    return this.http.get<Client[]>(
-      `${this.baseUrl}/get-allClients`
-    );
+  const params: any = {
+    page,
+    size,
+    sort
+  };
+
+  if (phone) {
+    params.phone = phone;
   }
+
+  if (name) {
+    params.name = name;
+  }
+
+  return this.http.get<PagedClientsResponse>(
+    `${this.baseUrl}/get-all-clients-criteria`,
+    { params }
+  );
+}
 
   getClientById(id: number): Observable<Client> {
 
@@ -567,17 +588,7 @@ export class ClientService {
     );
   }
 
-  // ======================================================
-  // PAGINATION
-  // ======================================================
 
-  getClients(
-    page: number = 0,
-    size: number = 5
-  ): Observable<PagedClientsResponse> {
 
-    return this.http.get<PagedClientsResponse>(
-      `${this.baseUrl}/get-all-clients?page=${page}&size=${size}`
-    );
-  }
+
 }

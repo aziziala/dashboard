@@ -1,3 +1,4 @@
+
 export interface Taxi {
   id?: number;
   contenu?: string;
@@ -23,6 +24,10 @@ export interface Taxi {
   lng_gps?: number;
   taxiStatus: TaxiStatus;
   offres?: any[];
+  hide?: boolean;
+  acceptedCourses?: number;
+refusedCourses?: number;
+numeroSim?: string;
 }
 
 export enum TaxiStatus {
