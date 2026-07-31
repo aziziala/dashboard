@@ -6,7 +6,8 @@
  * Override targets without editing this file, e.g.:
  *   NG_PROXY_8777=http://internal-host:8777 npm start
  */
-const gateway = process.env.NG_PROXY_GATEWAY || "http://192.168.2.2:8444";
+const gateway =
+  process.env.NG_PROXY_GATEWAY || "http://41.225.11.231:8444";
 const svc8666 = process.env.NG_PROXY_8666 || "http://192.168.2.2:8666";
 const svc8443 = process.env.NG_PROXY_8443 || "http://192.168.2.2:8443";
 const fleet8981 = process.env.NG_PROXY_8981 || "http://192.168.2.2:8981";

@@ -2,18 +2,15 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TaxiService } from '../../services/taxi.service';
-import { Taxi, TaxiStatus, PhoneType } from '../../models/taxi.model';
-import { PagedTaxisResponse } from '../../models/paged-taxis-response';
+import { Taxi, TaxiStatus, PhoneType, TaxiStats, TaxiCriteriaFilters, TaxiSortBy } from '../../models/taxi.model';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { finalize, Subscription, forkJoin } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// ✅ Remove require() - use dynamic import or declare window.pdfMake
 declare const window: any;
-
 
 type TaxiView =
   | 'all'
@@ -21,6 +18,9 @@ type TaxiView =
   | 'withoutSim'
   | 'approved'
   | 'pending';
+
+type ActiveTaxiFilters = { taxiStatus: TaxiStatus | ''; hide: boolean | null };
+
 @Component({
   selector: 'app-taxi-management',
   templateUrl: './taxi-management.component.html',
@@ -36,20 +36,19 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
   selectedTaxi: Taxi | null = null;
   pendingTaxiData!: Taxi;
 
-  // Pagination
+  // Pagination (values come straight from the backend response)
   currentPage = 1;
-  itemsPerPage = 250;
-  totalItems = 0;
+  itemsPerPage = 10;
+  totalElements = 0;
   totalPages = 0;
-  pages: number[] = [];
 
   // Search
   searchTerm = '';
   statusFilter: TaxiStatus | '' = '';
   currentView: TaxiView = 'all';
-  withSimCount = 0;
-  withoutSimCount = 0;
-  isSearching = false;
+  activeTaxiFilters: ActiveTaxiFilters = { taxiStatus: '', hide: null };
+  currentSortField: TaxiSortBy | null = null;
+  currentSortDirection: 'asc' | 'desc' = 'desc';
   searchPhone?: string;
   searchName?: string;
 
@@ -71,12 +70,13 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
   showNewPassword = false;
   showConfirmPassword = false;
 
-  // Stats
-  taxiStats = {
+  // Stats (always comes from response.stats)
+  taxiStats: TaxiStats = {
     total: 0,
+    withSim: 0,
+    withoutSim: 0,
     approved: 0,
-    pending: 0,
-    rejected: 0
+    waiting: 0
   };
 
   // Email autocomplete
@@ -106,8 +106,6 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
   // Theme
   isDarkMode = false;
   currentApp = 'SMSTaxi';
-allTaxis: Taxi[] = [];
-
 
   // View children
   @ViewChild('confirmationCodeModal') confirmationCodeModal!: any;
@@ -128,47 +126,238 @@ allTaxis: Taxi[] = [];
   ) {
     this.initForms();
   }
-ngOnInit(): void {
 
-  // Restore selected application
-  const savedApp = localStorage.getItem('currentApp') as
-    'SMSTaxi' | 'TaxiSelect';
+  ngOnInit(): void {
 
-  if (savedApp) {
-    this.currentApp = savedApp;
-    this.taxiService.notifyAppChanged(savedApp);
+    const savedApp = localStorage.getItem('currentApp') as
+      'SMSTaxi' | 'TaxiSelect';
+
+    if (savedApp) {
+      this.currentApp = savedApp;
+      this.taxiService.notifyAppChanged(savedApp);
+    }
+
+    this.resetQueryState();
+    this.fetchTaxis();
+
+    this.sub.add(
+      this.taxiService.appChanged$.subscribe(app => {
+
+        this.currentApp = app;
+
+        this.resetQueryState();
+
+        this.fetchTaxis();
+
+      })
+    );
+
   }
 
-  // Initial load (ALWAYS through criteria endpoint)
-  this.currentPage = 1;
-  this.currentView = 'all';
-  this.loadCurrentView(1);
-  this.loadAllTaxis();
-  this.loadSimCounts();
-
-  // Listen for application changes
-  this.sub.add(
-    this.taxiService.appChanged$.subscribe(app => {
-
-      this.currentApp = app;
-
-      this.currentPage = 1;
-      this.currentView = 'all';
-
-      this.searchTerm = '';
-      this.searchPhone = undefined;
-      this.searchName = undefined;
-      this.statusFilter = '';
-      this.isSearching = false;
-
-      this.loadCurrentView(1);
-      this.loadSimCounts();
-
-    })
-  );
-
-}  ngOnDestroy(): void {
+  ngOnDestroy(): void {
     this.sub.unsubscribe();
+  }
+
+  // ===== QUERY STATE =====
+
+  private resetQueryState(): void {
+    this.currentPage = 1;
+    this.itemsPerPage = 10;
+    this.currentView = 'all';
+    this.activeTaxiFilters = { taxiStatus: '', hide: null };
+    this.currentSortField = null;
+    this.currentSortDirection = 'desc';
+
+    this.searchTerm = '';
+    this.searchPhone = undefined;
+    this.searchName = undefined;
+    this.statusFilter = '';
+  }
+
+  private buildFilters(): TaxiCriteriaFilters {
+    return {
+      taxiStatus: this.activeTaxiFilters.taxiStatus || undefined,
+      hide: this.activeTaxiFilters.hide ?? undefined,
+      phone: this.searchPhone?.trim() || undefined,
+      name: this.searchName?.trim() || undefined,
+      sortBy: this.currentSortField || undefined
+    };
+  }
+
+  private fetchTaxis(): void {
+    this.isLoading = true;
+
+    const pageIndex = this.currentPage - 1;
+
+    this.taxiService
+      .getAllTaxisCriteria(pageIndex, this.itemsPerPage, this.buildFilters())
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+      next: (response) => {
+
+  console.log(response);
+
+  try {
+
+    console.log(response.taxis);
+
+    console.log(response.taxis.content);
+
+    console.log(response.stats);
+
+    this.taxis = response.taxis.content;
+
+    this.totalElements = response.taxis.totalElements;
+
+    this.totalPages = response.taxis.totalPages;
+
+    this.currentPage = response.taxis.number + 1;
+
+    this.taxiStats = response.stats;
+
+    console.log('Assigned taxis:', this.taxis);
+
+  } catch (e) {
+
+    console.error('Mapping error', e);
+
+  }
+
+  },
+        error: () => {
+          this.toastr.error('Impossible de charger les taxis', 'Erreur');
+        }
+      });
+  }
+
+  private syncViewFromFilters(): void {
+    const { taxiStatus, hide } = this.activeTaxiFilters;
+
+    if (taxiStatus) {
+      this.currentView =
+        taxiStatus === TaxiStatus.APPROVED
+          ? 'approved'
+          : taxiStatus === TaxiStatus.PENDING
+            ? 'pending'
+            : 'all';
+} else if (hide === true) {
+  this.currentView = 'withSim';
+} else if (hide === false) {
+  this.currentView = 'withoutSim';
+}else {
+      this.currentView = 'all';
+    }
+  }
+
+  private applyCurrentState(): void {
+    this.syncViewFromFilters();
+    this.fetchTaxis();
+  }
+
+  // ===== SEARCH & FILTER =====
+
+  searchTaxis(): void {
+    const term = this.searchTerm.trim();
+
+    this.searchPhone = undefined;
+    this.searchName = undefined;
+
+    if (term) {
+      if (/^\d+$/.test(term)) {
+        this.searchPhone = term;
+      } else {
+        this.searchName = term;
+      }
+    }
+
+    this.currentPage = 1;
+    this.fetchTaxis();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchPhone = undefined;
+    this.searchName = undefined;
+    this.currentPage = 1;
+    this.fetchTaxis();
+  }
+
+  onStatusFilterChange(): void {
+    this.activeTaxiFilters = { taxiStatus: this.statusFilter, hide: null };
+    this.currentPage = 1;
+    this.applyCurrentState();
+  }
+
+  changeView(view: TaxiView): void {
+    this.currentView = view;
+    this.currentPage = 1;
+
+    switch (view) {
+      case 'all':
+        this.activeTaxiFilters = { taxiStatus: '', hide: null };
+        break;
+case 'withSim':
+  this.activeTaxiFilters = { taxiStatus: '', hide: true };
+  break;
+
+case 'withoutSim':
+  this.activeTaxiFilters = { taxiStatus: '', hide: false };
+  break;
+      case 'approved':
+        this.activeTaxiFilters = { taxiStatus: TaxiStatus.APPROVED, hide: null };
+        break;
+      case 'pending':
+        this.activeTaxiFilters = { taxiStatus: TaxiStatus.PENDING, hide: null };
+        break;
+    }
+
+    this.statusFilter = this.activeTaxiFilters.taxiStatus;
+    this.fetchTaxis();
+  }
+
+  // ===== PAGINATION =====
+
+  onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages) {
+      return;
+    }
+    this.currentPage = page;
+    this.fetchTaxis();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.itemsPerPage = Number(size);
+    this.currentPage = 1;
+    this.fetchTaxis();
+  }
+
+  get visiblePages(): number[] {
+
+    const pages: number[] = [];
+
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+
+  }
+
+  // ===== SORTING =====
+
+  onSortByCourses(sortField: TaxiSortBy): void {
+    if (this.currentSortField === sortField) {
+      this.currentSortDirection = this.currentSortDirection === 'desc' ? 'asc' : 'desc';
+    } else {
+      this.currentSortField = sortField;
+      this.currentSortDirection = 'desc';
+    }
+
+    this.currentPage = 1;
+    this.fetchTaxis();
   }
 
   // ===== FORM INITIALIZATION =====
@@ -218,82 +407,6 @@ ngOnInit(): void {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-
-  // ===== SEARCH & FILTER =====
-
-  searchTaxis(): void {
-    const term = this.searchTerm.trim();
-    this.currentPage = 1;
-    this.isSearching = !!term;
-
-    this.searchPhone = undefined;
-    this.searchName = undefined;
-
-    if (term) {
-      if (/^\d+$/.test(term)) {
-        this.searchPhone = term;
-      } else {
-        this.searchName = term;
-      }
-    }
-
-this.loadCurrentView(1);
-  }
-
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.isSearching = false;
-    this.searchPhone = undefined;
-    this.searchName = undefined;
-    this.currentPage = 1;
-    this.loadCurrentView(1);
-  }
-
-
-
-filterBySim(filter: TaxiView): void {
-
-  this.changeView(filter);
-
-}
-
-loadSimCounts(): void {
-
-  forkJoin({
-
-    total: this.taxiService.getTaxiCount(),
-
-    sim: this.taxiService.getTaxiSimStats()
-
-  }).subscribe({
-
-    next: ({ total, sim }) => {
-
-      this.taxiStats.total = total;
-
-      this.withSimCount = sim.avecSim;
-
-      this.withoutSimCount = sim.sansSim;
-
-    },
-
-    error: err => {
-
-      console.error(err);
-
-    }
-
-  });
-
-}
-
-onPageChange(page: number): void {
-  if (page < 1 || page > this.totalPages) {
-    return;
-  }
-  this.loadCurrentView(page);
-}
-
   // ===== MODALS =====
 
   openAddModal(content: any): void {
@@ -319,19 +432,19 @@ onPageChange(page: number): void {
     this.editingTaxiId = taxi.id;
     this.selectedTaxi = taxi;
 
-this.taxiForm.patchValue({
-  nomPrenom: taxi.nom,
-  cin: taxi.numeroCin,
-  immatricule: taxi.numeroMatricule,
-  plaqueTaxi: taxi.numeroTaxi,
-  modeleVoiture: taxi.constructeur,
-  taxiStatus: taxi.taxiStatus,
-  typeTel: taxi.type,
-  numTel: taxi.telephone,
-  email: taxi.email,
-  numeroSim: taxi.numeroSim,
-  hide: taxi.hide,
-});
+    this.taxiForm.patchValue({
+      nomPrenom: taxi.nom,
+      cin: taxi.numeroCin,
+      immatricule: taxi.numeroMatricule,
+      plaqueTaxi: taxi.numeroTaxi,
+      modeleVoiture: taxi.constructeur,
+      taxiStatus: taxi.taxiStatus,
+      typeTel: taxi.type,
+      numTel: taxi.telephone,
+      email: taxi.email,
+      numeroSim: taxi.numeroSim,
+      hide: taxi.hide,
+    });
     this.addEditModalRef = this.modalService.open(content, {
       size: 'lg',
       backdrop: 'static',
@@ -339,17 +452,18 @@ this.taxiForm.patchValue({
     });
   }
 
-openDetailsModal(content: any, taxi: Taxi): void {
+  openDetailsModal(content: any, taxi: Taxi): void {
 
-  this.selectedTaxi = taxi;
+    this.selectedTaxi = taxi;
 
-  this.modalService.open(content, {
-    size: 'lg',
-    backdrop: 'static',
-    centered: true
-  });
+    this.modalService.open(content, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true
+    });
 
-}
+  }
+
   openDeleteModal(content: any, taxiId: number, telephone: string): void {
     if (!taxiId) {
       console.error('Invalid taxi ID');
@@ -384,69 +498,86 @@ openDetailsModal(content: any, taxi: Taxi): void {
 
   // ===== CRUD OPERATIONS =====
 
-saveTaxi(): void {
-  if (this.taxiForm.invalid) {
-    this.taxiForm.markAllAsTouched();
+  saveTaxi(): void {
+    if (this.taxiForm.invalid) {
+      this.taxiForm.markAllAsTouched();
+      return;
+    }
+
+    const taxiData: Taxi = {
+      id: this.editingTaxiId || 0,
+      nom: this.taxiForm.value.nomPrenom,
+      numeroCin: this.taxiForm.value.cin,
+      numeroMatricule: this.taxiForm.value.immatricule,
+      numeroTaxi: this.taxiForm.value.plaqueTaxi,
+      constructeur: this.taxiForm.value.modeleVoiture,
+      taxiStatus: this.taxiForm.value.taxiStatus,
+      type: this.taxiForm.value.typeTel,
+      telephone: this.taxiForm.value.numTel,
+      email: this.taxiForm.value.email,
+      hide: this.taxiForm.value.hide,
+      numeroSim: this.taxiForm.value.numeroSim,
+      traitement: false,
+      destination: '',
+      contenu: ''
+    };
+
+    if (this.isEditing && this.editingTaxiId) {
+      this.updateTaxiAndUser(taxiData);
+      return;
+    }
+
+    this.pendingTaxiData = taxiData;
+    this.passwordForm.reset();
+    this.passwordModalRef = this.modalService.open(this.passwordModalForAdd, {
+      centered: true,
+      backdrop: 'static'
+    });
+  }
+
+updateTaxiAndUser(taxiData: Taxi): void {
+  if (this.isUpdating) {
     return;
   }
-console.log('hide value =', this.taxiForm.get('hide')?.value);
-  const taxiData: Taxi = {
-    id: this.editingTaxiId || 0,
-    nom: this.taxiForm.value.nomPrenom,
-    numeroCin: this.taxiForm.value.cin,
-    numeroMatricule: this.taxiForm.value.immatricule,
-    numeroTaxi: this.taxiForm.value.plaqueTaxi,
-    constructeur: this.taxiForm.value.modeleVoiture,
-    taxiStatus: this.taxiForm.value.taxiStatus,
-    type: this.taxiForm.value.typeTel,
-    telephone: this.taxiForm.value.numTel,
-    email: this.taxiForm.value.email,
-    hide: this.taxiForm.value.hide,
-    numeroSim: this.taxiForm.value.numeroSim,
-    traitement: false,
-    destination: '',
-    contenu: ''
-  };
 
-  if (this.isEditing && this.editingTaxiId) {
-    // ✅ UPDATE EXISTING TAXI (no password needed)
-    this.updateTaxiAndUser(taxiData);
-    return;
-  }
+  this.isUpdating = true;
 
-  // ✅ ADD NEW TAXI → Show password modal
-  this.pendingTaxiData = taxiData;
-  this.passwordForm.reset();
-  this.passwordModalRef = this.modalService.open(this.passwordModalForAdd, {
-    centered: true,
-    backdrop: 'static'
-  });
+  this.taxiService
+    .updateTaxiAndUser(taxiData)
+    .pipe(
+      finalize(() => {
+        this.isUpdating = false;
+      })
+    )
+    .subscribe({
+      next: () => {
+        this.toastr.success(
+          'Taxi et compte utilisateur mis à jour',
+          'Succès'
+        );
+
+        // Close the modal immediately
+        this.addEditModalRef?.close();
+
+        // Reset edit state
+        this.isEditing = false;
+        this.editingTaxiId = null;
+        this.taxiForm.reset();
+
+        // Wait briefly to ensure the backend has committed the update,
+        // then refresh the current page while preserving filters/pagination.
+        setTimeout(() => {
+          this.fetchTaxis();
+        }, 300);
+      },
+      error: (err) => {
+        const message =
+          err?.error?.message || 'Erreur lors de la mise à jour';
+
+        this.toastr.error(message, 'Échec');
+      }
+    });
 }
-
-  updateTaxiAndUser(taxiData: Taxi): void {
-    if (this.isUpdating) return;
-
-    this.isUpdating = true;
-
-    this.taxiService
-      .updateTaxiAndUser(taxiData)
-      .pipe(finalize(() => (this.isUpdating = false)))
-      .subscribe({
-        next: ({ taxi, user }) => {
-          this.toastr.success('Taxi et compte utilisateur mis à jour', 'Succès');
-          this.addEditModalRef?.close();
-          this.loadCurrentView(this.currentPage);
-          this.loadSimCounts();
-          this.isEditing = false;
-          this.editingTaxiId = null;
-          this.taxiForm.reset();
-        },
-        error: (err) => {
-          const message = err.error?.message || 'Erreur lors de la mise à jour';
-          this.toastr.error(message, 'Échec');
-        }
-      });
-  }
 
   submitNewPassword(modal: any): void {
     if (this.passwordForm.invalid || this.isSending) return;
@@ -464,8 +595,7 @@ console.log('hide value =', this.taxiForm.get('hide')?.value);
           this.addEditModalRef.close();
           this.taxiForm.reset();
           this.passwordForm.reset();
-          this.loadCurrentView(this.currentPage);
-          this.loadSimCounts();
+          this.fetchTaxis();
         },
         error: (err) => {
           const message = err.error?.message || 'Erreur lors de la création';
@@ -485,8 +615,7 @@ console.log('hide value =', this.taxiForm.get('hide')?.value);
       .subscribe({
         next: () => {
           this.toastr.error('Taxi supprimé', 'Suppression');
-         this.loadCurrentView(this.currentPage);
-         this.loadSimCounts();
+          this.fetchTaxis();
           this.deleteTaxiModalRef.close();
         },
         error: (err) => {
@@ -514,41 +643,40 @@ console.log('hide value =', this.taxiForm.get('hide')?.value);
           backdrop: 'static'
         });
       },
-      error: (err) => {
-        console.error('Error sending code', err);
+      error: () => {
+        console.error('Error sending code');
         this.toastr.error('Impossible d\'envoyer le code');
       }
     });
   }
 
- // ✅ CORRECT
-submitConfirmationCode(modal: any): void {
-  if (this.confirmationForm.invalid) return;
+  submitConfirmationCode(modal: any): void {
+    if (this.confirmationForm.invalid) return;
 
-  const token =
-    this.confirmationForm.value.code1 +
-    this.confirmationForm.value.code2 +
-    this.confirmationForm.value.code3 +
-    this.confirmationForm.value.code4;
+    const token =
+      this.confirmationForm.value.code1 +
+      this.confirmationForm.value.code2 +
+      this.confirmationForm.value.code3 +
+      this.confirmationForm.value.code4;
 
-  this.isSending = true;
+    this.isSending = true;
 
-  this.taxiService.verifyResetCode(token).subscribe({
-    next: () => {
-      this.isSending = false;
-      this.token = token;
-      modal.close();
-      this.modalService.open(this.passwordModalForReset, { // ✅ was: this.changePasswordModal1
-        centered: true,
-        backdrop: 'static'
-      });
-    },
-    error: () => {
-      this.isSending = false;
-      this.toastr.error('Code incorrect ou expiré');
-    }
-  });
-}
+    this.taxiService.verifyResetCode(token).subscribe({
+      next: () => {
+        this.isSending = false;
+        this.token = token;
+        modal.close();
+        this.modalService.open(this.passwordModalForReset, {
+          centered: true,
+          backdrop: 'static'
+        });
+      },
+      error: () => {
+        this.isSending = false;
+        this.toastr.error('Code incorrect ou expiré');
+      }
+    });
+  }
 
   submitPasswordReset(modal: any): void {
     if (this.passwordForm.invalid) return;
@@ -721,27 +849,23 @@ submitConfirmationCode(modal: any): void {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Taxis');
 
-        // Add header rows
         XLSX.utils.sheet_add_aoa(ws, [['TAXICHY']], { origin: 'A1' });
         XLSX.utils.sheet_add_aoa(ws, [['© SMS TAXI 2025 – service autorisé et conforme à la législation tunisienne']], { origin: 'A2' });
         XLSX.utils.sheet_add_aoa(ws, [['Répertoire des Taxistes Inscrits']], { origin: 'A4' });
 
-        // Merge title
         ws['!merges'] = [{ s: { r: 3, c: 0 }, e: { r: 3, c: 7 } }];
 
-        // Column widths
         ws['!cols'] = [
-          { wch: 5 },  // ID
-          { wch: 20 }, // Nom
-          { wch: 15 }, // CIN
-          { wch: 15 }, // Immatriculation
-          { wch: 12 }, // Plaque
-          { wch: 15 }, // Modèle
-          { wch: 15 }, // Téléphone
-          { wch: 12 }  // Statut
+          { wch: 5 },
+          { wch: 20 },
+          { wch: 15 },
+          { wch: 15 },
+          { wch: 12 },
+          { wch: 15 },
+          { wch: 15 },
+          { wch: 12 }
         ];
 
-        // Header style
         const headers = ['ID', 'Nom', 'CIN', 'Immatriculation', 'Plaque', 'Modèle', 'Téléphone', 'Statut'];
         headers.forEach((header, i) => {
           const cell = ws[XLSX.utils.encode_cell({ r: 5, c: i })];
@@ -806,14 +930,11 @@ submitConfirmationCode(modal: any): void {
     const taxi = this.selectedTaxi;
     const logo = await this.loadImageBase64('assets/logoY2.png');
 
-
-    // Use jsPDF instead of pdfMake for consistency
     const doc = new jsPDF();
     doc.addImage(logo, 'PNG', 60, 10, 90, 0);
     doc.setFontSize(20);
     doc.text('Détails du Taxi', 105, 45, { align: 'center' });
 
-    // Add details table
     autoTable(doc, {
       body: [
         ['Nom et Prénom', taxi.nom || ''],
@@ -841,252 +962,4 @@ submitConfirmationCode(modal: any): void {
       reader.readAsDataURL(blob);
     });
   }
-
-  private getStatusColor(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'APPROVED':
-        return '#198754';
-      case 'REJECTED':
-        return '#DC3545';
-      case 'PENDING':
-        return '#FFC107';
-      default:
-        return '#6C757D';
-    }
-  }
-
-changeView(view: TaxiView): void {
-
-  this.currentView = view;
-
-  this.currentPage = 1;
-
-  this.loadCurrentView(1);
-
-}
-
-loadCurrentView(page: number = this.currentPage): void {
-
-  // =====================================================
-  // TEMPORARY LOCAL FILTERING
-  // APPROVED / PENDING
-  // =====================================================
-
-  if (
-    this.currentView === 'approved' ||
-    this.currentView === 'pending'
-  ) {
-
-    let filtered = [...this.allTaxis];
-
-    // Search
-    if (this.searchPhone?.trim()) {
-      filtered = filtered.filter(t =>
-        t.telephone?.includes(this.searchPhone!)
-      );
-    }
-
-    if (this.searchName?.trim()) {
-      filtered = filtered.filter(t =>
-        t.nom?.toLowerCase().includes(
-          this.searchName!.toLowerCase()
-        )
-      );
-    }
-
-    // Status
-    filtered = filtered.filter(t =>
-      this.currentView === 'approved'
-        ? t.taxiStatus === 'APPROVED'
-        : t.taxiStatus === 'PENDING'
-    );
-
-    this.totalItems = filtered.length;
-    this.totalPages = Math.ceil(
-      filtered.length / this.itemsPerPage
-    );
-
-    this.currentPage = page;
-
-    const start = (page - 1) * this.itemsPerPage;
-
-    const end = start + this.itemsPerPage;
-
-    this.taxis = filtered.slice(start, end);
-
-    this.updatePages();
-
-    this.loadTaxiRideStats();
-
-    return;
-  }
-
-  // =====================================================
-  // SERVER FILTERING
-  // TOTAL / AVEC SIM / SANS SIM
-  // =====================================================
-
-  this.isLoading = true;
-
-  const filters: any = {};
-
-  if (this.currentView === 'withSim') {
-    filters.hide = true;
-  }
-
-  if (this.currentView === 'withoutSim') {
-    filters.hide = false;
-  }
-
-  if (this.searchPhone?.trim()) {
-    filters.phone = this.searchPhone.trim();
-  }
-
-  if (this.searchName?.trim()) {
-    filters.name = this.searchName.trim();
-  }
-
-  console.log('Current view:', this.currentView);
-  console.log('Filters:', filters);
-  console.log('Page:', page - 1);
-
-  this.taxiService
-    .getTaxisCriteria(
-      page - 1,
-      this.itemsPerPage,
-      filters
-    )
-    .pipe(
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-
-      next: (response: PagedTaxisResponse) => {
-
-        this.taxis = response.content;
-
-        this.totalItems = response.totalElements;
-
-        this.totalPages = response.totalPages;
-
-        this.currentPage = page;
-
-        this.updatePages();
-
-        this.loadTaxiRideStats();
-
-      },
-
-      error: err => {
-
-        console.error(err);
-
-        this.toastr.error(
-          'Impossible de charger les taxis',
-          'Erreur'
-        );
-
-      }
-
-    });
-
-}
-private loadTaxiRideStats(): void {
-
-  this.taxis.forEach(taxi => {
-
-    taxi.acceptedCourses = 0;
-    taxi.refusedCourses = 0;
-
-    this.taxiService
-      .getTaxiStats(taxi.telephone)
-      .subscribe({
-
-        next: stats => {
-
-          taxi.acceptedCourses = stats.acceptedCourses ?? 0;
-          taxi.refusedCourses = stats.refusedCourses ?? 0;
-
-        },
-
-        error: () => {
-
-          taxi.acceptedCourses = 0;
-          taxi.refusedCourses = 0;
-
-        }
-
-      });
-
-  });
-
-}
-
-private updatePages(): void {
-
-  const maxVisible = 5;
-
-  let start = Math.max(1, this.currentPage - 2);
-  let end = Math.min(this.totalPages, start + maxVisible - 1);
-
-  if (end - start < maxVisible - 1) {
-    start = Math.max(1, end - maxVisible + 1);
-  }
-
-  this.pages = [];
-
-  for (let i = start; i <= end; i++) {
-    this.pages.push(i);
-  }
-
-}
-
-get visiblePages(): number[] {
-
-  const pages: number[] = [];
-
-  const start = Math.max(1, this.currentPage - 2);
-  const end = Math.min(this.totalPages, this.currentPage + 2);
-
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
-  }
-
-  return pages;
-
-}
-
-loadAllTaxis(): void {
-
-  this.taxiService
-    .getTaxisCriteria(0, 5000, {})
-    .subscribe({
-
-      next: response => {
-
-        this.allTaxis = response.content;
-
-        this.updateStatusCounts();
-
-      },
-
-      error: err => console.error(err)
-
-    });
-
-}
-
-updateStatusCounts(): void {
-
-  this.taxiStats.approved =
-    this.allTaxis.filter(t => t.taxiStatus === 'APPROVED').length;
-
-  this.taxiStats.pending =
-    this.allTaxis.filter(t => t.taxiStatus === 'PENDING').length;
-
-  this.taxiStats.rejected =
-    this.allTaxis.filter(t => t.taxiStatus === 'REJECTED').length;
-
-}
-
 }

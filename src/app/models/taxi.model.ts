@@ -147,3 +147,57 @@ export interface TaxiExportData {
     end: Date;
   };
 }
+
+export interface SortInfo {
+  sorted: boolean;
+  unsorted: boolean;
+  empty: boolean;
+}
+
+export interface PageableInfo {
+  sort: SortInfo;
+  offset: number;
+  pageNumber: number;
+  pageSize: number;
+  paged: boolean;
+  unpaged: boolean;
+}
+
+export interface Page<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  numberOfElements?: number;
+  first?: boolean;
+  last?: boolean;
+  empty?: boolean;
+  sort?: SortInfo;
+  pageable?: PageableInfo;
+}
+
+export interface TaxiStats {
+  total: number;
+  withSim: number;
+  withoutSim: number;
+  approved: number;
+  waiting: number;
+}
+
+export interface TaxiPageResponse {
+  taxis: Page<Taxi>;
+  stats: TaxiStats;
+}
+
+export type TaxiSortBy = 'acceptees' | 'refusees';
+
+export interface TaxiCriteriaFilters {
+  phone?: string;
+  taxiStatus?: TaxiStatus | '';
+  name?: string;
+  numeroSim?: string;
+  hide?: boolean | null;
+  sort?: string;
+  sortBy?: TaxiSortBy;
+}

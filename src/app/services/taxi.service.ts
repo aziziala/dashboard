@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, BehaviorSubject } from 'rxjs';
 
-import { Taxi, TaxiStatus } from '../models/taxi.model';
+import { Taxi, TaxiStatus, TaxiCriteriaFilters, TaxiPageResponse } from '../models/taxi.model';
 import { environment } from '../../environments/environment';
 import { PagedTaxisResponse } from '../models/paged-taxis-response';
 
@@ -418,6 +418,50 @@ getTaxiStats(phone: string): Observable<any> {
 
 
 
+  getAllTaxisCriteria(
+    page: number,
+    size: number,
+    filters: TaxiCriteriaFilters = {}
+  ): Observable<TaxiPageResponse> {
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (filters.phone) {
+      params = params.set('phone', filters.phone);
+    }
+
+    if (filters.name) {
+      params = params.set('name', filters.name);
+    }
+
+    if (filters.numeroSim) {
+      params = params.set('numeroSim', filters.numeroSim);
+    }
+
+    if (filters.taxiStatus) {
+      params = params.set('taxiStatus', filters.taxiStatus);
+    }
+
+    if (filters.hide !== undefined && filters.hide !== null) {
+      params = params.set('hide', filters.hide.toString());
+    }
+
+    if (filters.sort) {
+      params = params.set('sort', filters.sort);
+    }
+
+    if (filters.sortBy) {
+      params = params.set('sortBy', filters.sortBy);
+    }
+
+    return this.http.get<TaxiPageResponse>(
+      `${this.baseUrl}/get-all-taxis-criteria`,
+      { params }
+    );
+  }
+
   getTaxisCriteria(
   page: number,
   size: number,
@@ -425,32 +469,29 @@ getTaxiStats(phone: string): Observable<any> {
     hide?: boolean;
     phone?: string;
     name?: string;
-    status?: TaxiStatus | '';
+    taxiStatus?: TaxiStatus | '';
   } = {}
 ): Observable<PagedTaxisResponse> {
+  return this.getAllTaxisCriteria(page, size, filters) as unknown as Observable<PagedTaxisResponse>;
+}
 
-  let params = new HttpParams()
-    .set('page', page)
+getAllTaxis(page: number, size: number): Observable<PagedTaxisResponse> {
+  return this.getAllTaxisCriteria(page, size) as unknown as Observable<PagedTaxisResponse>;
+}
+
+getAcceptedCoursesCount(): Observable<number> {
+  return this.http.get<number>(`${this.baseUrl}/accepted`);
+}
+
+getRefusedCoursesCount(): Observable<number> {
+  return this.http.get<number>(`${this.baseUrl}/refused`);
+}
+
+getTaxisSorted(sortBy: 'acceptees' | 'refusees', size: number = 200): Observable<PagedTaxisResponse> {
+  const params = new HttpParams()
+    .set('page', '0')
     .set('size', size)
-    .set('sort', 'id,asc');
-    
-
-  if (filters.hide !== undefined) {
-    params = params.set('hide', filters.hide);
-  }
-
-  if (filters.phone) {
-    params = params.set('phone', filters.phone);
-  }
-
-  if (filters.name) {
-    params = params.set('name', filters.name);
-  }
-
-  if (filters.status) {
-    params = params.set('status', filters.status);
-  }
-
+    .set('sortBy', sortBy);
   return this.http.get<PagedTaxisResponse>(
     `${this.baseUrl}/get-all-taxis-criteria`,
     { params }

@@ -2,20 +2,21 @@
   <!-- Page Title -->
   <div class="row">
     <div class="col-12 my-3">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0 page-title">
-          <i class="fas fa-taxi me-2 taxi-icon"></i>Gestion des Taxis
-        </h4>
-        <div class="page-title-right d-none d-md-block">
-
-
-          <div class="d-flex align-items-center gap-2">
-
-            <ol class="breadcrumb m-0">
-              <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
-              <li class="breadcrumb-item active">Gestion des Taxis</li>
-            </ol>
+      <div class="page-title-box">
+        <div class="page-title-box__left">
+          <div class="page-title-box__icon-wrap">
+            <i class="fas fa-taxi"></i>
           </div>
+          <div class="page-title-box__text">
+            <h4 class="page-title-box__title">Gestion des Taxis</h4>
+            <p class="page-title-box__subtitle">Suivi, administration et gestion de la flotte de taxis</p>
+          </div>
+        </div>
+        <div class="page-title-box__right">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Gestion des Taxis</li>
+          </ol>
         </div>
       </div>
     </div>
@@ -42,7 +43,7 @@
   </div>
   <div class="info">
     <span>Avec SIM</span>
-    <h3>{{ withSimCount }}</h3>
+    <h3>{{ taxiStats.withSim }}</h3>
   </div>
 </div>
 
@@ -54,7 +55,7 @@
   </div>
   <div class="info">
     <span>Sans SIM</span>
-    <h3>{{ withoutSimCount }}</h3>
+    <h3>{{ taxiStats.withoutSim }}</h3>
   </div>
 </div>
 
@@ -84,7 +85,7 @@
 
   <div class="info">
     <span>EN ATTENTE</span>
-    <h3>{{ taxiStats.pending }}</h3>
+    <h3>{{ taxiStats.waiting }}</h3>
   </div>
 
 </div>
@@ -140,7 +141,7 @@
 
       <select
         [(ngModel)]="statusFilter"
-        (change)="searchTaxis()">
+        (change)="onStatusFilterChange()">
 
         <option value="">Tous les statuts</option>
 
@@ -163,23 +164,26 @@
 
   <div class="ranking-filter">
 
-
-
   <button
     class="ranking-btn success"
+    [class.active]="currentSortField === 'acceptees'"
+    (click)="onSortByCourses('acceptees')"
     title="Plus de courses">
-
     <i class="fas fa-arrow-trend-up"></i>
-
+    <i *ngIf="currentSortField === 'acceptees'" class="fas sort-indicator"
+       [class.fa-arrow-up]="currentSortDirection === 'asc'"
+       [class.fa-arrow-down]="currentSortDirection === 'desc'"></i>
   </button>
 
   <button
     class="ranking-btn danger"
-
+    [class.active]="currentSortField === 'refusees'"
+    (click)="onSortByCourses('refusees')"
     title="Plus de refus">
-
     <i class="fas fa-arrow-trend-down"></i>
-
+    <i *ngIf="currentSortField === 'refusees'" class="fas sort-indicator"
+       [class.fa-arrow-up]="currentSortDirection === 'asc'"
+       [class.fa-arrow-down]="currentSortDirection === 'desc'"></i>
   </button>
 
 </div>
@@ -227,7 +231,6 @@
       <table class="table table-hover align-middle">
         <thead class="table-light">
           <tr>
-            <th>ID</th>
             <th>Nom et Prénom</th>
             <th>N.CIN</th>
             <th>N.Immatriculation</th>
@@ -244,7 +247,6 @@
         </thead>
         <tbody>
           <tr *ngFor="let taxi of taxis">
-            <td>{{ taxi.id }}</td>
             <td>{{ taxi.nom }}</td>
             <td>{{ taxi.numeroCin }}</td>
             <td>{{ taxi.numeroMatricule }}</td>
@@ -316,7 +318,7 @@ trouvé.
 </td>
 </tr> -->
           <tr *ngIf="taxis.length === 0">
-            <td colspan="10" class="text-center text-muted py-4">
+            <td colspan="9" class="text-center text-muted py-4">
               Aucun taxi
               <strong *ngIf="statusFilter">{{ getStatusLabel(statusFilter) }}</strong>
               trouvé.
@@ -326,7 +328,22 @@ trouvé.
       </table>
     </div>
     <!-- Pagination -->
-<nav *ngIf="totalPages > 1" class="mt-3">
+    <div class="pagination-footer">
+      <div class="pagination-info">
+        <span>Total : {{ totalElements }} taxi(s)</span>
+        <div class="page-size-selector">
+          <label for="pageSizeSelect">Lignes / page</label>
+          <select id="pageSizeSelect" [value]="itemsPerPage"
+                  (change)="onPageSizeChange($any($event.target).value)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <nav *ngIf="totalPages > 1" class="mt-3">
   <ul class="pagination justify-content-center align-items-center">
 
     <!-- First -->
@@ -548,10 +565,13 @@ trouvé.
 
         <!-- FOOTER -->
         <div class="modal-footer compact-footer">
-          <button class="btn btn-outline-danger" *ngIf="selectedTaxi"
-            (click)="openVerifyIdentityModal(verifyIdentityModal, selectedTaxi)">
-            <i class="bi bi-key me-1"></i> Changer mot de passe
-          </button>
+          <button
+  *ngIf="isEditing && selectedTaxi"
+  class="btn btn-outline-danger"
+  (click)="openVerifyIdentityModal(verifyIdentityModal, selectedTaxi)">
+  <i class="bi bi-key me-1"></i>
+  Changer mot de passe
+</button>
           <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
             <i class="bi bi-x-circle"></i> Annuler
           </button>
@@ -573,7 +593,8 @@ trouvé.
             <i class="fas fa-eye taxi-icon"></i>
           </div>
           <h5 class="modal-title">&ensp;Détails du Taxi</h5>
-          <span class="badge ms-3" [ngClass]="getStatusBadgeClass(selectedTaxi?.taxiStatus)">
+          <span class="badge bg-secondary ms-2" *ngIf="selectedTaxi?.id">#{{ selectedTaxi?.id }}</span>
+          <span class="badge ms-2" [ngClass]="getStatusBadgeClass(selectedTaxi?.taxiStatus)">
             {{ getStatusLabel(selectedTaxi?.taxiStatus) }}
           </span>
 
@@ -585,13 +606,13 @@ trouvé.
 
             <div class="col-md-6">
               <div class="info-box">
-                <span>Nom</span>
+                <span>NOM ET PRÉNOM</span>
                 <strong>{{ selectedTaxi.nom }}</strong>
               </div>
             </div>
             <div class="col-md-6">
               <div class="info-box">
-                <span>CIN</span>
+                <span>Carte d'identité nationale</span>
                 <strong>{{ selectedTaxi.numeroCin }}</strong>
               </div>
             </div>
@@ -603,7 +624,7 @@ trouvé.
             </div>
             <div class="col-md-6">
               <div class="info-box">
-                <span>Plaque</span>
+                <span>Plaque taxi</span>
                 <strong>{{ selectedTaxi.numeroTaxi }}</strong>
               </div>
             </div>
@@ -616,13 +637,19 @@ trouvé.
             <div class="col-md-6">
               <div class="info-box">
                 <span>Téléphone</span>
-                <strong>{{ selectedTaxi.telephone }}</strong>
+                <strong>+ (216) {{ selectedTaxi.telephone }}</strong>
               </div>
             </div>
             <div class="col-md-6">
               <div class="info-box">
                 <span>Email</span>
                 <strong>{{ selectedTaxi.email }}</strong>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box">
+                <span>Numéro de la carte SIM</span>
+                <strong>+ (216) {{ selectedTaxi.numeroSim || '— — —' }}</strong>
               </div>
             </div>
           </div>
