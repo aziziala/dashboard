@@ -1,36 +1,22 @@
 <div class="container-fluid">
 
-  <!-- ── Header ─────────────────────────────────────────────────────────── -->
-  <!-- <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-    <div>
-      <h5 class="mb-0 fw-semibold">
-        <i class="fas fa-bell me-2 text-primary"></i>Historique des notifications
-      </h5>
-      <small class="text-muted">{{ totalElements }} notification{{ totalElements !== 1 ? 's' : '' }} trouvée{{
-        totalElements !== 1 ? 's' : '' }}</small>
-    </div>
-  </div> -->
-
-
-
-
-  <!-- ══════════════════════════════════════════════════════════════════════
-       PAGE TITLE
-  ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Page Title -->
   <div class="row">
     <div class="col-12 my-3">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0 page-title">
-          <i class="fas fa-bell me-2 text-primary"></i>Historique des notifications
-
-
-
-
-        </h4>
-        <div class="page-title-right d-none d-md-block">
-          <ol class="breadcrumb m-0">
+      <div class="page-title-box">
+        <div class="page-title-box__left">
+          <div class="page-title-box__icon-wrap">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="page-title-box__text">
+            <h4 class="page-title-box__title">Liste des notifications</h4>
+            <p class="page-title-box__subtitle">Consultation et gestion des notifications du système</p>
+          </div>
+        </div>
+        <div class="page-title-box__right">
+          <ol class="breadcrumb">
             <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
-            <li class="breadcrumb-item active">Liste des Notifications</li>
+            <li class="breadcrumb-item active">Liste des notifications</li>
           </ol>
         </div>
       </div>
