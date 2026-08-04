@@ -1,8 +1,171 @@
-.sync-taxi-page {
-  .page-title {
-    font-weight: 600;
+// ══════════════════════════════════════════════════════════════════════════════
+// DESIGN TOKENS
+// ══════════════════════════════════════════════════════════════════════════════
+
+$brand-dark      : #211F54;
+$brand-mid       : #4B4BAF;
+$brand-accent    : #FFC900;
+$brand-purple    : #56289e;
+
+// Status palette
+$status-approved : #22c55e;
+$status-pending  : #f59e0b;
+$status-rejected : #ef4444;
+
+// Radii
+$radius-sm  : 0.375rem;
+$radius-md  : 0.5rem;
+$radius-lg  : 0.75rem;
+$radius-xl  : 1rem;
+$radius-2xl : 0.875rem;
+
+// Shadows
+$shadow-xs    : 0 1px 3px  rgba(0, 0, 0, 0.07);
+$shadow-sm    : 0 2px 8px  rgba(0, 0, 0, 0.09);
+$shadow-md    : 0 4px 16px rgba(0, 0, 0, 0.11);
+$shadow-lg    : 0 8px 28px rgba(0, 0, 0, 0.14);
+$shadow-modal : 0 0.75rem 2rem rgba(0, 0, 0, 0.22);
+
+// Transitions
+$t-fast : 0.15s ease;
+$t-base : 0.25s ease;
+$t-slow : 0.35s ease;
+
+// Font scale
+$font-xs   : 0.70rem;
+$font-sm   : 0.78rem;
+$font-base : 0.875rem;
+$font-md   : 1rem;
+$font-lg   : 1.25rem;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LAYOUT
+// ══════════════════════════════════════════════════════════════════════════════
+
+.container-fluid {
+  padding: 20px 24px;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  min-height: 100%;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PAGE TITLE BOX
+// ══════════════════════════════════════════════════════════════════════════════
+
+.page-title-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: $radius-xl;
+  background: #fff;
+  box-shadow: $shadow-sm;
+  border-left: 4px solid $brand-accent;
+  transition: box-shadow $t-base;
+
+  &:hover { box-shadow: $shadow-md; }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
   }
 
+  &__icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-lg;
+    background: linear-gradient(135deg, $brand-dark, $brand-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba($brand-dark, 0.25);
+
+    i {
+      color: $brand-accent;
+      font-size: 20px;
+    }
+  }
+
+  &__text {
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: $font-lg;
+    font-weight: 700;
+    color: $brand-dark;
+    margin: 0 0 4px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 576px) { font-size: $font-md; }
+  }
+
+  &__subtitle {
+    font-size: $font-sm;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 768px) { display: none; }
+  }
+
+  &__right {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+
+    &__right { width: 100%; }
+  }
+}
+
+.page-title-box .breadcrumb {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &-item {
+    font-size: $font-sm;
+    font-weight: 500;
+    color: $brand-mid;
+
+    a {
+      color: $brand-mid;
+      text-decoration: none;
+      transition: color $t-base;
+      &:hover { color: $brand-dark; }
+    }
+
+    &.active { color: #495057; }
+
+    &:not(:last-child)::after {
+      content: '/';
+      margin-left: 6px;
+      color: rgba($brand-dark, 0.35);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SYNC TAXI ACCOUNT — PAGE SPECIFIC
+// ══════════════════════════════════════════════════════════════════════════════
+
+.sync-taxi-page {
   .card {
     border-radius: 0.75rem;
   }
