@@ -45,6 +45,8 @@ import {
 
 import { WebsocketService } from '../../services/websocket.service';
 
+type FleetStatView = 'all' | 'withSim' | 'withoutSim' | 'approved' | 'pending';
+
 import * as L from 'leaflet';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -71,6 +73,8 @@ export class FleetManagementComponent
 
   searchTerm = '';
   statusFilter = '';
+
+  currentView: FleetStatView = 'all';
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -457,6 +461,30 @@ updateMapMarkers(): void {
       );
     }
 
+    if (this.currentView !== 'all') {
+
+      result = result.filter((loc) => {
+
+        switch (this.currentView) {
+
+          case 'withSim':
+            return isRideActiveForAssignment(loc.rideStatus);
+
+          case 'withoutSim':
+            return (loc.rideStatus || '').toUpperCase() === 'EXPIRED';
+
+          case 'approved':
+            return (loc.rideStatus || '').toUpperCase() === 'TERMINATED';
+
+          case 'pending':
+            return (loc.rideStatus || '').toUpperCase() === 'WAITING';
+
+          default:
+            return true;
+        }
+      });
+    }
+
     return result;
   }
 
@@ -476,6 +504,11 @@ updateMapMarkers(): void {
   }
 
   filterFleet(): void {
+    this.currentPage = 1;
+  }
+
+  changeView(view: FleetStatView): void {
+    this.currentView = view;
     this.currentPage = 1;
   }
 

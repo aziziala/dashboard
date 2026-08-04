@@ -719,83 +719,112 @@ apx-chart {
     box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   }
 }
-/* MODERN STATS CARD */
+/* MODERN STATS CARD (aligned with taxi-management) */
+.stats-row-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  width: 100%;
+
+  @media (max-width: 992px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 576px) { grid-template-columns: 1fr; }
+}
+
 .stats-card {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 18px;
+  gap: 14px;
+  padding: 18px 20px;
   border-radius: 16px;
-  background: #f8f9fc;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
-  height: 100%;
+  background: #fff;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: transform $t-base, box-shadow $t-base;
   min-height: 90px;
+  position: relative;
+  overflow: hidden;
 
+  // Subtle top-border accent
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: $radius-xl $radius-xl 0 0;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
+  }
+
+  .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .info {
+    span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+  }
+
+  // ── Variants ────────────────────────────────────────────────────────────
+  &.total {
+    &::before { background: $brand-mid; }
+    .icon     { background: $brand-mid; }
+    h3        { color: $brand-mid; }
+  }
+
+  &.approved {
+    &::before { background: $status-approved; }
+    .icon     { background: $status-approved; }
+    h3        { color: $status-approved; }
+  }
+
+  &.pending {
+    &::before { background: $status-pending; }
+    .icon     { background: $status-pending; }
+    h3        { color: $status-pending; }
+  }
+
+  &.rejected {
+    &::before { background: $status-rejected; }
+    .icon     { background: $status-rejected; }
+    h3        { color: $status-rejected; }
+  }
 }
 
-.stats-card:hover {
-  transform: translateY(-4px);
+.stats-card.sim-card {
+  &::before { background: #10b981; }
+  .icon     { background: #10b981; color: white; }
+  h3        { color: #10b981; }
 }
 
-/* ICON */
-.stats-card .icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-/* TEXT */
-.stats-card .content .label {
-  font-size: 13px;
-  color: #6c757d;
-}
-
-.stats-card .content h3 {
-  margin: 0;
-  font-weight: 700;
-}
-
-/* COLORS */
-
-/* TOTAL */
-.stats-card.primary {
-  background: rgba(75, 75, 175, 0.08);
-}
-.stats-card.primary .icon {
-  background: #4B4BAF;
-  color: white;
-}
-
-/* OCCUPÉ */
-.stats-card.success {
-  background: rgba(34,197,94,0.1);
-}
-.stats-card.success .icon {
-  background: #22c55e;
-  color: white;
-}
-
-/* EN APPROCHE */
-.stats-card.warning {
-  background: rgba(251,191,36,0.15);
-}
-.stats-card.warning .icon {
-  background: #f59e0b;
-  color: white;
-}
-
-/* LIBRE */
-.stats-card.danger {
-  background: rgba(239,68,68,0.1);
-}
-.stats-card.danger .icon {
-  background: #ef4444;
-  color: white;
+.stats-card.no-sim-card {
+  &::before { background: #64748b; }
+  .icon     { background: #64748b; color: white; }
+  h3        { color: #64748b; }
 }
 
 
@@ -882,25 +911,4 @@ $shadow: 0 2px 6px rgba(0,0,0,0.2);
       }
     }
   }
-/* MOBILE */
-@media (max-width: 575px) {
-  .stats-card {
-    .card-title {
-      font-size: 1rem;
-    }
-    .card-value {
-      font-size: 2rem;
-    }
-  }
-}
-
-/* DESKTOP */
-@media (min-width: 992px) {
-  .stats-card {
-    .card-value {
-      font-size: 3rem;
-    }
-  }
-}
-  
 }

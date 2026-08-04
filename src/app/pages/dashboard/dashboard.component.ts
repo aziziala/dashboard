@@ -19,6 +19,7 @@ export class DashboardComponent implements OnInit {
   totalSmsSent: number = 0;
   totalSmsReceived: number = 0;
   totalRevenue: number = 0;
+  currentView: string = 'all';
   fleetLocations: any[] = [];
   kannelUrl!: SafeResourceUrl;
   // Chart data
@@ -75,6 +76,10 @@ export class DashboardComponent implements OnInit {
     // Charts are already initialized from the imported configurations
     // This method can be used for dynamic chart updates if needed
     console.log('Charts initialized');
+  }
+
+  changeView(view: string): void {
+    this.currentView = view;
   }
 
 

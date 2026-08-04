@@ -23,54 +23,56 @@
 </div>
 <div class="row mb-4 justify-content-center g-3">
 
-<div class="col-6 col-md-4"
-  *ngFor="let stat of [
-
-    {
-      label: 'Taxis visibles',
-      value:
-        (fleetV2Stats?.totalTaxis || 0)
-        -
-        (fleetV2Stats?.expiredCount || 0),
-
-      color: 'primary',
-      icon: 'fa-taxi'
-    },
-
-    {
-      label: 'En attente',
-      value: fleetV2Stats?.waitingCount || 0,
-
-      color: 'warning',
-      icon: 'fa-clock'
-    },
-
-    {
-      label: 'En course',
-      value:
-        (fleetV2Stats?.startedCount || 0)
-        +
-        (fleetV2Stats?.inProgressCount || 0),
-
-      color: 'success',
-      icon: 'fa-road'
-    }
-
-  ]">
-
-  <div class="stats-card" [ngClass]="stat.color">
-
-    <div class="icon">
-      <i class="fas" [ngClass]="stat.icon"></i>
+<div class="stats-row stats-row-5">
+  <div class="stats-card total"
+       [class.active-filter]="currentView === 'all'"
+       (click)="changeView('all')">
+    <div class="icon"><i class="fas fa-car"></i></div>
+    <div class="info">
+      <span>Taxis visibles</span>
+      <h3>{{ (fleetV2Stats?.totalTaxis || 0) - (fleetV2Stats?.expiredCount || 0) }}</h3>
     </div>
-
-    <div class="content">
-      <span class="label">{{ stat.label }}</span>
-      <h3>{{ stat.value }}</h3>
-    </div>
-
   </div>
 
+  <div class="stats-card sim-card"
+       [class.active-filter]="currentView === 'withSim'"
+       (click)="changeView('withSim')">
+    <div class="icon"><i class="fas fa-signal"></i></div>
+    <div class="info">
+      <span>En course</span>
+      <h3>{{ (fleetV2Stats?.startedCount || 0) + (fleetV2Stats?.inProgressCount || 0) }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card no-sim-card"
+       [class.active-filter]="currentView === 'withoutSim'"
+       (click)="changeView('withoutSim')">
+    <div class="icon"><i class="fas fa-sim-card"></i></div>
+    <div class="info">
+      <span>Expirées</span>
+      <h3>{{ fleetV2Stats?.expiredCount || 0 }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card approved compact-card"
+       [class.active-filter]="currentView === 'approved'"
+       (click)="changeView('approved')">
+    <div class="icon"><i class="fas fa-check-circle"></i></div>
+    <div class="info">
+      <span>Terminées</span>
+      <h3>{{ fleetV2Stats?.terminatedCount || 0 }}</h3>
+    </div>
+  </div>
+
+  <div class="stats-card pending compact-card"
+       [class.active-filter]="currentView === 'pending'"
+       (click)="changeView('pending')">
+    <div class="icon"><i class="fas fa-clock"></i></div>
+    <div class="info">
+      <span>En attente</span>
+      <h3>{{ fleetV2Stats?.waitingCount || 0 }}</h3>
+    </div>
+  </div>
 </div>
 
 </div>

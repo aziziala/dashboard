@@ -2,14 +2,19 @@
   <!-- Page Title -->
   <div class="row">
     <div class="col-12 my-3">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0 page-title">
-          <i class="fas fa-home-alt me-2 taxi-icon"></i>Tableau de bord
-        </h4>
-        <div class="page-title-right d-none d-md-block">
-          <ol class="breadcrumb m-0">
+      <div class="page-title-box">
+        <div class="page-title-box__left">
+          <div class="page-title-box__icon-wrap">
+            <i class="fas fa-home-alt"></i>
+          </div>
+          <div class="page-title-box__text">
+            <h4 class="page-title-box__title">Tableau de bord</h4>
+            <p class="page-title-box__subtitle">Vue d'ensemble et statistiques générales de l'application</p>
+          </div>
+        </div>
+        <div class="page-title-box__right">
+          <ol class="breadcrumb">
             <li class="breadcrumb-item"><a routerLink="/login">Déconnexion</a></li>
-            
           </ol>
         </div>
       </div>
@@ -17,80 +22,55 @@
   </div>
 
   <!-- Statistics Cards -->
-  <div class="row mb-4">
-    <div class="col-xl-2 col-md-4">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Taxis</p>
-              <h4 class="mb-0">{{ totalTaxis }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
-                <span class="avatar-title">
-                  <i class="fas fa-taxi font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
+  <div class="row mb-4 justify-content-center g-3">
+    <div class="stats-row stats-row-5">
+      <div class="stats-card total"
+           [class.active-filter]="currentView === 'all'"
+           (click)="changeView('all')">
+        <div class="icon"><i class="fas fa-car"></i></div>
+        <div class="info">
+          <span>Total Taxis</span>
+          <h3>{{ totalTaxis }}</h3>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Active Taxis</p>
-              <h4 class="mb-0">{{ activeTaxis }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="mini-stat-icon avatar-sm rounded-circle bg-success align-items-center justify-content-center">
-                <span class="avatar-title">
-                  <i class="fas fa-check-circle font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
+
+      <div class="stats-card sim-card"
+           [class.active-filter]="currentView === 'withSim'"
+           (click)="changeView('withSim')">
+        <div class="icon"><i class="fas fa-signal"></i></div>
+        <div class="info">
+          <span>Active Taxis</span>
+          <h3>{{ activeTaxis }}</h3>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Clients</p>
-              <h4 class="mb-0">{{ totalClients }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="mini-stat-icon avatar-sm rounded-circle bg-info align-items-center justify-content-center">
-                <span class="avatar-title">
-                  <i class="fas fa-users font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
+
+      <div class="stats-card no-sim-card"
+           [class.active-filter]="currentView === 'withoutSim'"
+           (click)="changeView('withoutSim')">
+        <div class="icon"><i class="fas fa-sim-card"></i></div>
+        <div class="info">
+          <span>Total Clients</span>
+          <h3>{{ totalClients }}</h3>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="card mini-stats-wid">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-muted fw-medium">Total Revenue</p>
-              <h4 class="mb-0">${{ totalRevenue | number:'1.0-0' }}</h4>
-            </div>
-            <div class="flex-shrink-0 align-self-center">
-              <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-items-center justify-content-center">
-                <span class="avatar-title">
-                  <i class="fas fa-dollar-sign font-size-24"></i>
-                </span>
-              </div>
-            </div>
-          </div>
+
+      <div class="stats-card approved compact-card"
+           [class.active-filter]="currentView === 'approved'"
+           (click)="changeView('approved')">
+        <div class="icon"><i class="fas fa-check-circle"></i></div>
+        <div class="info">
+          <span>SMS Envoyés</span>
+          <h3>{{ totalSmsSent }}</h3>
+        </div>
+      </div>
+
+      <div class="stats-card pending compact-card"
+           [class.active-filter]="currentView === 'pending'"
+           (click)="changeView('pending')">
+        <div class="icon"><i class="fas fa-clock"></i></div>
+        <div class="info">
+          <span>Revenus</span>
+          <h3>${{ totalRevenue | number:'1.0-0' }}</h3>
         </div>
       </div>
     </div>
