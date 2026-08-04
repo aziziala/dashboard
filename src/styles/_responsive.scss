@@ -1,0 +1,108 @@
+/* ============================================================
+   SMS TAXI — RESPONSIVE BEHAVIOUR
+   Breakpoint-driven layout changes. Breakpoint tokens live in
+   `_variables.scss`; screen-state classes are toggled by the
+   UiService.
+
+   Behaviour matrix:
+     · < 768px   → mobile off-canvas drawer (transform, no flow shift)
+     · 768–1199  → tablet icon rail, can be expanded (in-flow)
+     · ≥ 1200px  → desktop, expanded by default, collapsed state
+                   remembered in localStorage
+   ============================================================ */
+
+// ------------------------------------------------------------
+// MOBILE (< 768px): true off-canvas drawer
+// The sidebar leaves the flex flow entirely, so the main
+// content is ALWAYS 100% width — it never stays shifted.
+// ------------------------------------------------------------
+@include mobile {
+  app-sidebar {
+    position: fixed;
+    top: var(--topbar-height);
+    bottom: 0;
+    inset-inline-start: 0;
+    width: var(--sidebar-width);
+    height: auto;
+    z-index: 1050;
+    transform: translateX(-100%);
+    // visibility flips to hidden at the end of the close transition,
+    // taking the closed drawer out of the tab order + screen readers.
+    visibility: hidden;
+    transition:
+      transform var(--transition-base) var(--ease-in-out),
+      visibility var(--transition-base);
+    box-shadow: var(--shadow-lg);
+  }
+
+  // RTL: drawer slides in from the inline-end
+  [dir='rtl'] app-sidebar {
+    transform: translateX(100%);
+  }
+
+  // Drawer visible while the body state class is set
+  body.sidebar-mobile-open app-sidebar {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  body.sidebar-mobile-open .sidebar-mobile-backdrop {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  // Tighter content padding on small screens
+  .main-content {
+    padding: var(--content-padding-mobile);
+  }
+}
+
+// ------------------------------------------------------------
+// TABLET (768–1199px): icon rail by default (state driven by
+// UiService), still in-flow so the content resizes smoothly.
+// ------------------------------------------------------------
+@include tablet {
+  .main-content {
+    padding: var(--content-padding);
+  }
+}
+
+// ------------------------------------------------------------
+// SMALL PHONES (< 576px): keep the topbar tidy
+// ------------------------------------------------------------
+@include down($bp-md) {
+  .topbar-actions {
+    gap: 0;
+  }
+}
+
+// ------------------------------------------------------------
+// LARGE / ULTRA-WIDE: a touch more breathing room
+// ------------------------------------------------------------
+@include up($bp-3xl) {
+  .main-content {
+    padding: 28px;
+  }
+}
+
+@include up($bp-4k) {
+  .main-content {
+    padding: 32px;
+  }
+}
+
+// ------------------------------------------------------------
+// REDUCED MOTION: respect the user's system preference
+// (kept intentionally global and minimal)
+// ------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

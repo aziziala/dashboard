@@ -1,15 +1,42 @@
 <header id="page-topbar" role="banner">
   <div class="navbar-header">
-    <!-- Mobile Menu Toggle -->
+    <!-- Sidebar Toggle: hamburger (collapsed/mobile) ↔ collapse icon (expanded desktop) -->
     <div class="d-flex align-items-center">
-      <button class="btn header-item d-xl-none" (click)="toggleMobileMenu($event)" aria-label="Toggle mobile menu"
-        aria-expanded="false">
-        <i class="fa fa-bars" aria-hidden="true"></i>
+      <button
+        class="btn header-item sidebar-toggle"
+        (click)="toggleSidebar($event)"
+        [attr.aria-label]="
+          isMobile
+            ? mobileOpen
+              ? 'Fermer le menu'
+              : 'Ouvrir le menu'
+            : sidebarCollapsed
+              ? 'Développer le menu'
+              : 'Réduire le menu'
+        "
+        [attr.aria-expanded]="isMobile ? mobileOpen : !sidebarCollapsed"
+        aria-controls="sidebar"
+      >
+        <i class="bx" [ngClass]="toggleIconClass()" aria-hidden="true"></i>
       </button>
+
+      <!-- Compact brand shown when the sidebar is hidden (mobile) -->
+      <a
+        href="https://smstaxi.tn/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="topbar-brand d-lg-none"
+        aria-label="SMS Taxi — site officiel"
+      >
+        <img
+          [src]="currentApp === 'SMSTaxi' ? 'assets/logoY.png' : 'assets/taxiselect4.png'"
+          alt="Logo SMS Taxi"
+        />
+      </a>
     </div>
 
     <!-- Right Side Actions -->
-    <div class="d-flex align-items-center gap-1">
+    <div class="d-flex align-items-center gap-1 topbar-actions">
       <!-- App Switch -->
 
       <!-- Notifications Dropdown -->
@@ -91,13 +118,13 @@
       </div>
 
       <!-- Webmail -->
-      <a href="https://webmail.smstaxi.tn" target="_blank" rel="noopener noreferrer" class="btn header-item"
+      <a href="https://webmail.smstaxi.tn" target="_blank" rel="noopener noreferrer" class="btn header-item webmail"
         title="Webmail" aria-label="Open webmail in new tab">
         <i class="bx bx-envelope" aria-hidden="true"></i>
       </a>
 
       <!-- Fullscreen -->
-      <button class="btn header-item" (click)="fullscreen()" title="Toggle fullscreen"
+      <button class="btn header-item fullscreen" (click)="fullscreen()" title="Toggle fullscreen"
         aria-label="Toggle fullscreen mode">
         <i class="bx bx-fullscreen" aria-hidden="true"></i>
       </button>

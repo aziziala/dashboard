@@ -1,0 +1,66 @@
+/* ============================================================
+   SMS TAXI — MIXINS
+   Responsive helpers + a11y helpers used across all partials.
+
+   NOTE: relies on the SCSS variables declared by
+   `_variables.scss` (imported first in styles.scss).
+   ============================================================ */
+
+@mixin up($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+@mixin down($bp) {
+  @media (max-width: $bp - 1px) {
+    @content;
+  }
+}
+
+// Convenience aliases
+@mixin mobile {
+  @include down($bp-lg) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $bp-lg) and (max-width: $bp-xxl - 1px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @include up($bp-xxl) {
+    @content;
+  }
+}
+
+// Accessible focus ring (keyboard navigation)
+@mixin focus-ring($color: var(--brand-yellow)) {
+  &:focus-visible {
+    outline: 2px solid $color;
+    outline-offset: 2px;
+  }
+}
+
+// Slim, branded scrollbar
+@mixin scrollbar($thumb, $track: transparent, $size: 6px) {
+  scrollbar-width: thin;
+  scrollbar-color: $thumb $track;
+
+  &::-webkit-scrollbar {
+    width: $size;
+    height: $size;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb;
+    border-radius: $size;
+  }
+}

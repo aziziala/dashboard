@@ -11,7 +11,7 @@ import { PagedNotificationResponse } from '../models/notification/PagedNotificat
 @Injectable({ providedIn: 'root' })
 export class Notificationv2Service {
 
-  private readonly BASE_URL = 'http://localhost:8442/api';
+private readonly BASE_URL = '/taxi-client/api';
 
   constructor(private http: HttpClient) {}
 

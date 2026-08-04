@@ -1,0 +1,105 @@
+/* ============================================================
+   SMS TAXI — LAYOUT SHELL
+   Flex-based app frame. There are NO fixed margins or hardcoded
+   left offsets anywhere in this file.
+
+   Desktop / tablet:
+     · the sidebar is a real flex sibling (content resizes with
+       the animated width — nothing ever gets pushed by margins)
+     · the topbar and sidebar are `position: sticky` so the
+       document keeps natural scrolling (no dropdown clipping)
+
+   Mobile:
+     · the sidebar becomes a fixed off-canvas drawer, so the
+       main content always occupies 100% of the width.
+       (see _responsive.scss)
+
+   State classes driving this file:
+     · app-sidebar.sidebar-collapsed        → icon rail (desktop/tablet)
+     · app-sidebar.sidebar-collapsed.rail-expanded → hover-expanded rail
+     · body.sidebar-mobile-open             → drawer open (mobile)
+   ============================================================ */
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+// Sticky topbar — sticks while the document scrolls
+app-topbar {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+// Sidebar host — the width is animated; content follows for free
+app-sidebar {
+  display: block;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  width: var(--sidebar-width);
+  position: sticky;
+  top: var(--topbar-height);
+  height: calc(100vh - var(--topbar-height));
+  height: calc(100dvh - var(--topbar-height));
+  transition: width var(--transition-base) var(--ease-in-out);
+
+  &.sidebar-collapsed {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  // Hover-expanding the icon rail (desktop only, driven by TS)
+  &.sidebar-collapsed.rail-expanded {
+    width: var(--sidebar-width);
+  }
+}
+
+// Main content — always consumes ALL available width.
+// No margins, no fixed widths: `flex: 1` does the work.
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--content-padding);
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+// SMS monitoring page takes over the whole surface
+.main-content.sms-full {
+  padding: 0;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+// Mobile drawer backdrop — always in DOM, faded via `body` class.
+.sidebar-mobile-backdrop {
+  position: fixed;
+  top: var(--topbar-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1045;
+  background: rgba(10, 9, 40, 0.55);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  cursor: pointer;
+  transition:
+    opacity var(--transition-base) var(--ease-in-out),
+    visibility var(--transition-base);
+}
+
+// Lock body scroll while the mobile drawer is open
+body.sidebar-mobile-open {
+  overflow: hidden;
+}

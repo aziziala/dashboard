@@ -3,7 +3,20 @@
   <app-topbar></app-topbar>
 
   <div class="app-body">
-    <app-sidebar></app-sidebar>
+    <app-sidebar id="sidebar"></app-sidebar>
+
+    <!--
+      Mobile drawer backdrop.
+      Always in the DOM; it fades in/out via the `visible` class so
+      the transition stays smooth (no ngIf jank). Clicking it closes
+      the drawer. Desktop/tablet: permanently hidden.
+    -->
+    <div
+      class="sidebar-mobile-backdrop"
+      [class.visible]="mobileOpen"
+      (click)="closeMobileMenu()"
+      aria-hidden="true"
+    ></div>
 
     <main class="main-content" [class.sms-full]="isSmsPage()">
       <router-outlet></router-outlet>

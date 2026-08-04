@@ -17,6 +17,12 @@ export class TopbarComponent implements OnInit, OnDestroy {
   notifications: any[] = [];
   notificationCount = 0;
 
+  // Mirror of the UiService state so the template always re-renders
+  // when the sidebar/menu state changes (drawer open, rail collapsed).
+  isMobile = false;
+  mobileOpen = false;
+  sidebarCollapsed = false;
+
   private sub = new Subscription();
 
   constructor(
@@ -53,6 +59,23 @@ export class TopbarComponent implements OnInit, OnDestroy {
       this.translate.use(savedLang);
       document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
     }
+
+    // ✅ Keep the sidebar/menu state in sync (toggle button icon/ARIA)
+    this.sub.add(
+      this.ui.screen$.subscribe(() => {
+        this.isMobile = this.ui.isMobile;
+      })
+    );
+    this.sub.add(
+      this.ui.mobileMenu$.subscribe((open) => {
+        this.mobileOpen = open;
+      })
+    );
+    this.sub.add(
+      this.ui.sidebarCollapsedChanges.subscribe((collapsed) => {
+        this.sidebarCollapsed = collapsed;
+      })
+    );
 
     // ✅ Listen to app changes from other components (optional)
     this.sub.add(
@@ -92,9 +115,20 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   // ================= UI =================
 
-  toggleMobileMenu(event: Event): void {
+  /**
+   * Master sidebar toggle:
+   *  · mobile  → opens/closes the off-canvas drawer
+   *  · desktop → toggles the collapsed icon rail
+   */
+  toggleSidebar(event: Event): void {
     event.preventDefault();
-    this.ui.toggleMobileMenu();
+    this.ui.toggleSidebar();
+  }
+
+  /** Icon shown in the toggle button depending on the current state. */
+  toggleIconClass(): string {
+    if (this.isMobile) return this.mobileOpen ? 'bx-x' : 'bx-menu';
+    return this.sidebarCollapsed ? 'bx-menu' : 'bx-chevrons-left';
   }
 
   fullscreen(): void {
@@ -108,10 +142,6 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   toggleRightbar(): void {
     this.ui.toggleRightbar();
-  }
-
-  toggleSidebar(): void {
-    this.ui.toggleSidebar();
   }
 
   openInbox(): void {

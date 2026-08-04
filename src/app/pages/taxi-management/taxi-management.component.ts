@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TaxiService } from '../../services/taxi.service';
@@ -21,6 +22,22 @@ type TaxiView =
 
 type ActiveTaxiFilters = { taxiStatus: TaxiStatus | ''; hide: boolean | null };
 
+
+interface TaxiQueryState {
+  page: number;
+  size: number;
+
+  search: string;
+
+  taxiStatus: TaxiStatus | '';
+
+  hide: boolean | null;
+
+  sortBy: TaxiSortBy | null;
+
+  direction: 'asc' | 'desc';
+}
+
 @Component({
   selector: 'app-taxi-management',
   templateUrl: './taxi-management.component.html',
@@ -41,6 +58,22 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
   itemsPerPage = 10;
   totalElements = 0;
   totalPages = 0;
+
+
+  query: TaxiQueryState = {
+  page: 1,
+  size: 10,
+
+  search: '',
+
+  taxiStatus: '',
+
+  hide: null,
+
+  sortBy: null,
+
+  direction: 'desc'
+};
 
   // Search
   searchTerm = '';
@@ -160,29 +193,62 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
 
   // ===== QUERY STATE =====
 
-  private resetQueryState(): void {
-    this.currentPage = 1;
-    this.itemsPerPage = 10;
-    this.currentView = 'all';
-    this.activeTaxiFilters = { taxiStatus: '', hide: null };
-    this.currentSortField = null;
-    this.currentSortDirection = 'desc';
+private resetQueryState(): void {
 
-    this.searchTerm = '';
-    this.searchPhone = undefined;
-    this.searchName = undefined;
-    this.statusFilter = '';
-  }
+  this.query = {
+    page: 1,
+    size: 10,
+    search: '',
+    taxiStatus: '',
+    hide: null,
+    sortBy: null,
+    direction: 'desc'
+  };
 
-  private buildFilters(): TaxiCriteriaFilters {
-    return {
-      taxiStatus: this.activeTaxiFilters.taxiStatus || undefined,
-      hide: this.activeTaxiFilters.hide ?? undefined,
-      phone: this.searchPhone?.trim() || undefined,
-      name: this.searchName?.trim() || undefined,
-      sortBy: this.currentSortField || undefined
-    };
-  }
+  // Keep existing UI state synchronized
+  this.currentPage = this.query.page;
+  this.itemsPerPage = this.query.size;
+
+  this.currentView = 'all';
+
+  this.activeTaxiFilters = {
+    taxiStatus: this.query.taxiStatus,
+    hide: this.query.hide
+  };
+
+  this.currentSortField = this.query.sortBy;
+  this.currentSortDirection = this.query.direction;
+
+  this.searchTerm = this.query.search;
+  this.searchPhone = undefined;
+  this.searchName = undefined;
+  this.statusFilter = this.query.taxiStatus;
+}
+
+private buildFilters(): TaxiCriteriaFilters {
+
+  const search = this.query.search.trim();
+
+  const isPhone = /^\d+$/.test(search);
+
+  return {
+
+    phone: isPhone && search ? search : undefined,
+
+    name: !isPhone && search ? search : undefined,
+
+    taxiStatus:
+      this.query.taxiStatus || undefined,
+
+    hide:
+      this.query.hide ?? undefined,
+
+    sortBy:
+      this.query.sortBy || undefined
+
+  };
+
+}
 
   private fetchTaxis(): void {
     this.isLoading = true;

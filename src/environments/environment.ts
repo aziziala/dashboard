@@ -2,8 +2,8 @@ export const environment = {
   production: false,
 
 
-    whatsappApiUrl: 'http://localhost:8085/api',
-    whatsappWsUrl: 'http://localhost:8085/ws-chat',
+  whatsappApiUrl: '/api',
+  whatsappWsUrl: '/ws-chat',
   /**
    * Dev: AuthService.login() can use mock user when true (see auth.service).
    * JWT for API calls: interceptor uses localStorage currentUser token, then

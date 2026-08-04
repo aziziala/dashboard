@@ -1,308 +1,200 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   SMS TAXI ADMIN — GLOBAL STYLESHEET
+
+   Architecture (see src/styles/):
+     _variables.scss  → design tokens (brand colors, sizing, motion)
+     _mixins.scss     → responsive + accessibility mixins
+     _layout.scss     → app shell (topbar / sidebar / content)
+     _sidebar.scss    → sidebar visuals
+     _responsive.scss → breakpoint behaviour
+
+   The legacy "Skote-like" fixed layout rules (hardcoded margins
+   on `.main-content`, fixed `.vertical-menu` offsets) have been
+   REMOVED — they caused the mobile content to keep desktop
+   spacing. Layout is now flex/grid driven with no magic numbers.
+   ============================================================ */
+
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~boxicons/css/boxicons.min.css';
 @import '~@mdi/font/css/materialdesignicons.min.css';
-@import "~leaflet/dist/leaflet.css";
+@import '~leaflet/dist/leaflet.css';
 
-// Global variables
-:root {
-  --primary-color: #3498db;
-  --secondary-color: #2c3e50;
-  --success-color: #27ae60;
-  --warning-color: #f39c12;
-  --danger-color: #e74c3c;
-  --info-color: #17a2b8;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
-  --border-radius: 15px;
-  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --transition: all 0.3s ease;
-  --topbar-height: 42px;
-  --sidebar-width: 250px;
-  --sidebar-collapsed-width: 70px;
-  --primary-bg: #211F54;
-  --accent: #FFC900;
-  --text-muted: #c7d1da;
-}
+@import './styles/variables';
+@import './styles/mixins';
+@import './styles/layout';
+@import './styles/sidebar';
+@import './styles/responsive';
 
-// Global styles
+// ------------------------------------------------------------
+// Base
+// ------------------------------------------------------------
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html,
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--light-color);
-  color: var(--secondary-color);
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  font-size: var(--font-size-md);
+  background-color: var(--bg-body);
+  color: var(--text-body);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
-/* Skote-like header and layout helpers */
-#page-topbar { position: fixed; left: 0; right: 0; top: 0; z-index: 1040; }
-.navbar-header { display: flex; align-items: center; justify-content: space-between; height: 70px; padding: 0 16px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.06); }
-.navbar-brand-box { display: flex; align-items: center; padding-right: 12px; }
-.logo .logo-sm img, .logo .logo-lg img { display: block; }
-.app-search .form-control { padding-left: 36px; }
-.app-search .bx { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; }
-.vertical-menu { top: 70px; }
-.vertical-menu { width: 250px; position: fixed; left: 0; bottom: 0; background: #1f2837; color: #c7d1da; }
-.main-content { margin-left: 250px; width: calc(100% - 250px); padding: 24px; padding-top: 90px; }
-
-/* Collapsed sidebar */
-.sidebar-collapsed .vertical-menu { width: 70px; }
-.sidebar-collapsed .main-content { margin-left: 70px; width: calc(100% - 70px); }
-
-/* Mobile */
-@media (max-width: 991.98px) {
-  .vertical-menu { left: -260px; top: 70px; width: 250px; transition: left .25s ease; }
-  .vertical-menu-open .vertical-menu { left: 0; }
-  .vertical-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; }
-  .vertical-menu-open .vertical-overlay { display: block; }
-  .main-content { margin-left: 0; width: 100%; padding-top: 90px; }
+app-root {
+  display: block;
 }
-.right-bar-toggle { cursor: pointer; }
-.right-bar.open { right: 0; }
-:root.theme-dark body { background-color: #0f172a; color: #e2e8f0; }
-:root.theme-dark .navbar-header { background: #111827; border-bottom-color: rgba(255,255,255,0.06); }
 
-// Custom utility classes
-.text-primary { color: var(--primary-color) !important; }
-.text-secondary { color: var(--secondary-color) !important; }
-.text-success { color: var(--success-color) !important; }
-.text-warning { color: var(--warning-color) !important; }
-.text-danger { color: var(--danger-color) !important; }
-.text-info { color: var(--info-color) !important; }
-
-.bg-primary { background-color: var(--primary-color) !important; }
-.bg-secondary { background-color: var(--secondary-color) !important; }
-.bg-success { background-color: var(--success-color) !important; }
-.bg-warning { background-color: var(--warning-color) !important; }
-.bg-danger { background-color: var(--danger-color) !important; }
-.bg-info { background-color: var(--info-color) !important; }
-
-// Custom card styles
+// ------------------------------------------------------------
+// Brand-tuned components (no Bootstrap look)
+// ------------------------------------------------------------
 .card {
-  border: none;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  transition: var(--transition);
-  
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast) var(--ease-out);
+
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-md);
   }
 }
 
-// Custom button styles
 .btn {
-  border-radius: 10px;
-  transition: var(--transition);
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-sm);
+  transition:
+    transform var(--transition-fast) var(--ease-out),
+    box-shadow var(--transition-fast) var(--ease-out);
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-yellow);
+    outline-offset: 2px;
   }
 }
 
-// Custom form styles
 .form-control {
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
-  transition: var(--transition);
-  
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+
   &:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    border-color: var(--brand-navy);
+    box-shadow: var(--focus-ring);
   }
 }
 
-// Custom table styles
 .table {
   th {
-    background-color: var(--light-color);
+    background-color: var(--bg-body);
     border-top: none;
     font-weight: 600;
-    color: var(--secondary-color);
+    color: var(--text-strong);
   }
-  
+
   td {
     vertical-align: middle;
   }
 }
 
-// Custom badge styles
 .badge {
   border-radius: 20px;
   font-size: 0.75rem;
   padding: 0.5rem 0.75rem;
 }
 
-// Custom alert styles
+.dropdown-menu {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.modal-content {
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
 .alert {
   border: none;
-  border-radius: var(--border-radius);
-  border-left: 4px solid;
+  border-radius: var(--radius-md);
+  border-inline-start: 4px solid;
 }
 
-// Custom modal styles
-.modal-content {
-  border-radius: var(--border-radius);
-  border: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
+// ------------------------------------------------------------
+// Legacy colour utilities (kept for page compatibility)
+// ------------------------------------------------------------
+.text-primary { color: var(--brand-navy) !important; }
+.text-secondary { color: var(--text-body) !important; }
+.text-success { color: #198754 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-info { color: #0dcaf0 !important; }
 
-// Custom dropdown styles
-.dropdown-menu {
-  border: none;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-}
+.bg-primary { background-color: var(--brand-navy) !important; }
+.bg-secondary { background-color: var(--text-muted) !important; }
+.bg-success { background-color: #198754 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+.bg-info { background-color: #0dcaf0 !important; }
 
-// Custom pagination styles
-.pagination {
-  .page-link {
-    border-radius: 10px;
-    margin: 0 2px;
-    border: none;
-    color: var(--secondary-color);
-    
-    &:hover {
-      background-color: var(--primary-color);
-      color: white;
-    }
-  }
-  
-  .page-item.active .page-link {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-  }
-}
-
-// Custom spinner styles
-.spinner-border {
-  color: var(--primary-color);
-}
-
-// Custom tooltip styles
-.tooltip {
-  .tooltip-inner {
-    border-radius: 10px;
-    background-color: var(--secondary-color);
-  }
-}
-
-// Custom popover styles
-.popover {
-  border: none;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-}
-
-// Responsive utilities
-@media (max-width: 768px) {
-  .container {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-  
-  .card {
-    margin-bottom: 1rem;
-  }
-  
-  .btn {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-}
-
-// Animation classes
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
-}
-
-// Custom scrollbar
+// ------------------------------------------------------------
+// Global scrollbar
+// ------------------------------------------------------------
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 10px;
+  background: rgba(18, 16, 58, 0.22);
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color);
+  background: rgba(18, 16, 58, 0.4);
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-/* MAIN TOAST */
+// ------------------------------------------------------------
+// Toasts
+// ------------------------------------------------------------
 .toast {
   border-radius: 14px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18) !important;
+  box-shadow: var(--shadow-lg) !important;
   padding: 14px 18px !important;
   font-weight: 500;
   backdrop-filter: blur(6px);
 }
 
-/* SUCCESS */
-.toast-success {
-  background: linear-gradient(135deg, #00c853, #43a047) !important;
-}
+.toast-success { background: linear-gradient(135deg, #00c853, #43a047) !important; }
+.toast-error { background: linear-gradient(135deg, #ff5252, #d32f2f) !important; }
+.toast-warning { background: linear-gradient(135deg, #ffb300, #ff8f00) !important; }
+.toast-info { background: linear-gradient(135deg, #2979ff, #1565c0) !important; }
 
-/* ERROR */
-.toast-error {
-  background: linear-gradient(135deg, #ff5252, #d32f2f) !important;
-}
-
-/* WARNING */
-.toast-warning {
-  background: linear-gradient(135deg, #ffb300, #ff8f00) !important;
-}
-
-/* INFO */
-.toast-info {
-  background: linear-gradient(135deg, #2979ff, #1565c0) !important;
-}
-
-/* TITLE */
 .toast-title {
   font-size: 15px;
   font-weight: 600;
 }
 
-/* MESSAGE */
 .toast-message {
   font-size: 14px;
   opacity: 0.95;
 }
 
-/* PROGRESS BAR */
 .toast-progress {
   height: 4px !important;
   opacity: 0.85;
 }
+
 .toast-container {
   z-index: 999999 !important;
 }
@@ -315,28 +207,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   animation: slideUp 0.35s ease;
 }
 
-
-/* GLOBAL MARKER STYLE */
+// ------------------------------------------------------------
+// Map markers (Leaflet) — untouched legacy helpers
+// ------------------------------------------------------------
 .modern-marker {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-}
-/*body {
-  transform: scale(0.9);
-  transform-origin: top left;
-  width: 111.11%; // compensate scaling
-}
-*/
-app-root {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 }
 
 .marker {
@@ -349,29 +226,19 @@ app-root {
   justify-content: center;
   color: white;
   font-size: 14px;
-  box-shadow: 0 0 0 6px rgba(0,0,0,0.05),
-              0 8px 20px rgba(0,0,0,0.25);
+  box-shadow:
+    0 0 0 6px rgba(0, 0, 0, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* COLORS */
-.marker.green {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-}
+.marker.green { background: linear-gradient(135deg, #16a34a, #22c55e); }
+.marker.red { background: linear-gradient(135deg, #dc2626, #ef4444); }
+.marker.yellow { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
 
-.marker.red {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-}
-
-.marker.yellow {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24);
-}
-
-/* ICON */
 .marker i {
   font-size: 16px;
 }
 
-/* PULSE */
 .marker .pulse {
   position: absolute;
   width: 100%;
@@ -389,14 +256,8 @@ app-root {
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Tariff-coloured taxi markers on Leaflet maps: T1 green, T2 blue, T3 red */
@@ -422,25 +283,11 @@ app-root {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   }
 
-  &.t1 {
-    background: #22c55e;
-  }
-
-  &.t2 {
-    background: #2563eb;
-  }
-
-  &.t3 {
-    background: #ef4444;
-  }
-
-  &.unknown {
-    background: #64748b;
-  }
-
-  &.in-progress {
-    background: #f97316;
-  }
+  &.t1 { background: #22c55e; }
+  &.t2 { background: #2563eb; }
+  &.t3 { background: #ef4444; }
+  &.unknown { background: #64748b; }
+  &.in-progress { background: #f97316; }
 
   &.busy {
     box-shadow:
@@ -457,25 +304,11 @@ app-root {
     pointer-events: none;
   }
 
-  &.t1 .tariff-pulse {
-    background: rgba(34, 197, 94, 0.45);
-  }
-
-  &.t2 .tariff-pulse {
-    background: rgba(37, 99, 235, 0.45);
-  }
-
-  &.t3 .tariff-pulse {
-    background: rgba(239, 68, 68, 0.45);
-  }
-
-  &.unknown .tariff-pulse {
-    background: rgba(100, 116, 139, 0.45);
-  }
-
-  &.in-progress .tariff-pulse {
-    background: rgba(249, 115, 22, 0.45);
-  }
+  &.t1 .tariff-pulse { background: rgba(34, 197, 94, 0.45); }
+  &.t2 .tariff-pulse { background: rgba(37, 99, 235, 0.45); }
+  &.t3 .tariff-pulse { background: rgba(239, 68, 68, 0.45); }
+  &.unknown .tariff-pulse { background: rgba(100, 116, 139, 0.45); }
+  &.in-progress .tariff-pulse { background: rgba(249, 115, 22, 0.45); }
 }
 
 .leaflet-taxi-tariff-marker.compact .tariff-pin {
@@ -488,14 +321,6 @@ app-root {
 }
 
 @keyframes taxi-tariff-pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(2);
-    opacity: 0;
-  }
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
 }
-

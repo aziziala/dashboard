@@ -1,45 +1,9 @@
-.app-layout {
-  min-height: 100vh;
-}
+/* ============================================================
+   APP SHELL — component-level styles are intentionally minimal.
 
-.app-body {
-  display: flex;
-  height: calc(100vh - 70px); // adjust to your topbar height
-}
-
-app-sidebar {
-  width: 250px;
-  flex-shrink: 0;
-}
-
-
-
-
-
-/* COLLAPSED SIDEBAR */
-body.sidebar-collapsed {
-  .main-content {
-    margin-left: 70px;
-  }
-}
-
-.main-content {
-  flex: 1;
-  margin: 0 !important;
-  padding: 20px;
-}
-
-/* SMS mode */
-.main-content.sms-full {
-  padding: 0 !important;
-  margin: 0 !important;
-  background: #0f172a !important;
-  overflow: hidden;
-}
-
-/* MOBILE */
-@media (max-width: 992px) {
-  .main-content {
-    margin-left: 0;
-  }
-}
+   All layout rules (flex shell, sidebar width animation, mobile
+   drawer + backdrop, content sizing) live in the shared partials:
+     src/styles/_layout.scss
+     src/styles/_sidebar.scss
+     src/styles/_responsive.scss
+   ============================================================ */

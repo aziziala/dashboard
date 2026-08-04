@@ -1,7 +1,12 @@
+/* ============================================================
+   TOPBAR — SMS Taxi Brand Book (Navy #211F54 / Yellow #FFC900).
+   The topbar is `position: sticky` via src/styles/_layout.scss.
+   ============================================================ */
+
 #page-topbar {
-  background-color: #211f54;
-  color: #ffc900;
-  height: 42px;
+  background-color: var(--brand-navy);
+  color: var(--brand-yellow);
+  height: var(--topbar-height);
   font-weight: 600;
 
   .navbar-header {
@@ -11,13 +16,19 @@
     height: 100%;
     padding: 0 12px;
     background-color: inherit;
+    gap: 8px;
   }
 
-  .navbar-brand-box {
-    background-color: inherit;
+  // Compact brand shown on mobile (sidebar hidden)
+  .topbar-brand {
+    display: inline-flex;
+    align-items: center;
+    margin-inline-start: 4px;
 
     img {
-      max-height: 18px;
+      height: 22px;
+      max-width: 120px;
+      object-fit: contain;
     }
   }
 
@@ -27,6 +38,10 @@
     align-items: center;
     justify-content: center;
     min-width: 40px;
+    border-radius: var(--radius-sm);
+    transition:
+      background-color var(--transition-fast) var(--ease-out),
+      color var(--transition-fast) var(--ease-out);
 
     &:not(:last-child)::after {
       content: '';
@@ -35,30 +50,36 @@
       top: 25%;
       height: 50%;
       width: 1px;
-      background: #ffc900;
+      background: rgba(255, 201, 0, 0.35);
     }
 
     i {
       font-size: 20px;
-      transition: transform 0.2s ease, opacity 0.2s ease;
+      transition:
+        transform var(--transition-fast) var(--ease-out),
+        opacity var(--transition-fast) var(--ease-out);
     }
 
-    &:hover i {
-      transform: scale(1.15);
-      opacity: 0.9;
+    &:hover {
+      background-color: rgba(255, 201, 0, 0.14);
+      color: #fff;
+
+      i {
+        transform: scale(1.12);
+      }
     }
 
-    // ✅ Focus styles for accessibility
+    // Accessible focus style
     &:focus-visible {
-      outline: 2px solid #ffc900;
+      outline: 2px solid var(--brand-yellow);
       outline-offset: 2px;
     }
   }
 
   .btn.header-item {
-    background-color: transparent !important;
+    background-color: transparent;
     border: none;
-    color: #ffc900;
+    color: var(--brand-yellow);
     padding: 0 6px;
   }
 
@@ -68,27 +89,27 @@
     margin-right: 8px;
 
     input.form-control {
-      background-color: #211f54;
-      border: 1px solid #ffc900;
-      color: #ffc900;
+      background-color: var(--brand-navy);
+      border: 1px solid var(--brand-yellow);
+      color: var(--brand-yellow);
       font-weight: 600;
       height: 28px;
       padding: 0 8px;
 
       &::placeholder {
-        color: #ffc900;
+        color: var(--brand-yellow);
         opacity: 0.7;
         font-weight: 600;
       }
 
       &:focus {
-        outline: 2px solid #ffc900;
+        outline: 2px solid var(--brand-yellow);
         outline-offset: 2px;
       }
     }
 
     .bx {
-      color: #ffc900 !important;
+      color: var(--brand-yellow);
       margin-left: -24px;
     }
   }
@@ -99,20 +120,13 @@
     }
 
     .header-item i {
-      font-size: 15px;
+      font-size: 16px;
     }
   }
 
   @media (max-width: 768px) {
-    height: 40px;
-
     .header-item {
-      font-size: 13px;
-      line-height: 40px;
-    }
-
-    .navbar-brand-box img {
-      max-height: 16px;
+      min-width: 36px;
     }
   }
 }
@@ -128,13 +142,13 @@
 .label {
   font-size: 13px;
   font-weight: 600;
-  color: #ffc107;
+  color: var(--brand-yellow);
   opacity: 0.5;
-  transition: 0.3s;
+  transition: opacity var(--transition-fast) var(--ease-out);
 
   &.active {
     opacity: 1;
-    color: #ffc107;
+    color: var(--brand-yellow);
   }
 }
 
@@ -150,7 +164,7 @@
     height: 0;
 
     &:focus + .slider {
-      outline: 2px solid #ffc107;
+      outline: 2px solid var(--brand-yellow);
       outline-offset: 2px;
     }
   }
@@ -159,13 +173,13 @@
 .slider {
   position: absolute;
   cursor: pointer;
-  background-color: #ccc;
+  background-color: rgba(255, 255, 255, 0.35);
   border-radius: 50px;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  transition: 0.3s;
+  transition: background-color var(--transition-fast) var(--ease-out);
 
   &:before {
     position: absolute;
@@ -175,14 +189,14 @@
     left: 3px;
     top: 50%;
     transform: translateY(-50%);
-    background-color: white;
+    background-color: #fff;
     border-radius: 50%;
-    transition: 0.3s;
+    transition: transform var(--transition-fast) var(--ease-out);
   }
 }
 
 .switch input:checked + .slider {
-  background-color: #ffc107;
+  background-color: var(--brand-yellow);
 
   &:before {
     transform: translate(22px, -50%);
@@ -191,27 +205,28 @@
 
 /* ================= DROPDOWN ================= */
 
+.dropdown {
+  margin-right: 10px;
+}
+
 .dropdown-item {
   &.active {
-    background-color: #f8f9fa;
+    background-color: var(--bg-body);
     font-weight: 600;
   }
 
   &:focus-visible {
-    outline: 2px solid #ffc107;
+    outline: 2px solid var(--brand-yellow);
     outline-offset: -2px;
   }
 }
 
-/* =================Notif  DROPDOWN ================= */
-
-.dropdown{
-  margin-right: 10px;
-}
+/* ================= NOTIF DROPDOWN ================= */
 
 .notif-dropdown {
   width: 340px;
-  border-radius: 10px;
+  max-width: calc(100vw - 24px);
+  border-radius: var(--radius-md);
   overflow: hidden;
   padding: 0;
 }
@@ -221,14 +236,15 @@
   justify-content: space-between;
   padding: 10px 12px;
   font-weight: 600;
-  border-bottom: 1px solid #eee;
-  background: #fff;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-strong);
 }
 
 .notif-body {
   max-height: 320px;
   overflow-y: auto;
-  background: #fff;
+  background: var(--surface);
 }
 
 .notif-item {
@@ -237,11 +253,11 @@
   padding: 10px 12px;
   text-decoration: none;
   color: inherit;
-  transition: 0.2s;
-}
+  transition: background-color var(--transition-fast) var(--ease-out);
 
-.notif-item:hover {
-  background: #f5f6f8;
+  &:hover {
+    background: var(--bg-body);
+  }
 }
 
 .notif-icon {
@@ -257,26 +273,48 @@
 
 .notif-content {
   flex: 1;
+  min-width: 0;
 }
 
 .notif-title {
   font-weight: 600;
   font-size: 13px;
+  color: var(--text-strong);
 }
 
 .notif-msg {
   font-size: 12px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .notif-time {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .notif-footer {
   text-align: center;
   padding: 8px;
-  border-top: 1px solid #eee;
-  background: #fff;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* ================= RESPONSIVE ================= */
+
+// Very small phones: keep the topbar from overflowing
+@media (max-width: 576px) {
+  .topbar-actions {
+    .header-item.webmail,
+    .header-item.fullscreen {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .app-switch {
+    .label {
+      display: none;
+    }
+  }
 }
