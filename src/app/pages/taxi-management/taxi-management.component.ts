@@ -321,32 +321,22 @@ private buildFilters(): TaxiCriteriaFilters {
   }
 
   // ===== SEARCH & FILTER =====
+searchTaxis(): void {
+  this.query.search = this.searchTerm.trim();
 
-  searchTaxis(): void {
-    const term = this.searchTerm.trim();
+  this.currentPage = 1;
 
-    this.searchPhone = undefined;
-    this.searchName = undefined;
+  this.fetchTaxis();
+}
 
-    if (term) {
-      if (/^\d+$/.test(term)) {
-        this.searchPhone = term;
-      } else {
-        this.searchName = term;
-      }
-    }
+clearSearch(): void {
+  this.searchTerm = '';
+  this.query.search = '';
 
-    this.currentPage = 1;
-    this.fetchTaxis();
-  }
+  this.currentPage = 1;
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.searchPhone = undefined;
-    this.searchName = undefined;
-    this.currentPage = 1;
-    this.fetchTaxis();
-  }
+  this.fetchTaxis();
+}
 
   onStatusFilterChange(): void {
     this.activeTaxiFilters = { taxiStatus: this.statusFilter, hide: null };
@@ -354,32 +344,57 @@ private buildFilters(): TaxiCriteriaFilters {
     this.applyCurrentState();
   }
 
-  changeView(view: TaxiView): void {
-    this.currentView = view;
-    this.currentPage = 1;
+changeView(view: TaxiView): void {
+  this.currentView = view;
+  this.currentPage = 1;
+  this.query.page = 1;
 
-    switch (view) {
-      case 'all':
-        this.activeTaxiFilters = { taxiStatus: '', hide: null };
-        break;
-case 'withSim':
-  this.activeTaxiFilters = { taxiStatus: '', hide: true };
-  break;
+  switch (view) {
+    case 'all':
+      this.activeTaxiFilters = {
+        taxiStatus: '',
+        hide: null
+      };
+      break;
 
-case 'withoutSim':
-  this.activeTaxiFilters = { taxiStatus: '', hide: false };
-  break;
-      case 'approved':
-        this.activeTaxiFilters = { taxiStatus: TaxiStatus.APPROVED, hide: null };
-        break;
-      case 'pending':
-        this.activeTaxiFilters = { taxiStatus: TaxiStatus.PENDING, hide: null };
-        break;
-    }
+    case 'withSim':
+      this.activeTaxiFilters = {
+        taxiStatus: '',
+        hide: true
+      };
+      break;
 
-    this.statusFilter = this.activeTaxiFilters.taxiStatus;
-    this.fetchTaxis();
+    case 'withoutSim':
+      this.activeTaxiFilters = {
+        taxiStatus: '',
+        hide: false
+      };
+      break;
+
+    case 'approved':
+      this.activeTaxiFilters = {
+        taxiStatus: TaxiStatus.APPROVED,
+        hide: null
+      };
+      break;
+
+    case 'pending':
+      this.activeTaxiFilters = {
+        taxiStatus: TaxiStatus.PENDING,
+        hide: null
+      };
+      break;
   }
+
+  // Keep query state synchronized with the active filters
+  this.query.taxiStatus = this.activeTaxiFilters.taxiStatus;
+  this.query.hide = this.activeTaxiFilters.hide;
+
+  // Keep dropdown synchronized
+  this.statusFilter = this.query.taxiStatus;
+
+  this.fetchTaxis();
+}
 
   // ===== PAGINATION =====
 

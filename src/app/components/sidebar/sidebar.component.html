@@ -215,6 +215,27 @@
                 Liste des taxis traffic
               </a>
             </li>
+            <li role="none">
+  <a
+    routerLink="/gestion-notifaction/all-demandes-By-state"
+    role="menuitem"
+    [class.active]="activeUrl.startsWith('/gestion-notifaction/all-demandes-By-state')"
+    (click)="closeMobile()"
+  >
+    Demandes par état
+  </a>
+</li>
+
+<li role="none">
+  <a
+    routerLink="/gestion-notifaction/all-taxis-traffic-history"
+    role="menuitem"
+    [class.active]="activeUrl.startsWith('/gestion-notifaction/all-taxis-traffic-history')"
+    (click)="closeMobile()"
+  >
+    Historique du trafic des taxis
+  </a>
+</li>
           </ul>
         </div>
       </li>
