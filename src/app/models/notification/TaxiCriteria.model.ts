@@ -1,13 +1,18 @@
 export interface TaxiCriteria {
-  id:              number;
-  nom:             string;
-  telephone:       string;
+  id: number;
+  contenu: string;
+  telephone: string;
+  traitement: boolean;
+  nom: string;
   numeroMatricule: string;
-  numeroCin:       string;
-  constructeur:    string;
-  numeroTaxi:      string;
-  email:           string;
-  type:            string;
-  taxiStatus:      string;
-  rating:          number;
+  numeroCin: string;
+  constructeur: string;
+  numeroTaxi: string;
+  email: string;
+  type: string;
+  taxiStatus: 'APPROVED' | 'PENDING' | 'REJECTED';
+  rating: number;
+  hide: boolean;
+  numeroSim: string;
+  dateEnregistrement: string;
 }

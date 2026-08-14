@@ -1,5 +1,5 @@
 export type NotificationType       = 'INFO' | 'WARNING' | 'ERROR';
-export type NotificationChannel    = 'SMS' | 'EMAIL' | 'PUSH' | 'WHATSAPP';
+export type NotificationChannel    = 'SMS'  | 'Diffusion APP' | 'WHATSAPP';
 export type NotificationTargetType = 'TAXI' | 'CLIENT' | 'ADMIN';
 
 export interface SendNotificationRequest {

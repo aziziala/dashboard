@@ -1,6 +1,8 @@
 <div class="container-fluid">
 
-  <!-- Page Title -->
+  <!-- ════════════════════════════════════════════════════
+       PAGE HEADER
+  ════════════════════════════════════════════════════ -->
   <div class="row">
     <div class="col-12 my-3">
       <div class="page-title-box">
@@ -9,192 +11,204 @@
             <i class="fas fa-bell"></i>
           </div>
           <div class="page-title-box__text">
-            <h4 class="page-title-box__title">Liste des notifications</h4>
+            <h4 class="page-title-box__title">Centre de notifications</h4>
             <p class="page-title-box__subtitle">Consultation et gestion des notifications du système</p>
           </div>
         </div>
         <div class="page-title-box__right">
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
-            <li class="breadcrumb-item active">Liste des notifications</li>
+            <li class="breadcrumb-item active">Centre de notifications</li>
           </ol>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── Card ───────────────────────────────────────────────────────────── -->
-  <div class="card shadow-sm border-0">
-    <div class="card-body p-4">
+  <!-- ════════════════════════════════════════════════════
+       STATS STRIP
+  ════════════════════════════════════════════════════ -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="stats-card total">
+        <div class="stats-card__icon"><i class="fas fa-inbox"></i></div>
+        <div class="stats-card__info">
+          <span>Total</span>
+          <h3>{{ statsTotal }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stats-card info">
+        <div class="stats-card__icon"><i class="fas fa-info-circle"></i></div>
+        <div class="stats-card__info">
+          <span>Info</span>
+          <h3>{{ statsInfo }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stats-card warning">
+        <div class="stats-card__icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stats-card__info">
+          <span>Avertissement</span>
+          <h3>{{ statsWarning }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stats-card error">
+        <div class="stats-card__icon"><i class="fas fa-times-circle"></i></div>
+        <div class="stats-card__info">
+          <span>Erreur</span>
+          <h3>{{ statsError }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      <!-- ── Filters ──────────────────────────────────────────────────── -->
-      <div class="row gx-3 gy-2 mb-3 align-items-end">
+  <!-- ════════════════════════════════════════════════════
+       NOTIFICATION CENTER
+  ════════════════════════════════════════════════════ -->
+  <div class="card notification-center">
 
-        <!-- <div class="col-md-6">
-          <label class="form-label small text-muted mb-1">
-            <i class="fas fa-search me-1"></i>Rechercher
-          </label>
+    <!-- ── Toolbar ──────────────────────────────────── -->
+    <div class="center-toolbar">
 
-          <div class="position-relative">
-
-            <input type="text" class="form-control shadow-sm" [(ngModel)]="taxiSearchTerm"
-              (ngModelChange)="onTaxiSearchChange()" placeholder="Ex : 98… ou Walid..." />
-
-            <button *ngIf="taxiSearchTerm" type="button"
-              class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
-              (click)="taxiSearchTerm = ''; onTaxiSearchChange()">
-
-              <i class="fas fa-times text-muted"></i>
-
-            </button>
-
-          </div>
-        </div> -->
-
-        <div class="row gx-3 gy-2 mb-3 align-items-end">
-
-          <!-- SEARCH TITLE -->
-          <div class="col-md-6">
-
-            <label class="form-label small text-muted mb-1">
-              <i class="fas fa-search me-1"></i>Rechercher par titre
-            </label>
-
-            <div class="position-relative">
-
-              <input type="text" class="form-control shadow-sm" [(ngModel)]="titleSearchTerm"
-                (ngModelChange)="onTitleSearchChange()" placeholder="Ex : Promotion, SMS, Alert..." />
-
-              <!-- clear button -->
-              <button *ngIf="titleSearchTerm" type="button"
-                class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent"
-                (click)="titleSearchTerm = ''; onTitleSearchChange()">
-
-                <i class="fas fa-times text-muted"></i>
-
-              </button>
-
-            </div>
-
-          </div>
-
+      <div class="center-toolbar__row">
+        <!-- Search -->
+        <div class="search-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm search-spinner"></span>
+          <input type="text" class="search-input" [(ngModel)]="titleSearchTerm"
+            (ngModelChange)="onTitleSearchChange()" placeholder="Rechercher par titre…"
+            aria-label="Rechercher une notification par titre" />
+          <button *ngIf="titleSearchTerm" type="button" class="clear-btn"
+            (click)="titleSearchTerm = ''; onTitleSearchChange()" aria-label="Effacer la recherche">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
 
-
-
+        <!-- Refresh -->
+        <button type="button" class="toolbar-btn" [class.spinning]="isLoading"
+          (click)="onRefresh()" [attr.aria-label]="'Actualiser'" [title]="'Actualiser'">
+          <i class="fas fa-sync-alt"></i>
+        </button>
       </div>
 
-      <!-- ── Table ─────────────────────────────────────────────────────── -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th style="width: 42px;">#</th>
-              <th>Titre</th>
-              <th>Message</th>
-              <!-- <th>Type</th> -->
-              <th>Canal</th>
-              <th>Cible</th>
-              <!-- <th>IDs ciblés</th> -->
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
+      <!-- Filters -->
+      <div class="center-toolbar__filters">
 
-            <!-- ── Skeleton loading ──────────────────────────────────── -->
-            <ng-container *ngIf="isLoading">
-              <tr *ngFor="let _ of [1,2,3,4,5]">
-                <td colspan="8">
-                  <div class="skeleton-row"></div>
-                </td>
-              </tr>
-            </ng-container>
+        <div class="chip-group">
+          <span class="chip-group__label"><i class="fas fa-tag"></i> Type</span>
+          <button type="button" class="chip" [class.active]="typeFilter === 'ALL'"
+            (click)="typeFilter = 'ALL'">Tous</button>
+          <button type="button" class="chip" [class.active]="typeFilter === 'INFO'"
+            (click)="typeFilter = 'INFO'"><i class="fas fa-info-circle"></i> Info</button>
+          <button type="button" class="chip" [class.active]="typeFilter === 'WARNING'"
+            (click)="typeFilter = 'WARNING'"><i class="fas fa-exclamation-triangle"></i> Avertissement</button>
+          <button type="button" class="chip" [class.active]="typeFilter === 'ERROR'"
+            (click)="typeFilter = 'ERROR'"><i class="fas fa-times-circle"></i> Erreur</button>
+        </div>
 
-            <!-- ── Data rows ─────────────────────────────────────────── -->
-            <ng-container *ngIf="!isLoading">
-              <tr *ngFor="let notif of notifications; let i = index">
+        <div class="chip-group">
+          <span class="chip-group__label"><i class="fas fa-satellite-dish"></i> Canal</span>
+          <button type="button" class="chip" [class.active]="channelFilter === 'ALL'"
+            (click)="channelFilter = 'ALL'">Tous</button>
+                      <button type="button" class="chip" [class.active]="channelFilter === 'Diffusion APP'"
+            (click)="channelFilter = 'Diffusion APP'"><i class="fas fa-bell"></i> Diffusion APP</button>
+          <button type="button" class="chip" [class.active]="channelFilter === 'SMS'"
+            (click)="channelFilter = 'SMS'"><i class="fas fa-sms"></i> SMS</button>
 
-                <!-- Index -->
-                <td class="text-muted small">
-                  {{ (currentPage - 1) * itemsPerPage + i + 1 }}
-                </td>
+        <!--   <button type="button" class="chip" [class.active]="channelFilter === 'EMAIL'"
+            (click)="channelFilter = 'EMAIL'"><i class="fas fa-envelope"></i> Email</button> --> 
+          <button type="button" class="chip" [class.active]="channelFilter === 'WHATSAPP'"
+            (click)="channelFilter = 'WHATSAPP'"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        </div>
 
-                <!-- Title -->
-                <td>
-                  <span class="fw-semibold">{{ notif.title }}</span>
-                </td>
+      </div>
+    </div>
 
-                <!-- Message -->
-                <td class="text-muted" style="max-width: 260px;">
-                  <span class="d-inline-block text-truncate" style="max-width: 240px;" [title]="notif.message">
-                    {{ notif.message }}
-                  </span>
-                </td>
+    <!-- ── Skeleton loading ───────────────────────────── -->
+    <div class="notification-list" *ngIf="isLoading" aria-busy="true">
+      <div class="notification-card skeleton-card" *ngFor="let _ of [1,2,3,4,5]">
+        <div class="skeleton skeleton-avatar"></div>
+        <div class="notification-card__body">
+          <div class="skeleton skeleton-line skeleton-line--60"></div>
+          <div class="skeleton skeleton-line skeleton-line--100"></div>
+          <div class="skeleton skeleton-line skeleton-line--80"></div>
+        </div>
+      </div>
+    </div>
 
-                <!-- Type badge -->
-                <!-- <td>
-                  <span [class]="getTypeBadgeClass(notif.type)">
-                    <i [class]="getTypeIcon(notif.type) + ' me-1'"></i>
-                    {{ notif.type }}
-                  </span>
-                </td> -->
+    <!-- ── Notification cards ─────────────────────────── -->
+    <ng-container *ngIf="!isLoading">
 
-                <!-- Channel -->
-                <td>
-                  <span class="badge bg-light text-dark border">
-                    <i [class]="getChannelIcon(notif.channel) + ' me-1'"></i>
-                    {{ notif.channel }}
-                  </span>
-                </td>
+      <div class="notification-list" *ngIf="filteredNotifications.length > 0">
+        <article class="notification-card" *ngFor="let notif of filteredNotifications; let i = index"
+          [ngClass]="getTypeTone(notif.type)" [style.animation-delay]="(i % 10) * 40 + 'ms'">
 
-                <!-- Target type -->
-                <td>
-                  <span class="badge" [class]="getTargetBadgeClass(notif.targetType)">
-                    {{ notif.targetType }}
-                  </span>
-                </td>
+          <div class="notification-card__icon">
+            <i [class]="getTypeIcon(notif.type)"></i>
+          </div>
 
-                <!-- Target IDs -->
-                <!-- <td class="small text-muted">
-                  {{ formatTargetIds(notif.targetIds) }}
-                </td> -->
+          <div class="notification-card__body">
+            <div class="notification-card__head">
+              <h5 class="notification-card__title" [title]="notif.title">{{ notif.title }}</h5>
+              <span [class]="getTypeBadgeClass(notif.type)">
+                <i [class]="getTypeIcon(notif.type)"></i> {{ notif.type }}
+              </span>
+            </div>
 
-                <!-- Date -->
-                <td class="small text-nowrap text-muted">
-                  {{ notif.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-                </td>
+            <p class="notification-card__preview" [title]="notif.message">{{ notif.message }}</p>
 
-              </tr>
-
-              <!-- ── Empty state ──────────────────────────────────────── -->
-              <tr *ngIf="notifications.length === 0">
-                <td colspan="8" class="text-center text-muted py-5">
-                  <i class="fas fa-bell-slash fa-2x mb-2 d-block opacity-25"></i>
-                  Aucune notification trouvée.
-                </td>
-              </tr>
-            </ng-container>
-
-          </tbody>
-        </table>
+            <div class="notification-card__meta">
+              <span class="channel-badge"><i [class]="getChannelIcon(notif.channel)"></i>{{ notif.channel }}</span>
+              <span class="meta-item">
+                <i class="fas fa-users"></i>
+                {{ notif.targetType }} · {{ formatTargetIds(notif.targetIds) }}
+              </span>
+              <span class="meta-item">
+                <i class="far fa-clock"></i>
+                {{ notif.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
+          </div>
+        </article>
       </div>
 
-      <!-- ── Pagination ─────────────────────────────────────────────────── -->
-      <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+      <!-- ── Empty state ─────────────────────────────── -->
+      <div class="empty-state" *ngIf="filteredNotifications.length === 0">
+        <div class="empty-state__icon"><i class="fas fa-inbox"></i></div>
+        <h4 class="empty-state__title">Aucune notification trouvée</h4>
+        <p class="empty-state__desc">
+          {{ hasActiveFilters()
+              ? 'Aucune notification ne correspond à vos critères de recherche. Essayez de modifier vos filtres.'
+              : 'Le centre de notifications est vide pour le moment. Les notifications envoyées apparaîtront ici.' }}
+        </p>
+        <button *ngIf="hasActiveFilters()" type="button" class="btn-brand-primary" (click)="resetFilters()">
+          <i class="fas fa-filter-circle-xmark"></i> Réinitialiser les filtres
+        </button>
+      </div>
+
+    </ng-container>
+
+    <!-- ── Pagination ─────────────────────────────────── -->
+    <div class="pagination-footer" *ngIf="totalPages > 1">
+      <div class="notif-pagination-wrap">
         <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" [totalElements]="totalElements"
           (pageChange)="onPageChange($event)">
         </app-pagination>
-
-        <div class="d-flex align-items-center gap-2">
-          <label class="form-label mb-0 small text-muted text-nowrap">Lignes par page :</label>
-          <select class="form-select form-select-sm page-size-select" [ngModel]="itemsPerPage"
-            (ngModelChange)="onPageSizeChange($event)">
-            <option *ngFor="let s of pageSizeOptions" [value]="s">{{ s }}</option>
-          </select>
-        </div>
       </div>
-
+      <div class="page-size">
+        <label for="pageSize" class="page-size__label">Lignes par page</label>
+        <select id="pageSize" class="page-size-select" [ngModel]="itemsPerPage"
+          (ngModelChange)="onPageSizeChange($event)">
+          <option *ngFor="let s of pageSizeOptions" [value]="s">{{ s }}</option>
+        </select>
+      </div>
     </div>
+
   </div>
 
 </div>

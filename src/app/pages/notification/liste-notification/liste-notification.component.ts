@@ -25,6 +25,10 @@ export class ListeNotificationComponent implements OnInit, OnDestroy {
   titleSearchTerm = '';
   private titleSearch$ = new Subject<string>();
 
+  // ── QUICK FILTERS (client-side, applied to loaded page) ──
+  typeFilter: string    = 'ALL';
+  channelFilter: string = 'ALL';
+
   // ── PAGINATION ───────────────────────────────────────
   currentPage = 1;
   totalPages = 0;
@@ -94,6 +98,36 @@ export class ListeNotificationComponent implements OnInit, OnDestroy {
     this.titleSearch$.next(this.titleSearchTerm);
   }
 
+  // ── REFRESH ──────────────────────────────────────────
+  onRefresh(): void {
+    this.load();
+  }
+
+  // ── QUICK FILTERS ────────────────────────────────────
+  resetFilters(): void {
+    this.typeFilter    = 'ALL';
+    this.channelFilter = 'ALL';
+    this.titleSearchTerm = '';
+    this.onTitleSearchChange();
+  }
+
+  get filteredNotifications(): NotificationDto[] {
+    return this.notifications.filter(n =>
+      (this.typeFilter    === 'ALL' || n.type    === this.typeFilter) &&
+      (this.channelFilter === 'ALL' || n.channel === this.channelFilter)
+    );
+  }
+
+  // ── STATS (server total + composition of loaded page) ──
+  get statsTotal():   number { return this.totalElements; }
+  get statsInfo():    number { return this.notifications.filter(n => n.type === 'INFO').length; }
+  get statsWarning(): number { return this.notifications.filter(n => n.type === 'WARNING').length; }
+  get statsError():   number { return this.notifications.filter(n => n.type === 'ERROR').length; }
+
+  hasActiveFilters(): boolean {
+    return !!this.titleSearchTerm || this.typeFilter !== 'ALL' || this.channelFilter !== 'ALL';
+  }
+
   // ── PAGINATION ───────────────────────────────────────
   onPageChange(page: number): void {
     this.currentPage = page;
@@ -110,10 +144,17 @@ export class ListeNotificationComponent implements OnInit, OnDestroy {
 
   getTypeBadgeClass(type: string): string {
     switch (type) {
-      case 'INFO': return 'badge-type info';
-      case 'WARNING': return 'badge-type warning';
-      case 'ERROR': return 'badge-type error';
-      default: return 'badge-type info';
+      case 'WARNING': return 'type-badge warning';
+      case 'ERROR':   return 'type-badge error';
+      default:        return 'type-badge info';
+    }
+  }
+
+  getTypeTone(type: string): string {
+    switch (type) {
+      case 'WARNING': return 'tone-warning';
+      case 'ERROR':   return 'tone-error';
+      default:        return 'tone-info';
     }
   }
 
@@ -136,15 +177,6 @@ export class ListeNotificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  getTargetBadgeClass(target: string): string {
-    switch (target) {
-      case 'TAXI': return 'bg-primary';
-      case 'CLIENT': return 'bg-success';
-      case 'ADMIN': return 'bg-dark';
-      default: return 'bg-secondary';
-    }
-  }
-
   formatTargetIds(raw: string): string {
     if (!raw) return '—';
 
@@ -161,9 +193,5 @@ export class ListeNotificationComponent implements OnInit, OnDestroy {
     } catch {}
 
     return raw === 'ALL' ? 'Tous' : raw;
-  }
-
-  min(a: number, b: number): number {
-    return Math.min(a, b);
   }
 }

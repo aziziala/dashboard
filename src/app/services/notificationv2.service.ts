@@ -27,21 +27,30 @@ private readonly BASE_URL = '/taxi-client/api';
 
   // ── Taxi criteria list ─────────────────────────────────────────────────────
 
-  getTaxisByCriteria(
-    page   = 0,
-    size   = 10,
-    phone?: string,
-    name?:  string
-  ): Observable<PagedTaxiCriteriaResponse> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-    if (phone) params = params.set('phone', phone);
-    if (name)  params = params.set('name',  name);
-    return this.http.get<PagedTaxiCriteriaResponse>(
-      `${this.BASE_URL}/get-all-taxis-criteria`, { params }
-    );
+getTaxisByCriteria(
+  page = 0,
+  size = 10,
+  phone?: string,
+  name?: string
+): Observable<PagedTaxiCriteriaResponse> {
+
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString());
+
+  if (phone?.trim()) {
+    params = params.set('phone', phone.trim());
   }
+
+  if (name?.trim()) {
+    params = params.set('name', name.trim());
+  }
+
+  return this.http.get<PagedTaxiCriteriaResponse>(
+    `${this.BASE_URL}/get-all-taxis-criteria`,
+    { params }
+  );
+}
 
   // ── Client criteria list ───────────────────────────────────────────────────
 
@@ -93,8 +102,6 @@ private readonly BASE_URL = '/taxi-client/api';
       `${this.BASE_URL}/notifications/target/${targetType}?page=${page}&size=${size}&sort=createdAt,desc`
     );
   }
-
-
 
 
 }

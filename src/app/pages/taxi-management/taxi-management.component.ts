@@ -10,6 +10,7 @@ import { finalize, Subscription } from 'rxjs';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { forkJoin } from 'rxjs';
 
 declare const window: any;
 
@@ -103,15 +104,19 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
   showNewPassword = false;
   showConfirmPassword = false;
 
-  // Stats (always comes from response.stats)
-  taxiStats: TaxiStats = {
-    total: 0,
-    withSim: 0,
-    withoutSim: 0,
-    approved: 0,
-    waiting: 0
-  };
+// Stats
+taxiStats: TaxiStats = {
+  total: 0,
+  withSim: 0,
+  withoutSim: 0,
+  approved: 0,
+  waiting: 0
+};
 
+simStats = {
+  avecSim: 0,
+  sansSim: 0
+};
   // Email autocomplete
   emailDomains = ['@sms.tn', '@gmail.com', '@hotmail.com', '@yahoo.com'];
   filteredDomains: string[] = [];
@@ -139,6 +144,10 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
   // Theme
   isDarkMode = false;
   currentApp = 'SMSTaxi';
+
+  allTaxis: Taxi[] = [];
+filteredTaxis: Taxi[] = [];
+
 
   // View children
   @ViewChild('confirmationCodeModal') confirmationCodeModal!: any;
@@ -171,20 +180,20 @@ export class TaxiManagementComponent implements OnInit, OnDestroy {
     }
 
     this.resetQueryState();
-    this.fetchTaxis();
+    //this.fetchTaxis();
+ this.loadAllTaxis();
+ this.sub.add(
+  this.taxiService.appChanged$.subscribe(app => {
 
-    this.sub.add(
-      this.taxiService.appChanged$.subscribe(app => {
+    this.currentApp = app;
 
-        this.currentApp = app;
+    this.resetQueryState();
 
-        this.resetQueryState();
+    this.loadAllTaxis();
+    this.loadTaxiSimStats();
 
-        this.fetchTaxis();
-
-      })
-    );
-
+  })
+);
   }
 
   ngOnDestroy(): void {
@@ -250,52 +259,53 @@ private buildFilters(): TaxiCriteriaFilters {
 
 }
 
-  private fetchTaxis(): void {
-    this.isLoading = true;
+private fetchTaxis(): void {
+  this.isLoading = true;
 
-    const pageIndex = this.currentPage - 1;
+  const pageIndex = this.currentPage - 1;
+  const filters = this.buildFilters();
 
-    this.taxiService
-      .getAllTaxisCriteria(pageIndex, this.itemsPerPage, this.buildFilters())
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
+  console.log('====================================');
+  console.log('REQUEST');
+  console.log('currentPage :', this.currentPage);
+  console.log('pageIndex   :', pageIndex);
+  console.log('pageSize    :', this.itemsPerPage);
+  console.log('filters     :', filters);
+  console.log('====================================');
+
+  this.taxiService
+    .getAllTaxisCriteria(pageIndex, this.itemsPerPage, filters)
+    .pipe(finalize(() => (this.isLoading = false)))
+    .subscribe({
       next: (response) => {
 
-  console.log(response);
+        console.log('============= RESPONSE =============');
+        console.log('Backend page      :', response.taxis.number);
+        console.log('Backend size      :', response.taxis.size);
+        console.log('Backend totalPage :', response.taxis.totalPages);
+        console.log('Backend totalElem :', response.taxis.totalElements);
+        console.log(
+          'Returned IDs      :',
+          response.taxis.content.map(t => t.id)
+        );
+        console.log('====================================');
 
-  try {
+        this.taxis = response.taxis.content;
 
-    console.log(response.taxis);
+        this.totalElements = response.taxis.totalElements;
+        this.totalPages = response.taxis.totalPages;
 
-    console.log(response.taxis.content);
+        // IMPORTANT
+        // Comment this line temporarily.
+        // this.currentPage = response.taxis.number + 1;
 
-    console.log(response.stats);
-
-    this.taxis = response.taxis.content;
-
-    this.totalElements = response.taxis.totalElements;
-
-    this.totalPages = response.taxis.totalPages;
-
-    this.currentPage = response.taxis.number + 1;
-
-    this.taxiStats = response.stats;
-
-    console.log('Assigned taxis:', this.taxis);
-
-  } catch (e) {
-
-    console.error('Mapping error', e);
-
-  }
-
-  },
-        error: () => {
-          this.toastr.error('Impossible de charger les taxis', 'Erreur');
-        }
-      });
-  }
-
+        this.taxiStats = response.stats;
+      },
+      error: () => {
+        this.toastr.error('Impossible de charger les taxis', 'Erreur');
+      }
+    });
+}
   private syncViewFromFilters(): void {
     const { taxiStatus, hide } = this.activeTaxiFilters;
 
@@ -326,7 +336,8 @@ searchTaxis(): void {
 
   this.currentPage = 1;
 
-  this.fetchTaxis();
+  this.applyFilters();
+  //this.fetchTaxis();
 }
 
 clearSearch(): void {
@@ -335,13 +346,16 @@ clearSearch(): void {
 
   this.currentPage = 1;
 
-  this.fetchTaxis();
+  this.applyFilters();
+  //this.fetchTaxis();
 }
 
   onStatusFilterChange(): void {
     this.activeTaxiFilters = { taxiStatus: this.statusFilter, hide: null };
     this.currentPage = 1;
-    this.applyCurrentState();
+    //this.applyCurrentState();
+    this.applyFilters();
+
   }
 
 changeView(view: TaxiView): void {
@@ -349,68 +363,57 @@ changeView(view: TaxiView): void {
   this.currentPage = 1;
   this.query.page = 1;
 
-  switch (view) {
-    case 'all':
-      this.activeTaxiFilters = {
-        taxiStatus: '',
-        hide: null
-      };
-      break;
+  this.query.taxiStatus = '';
+  this.query.hide = null;
 
+  switch (view) {
     case 'withSim':
-      this.activeTaxiFilters = {
-        taxiStatus: '',
-        hide: true
-      };
+      this.query.hide = true;
       break;
 
     case 'withoutSim':
-      this.activeTaxiFilters = {
-        taxiStatus: '',
-        hide: false
-      };
+      this.query.hide = false;
       break;
 
     case 'approved':
-      this.activeTaxiFilters = {
-        taxiStatus: TaxiStatus.APPROVED,
-        hide: null
-      };
+      this.query.taxiStatus = TaxiStatus.APPROVED;
       break;
 
     case 'pending':
-      this.activeTaxiFilters = {
-        taxiStatus: TaxiStatus.PENDING,
-        hide: null
-      };
+      this.query.taxiStatus = TaxiStatus.PENDING;
       break;
   }
 
-  // Keep query state synchronized with the active filters
-  this.query.taxiStatus = this.activeTaxiFilters.taxiStatus;
-  this.query.hide = this.activeTaxiFilters.hide;
-
-  // Keep dropdown synchronized
   this.statusFilter = this.query.taxiStatus;
 
-  this.fetchTaxis();
+  this.applyFilters();
+  //this.fetchTaxis();
 }
 
   // ===== PAGINATION =====
 
-  onPageChange(page: number): void {
-    if (page < 1 || page > this.totalPages) {
-      return;
-    }
-    this.currentPage = page;
-    this.fetchTaxis();
+onPageChange(page: number): void {
+  if (page < 1 || page > this.totalPages) {
+    return;
   }
 
-  onPageSizeChange(size: number): void {
-    this.itemsPerPage = Number(size);
-    this.currentPage = 1;
-    this.fetchTaxis();
-  }
+  this.currentPage = page;
+  this.query.page = page;
+
+  this.paginate();
+  //this.fetchTaxis();
+}
+
+onPageSizeChange(size: number): void {
+  this.itemsPerPage = Number(size);
+  this.currentPage = 1;
+
+  this.query.size = this.itemsPerPage;
+  this.query.page = 1;
+
+  this.applyFilters();
+  //this.fetchTaxis();
+}
 
   get visiblePages(): number[] {
 
@@ -438,7 +441,8 @@ changeView(view: TaxiView): void {
     }
 
     this.currentPage = 1;
-    this.fetchTaxis();
+    //this.fetchTaxis();
+    this.applyFilters();
   }
 
   // ===== FORM INITIALIZATION =====
@@ -1043,4 +1047,110 @@ updateTaxiAndUser(taxiData: Taxi): void {
       reader.readAsDataURL(blob);
     });
   }
+
+  private applyFilters(): void {
+
+    let result = [...this.allTaxis];
+
+    // phone
+    if (this.query.search) {
+
+        const value = this.query.search.toLowerCase();
+
+        result = result.filter(t =>
+
+            t.telephone?.includes(value) ||
+
+            t.nom?.toLowerCase().includes(value)
+
+        );
+    }
+
+    // status
+    if (this.query.taxiStatus) {
+
+        result = result.filter(
+            t => t.taxiStatus === this.query.taxiStatus
+        );
+    }
+
+    // SIM
+    if (this.query.hide !== null) {
+
+        result = result.filter(
+            t => t.hide === this.query.hide
+        );
+    }
+
+    this.filteredTaxis = result;
+
+    this.totalElements = result.length;
+
+    this.totalPages = Math.ceil(
+        result.length / this.itemsPerPage
+    );
+
+    this.paginate();
+}
+
+private paginate(): void {
+
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+
+    const end = start + this.itemsPerPage;
+
+    this.taxis = this.filteredTaxis.slice(start, end);
+
+}
+
+private loadAllTaxis(): void {
+  this.isLoading = true;
+
+  const pageSize = 200;
+
+  forkJoin([
+    this.taxiService.getAllTaxisCriteria(0, pageSize, {}),
+    this.taxiService.getAllTaxisCriteria(1, pageSize, {}),
+    this.taxiService.getAllTaxisCriteria(2, pageSize, {}),
+    this.taxiService.getAllTaxisCriteria(3, pageSize, {})
+  ])
+  .pipe(finalize(() => this.isLoading = false))
+  .subscribe({
+    next: (responses) => {
+
+      this.allTaxis = [
+        ...responses[0].taxis.content,
+        ...responses[1].taxis.content,
+        ...responses[2].taxis.content,
+        ...responses[3].taxis.content
+      ];
+
+      this.taxiStats = responses[0].stats;
+
+      this.applyFilters();
+    },
+    error: () => {
+      this.toastr.error('Impossible de charger les taxis');
+    }
+  });
+}
+private loadTaxiSimStats(): void {
+  this.taxiService.getTaxiSimStats().subscribe({
+    next: (response) => {
+      this.simStats = response;
+
+      console.log('===== TAXI SIM STATS =====');
+      console.log('Avec SIM:', response.avecSim);
+      console.log('Sans SIM:', response.sansSim);
+      console.log('==========================');
+    },
+    error: (error) => {
+      console.error('Erreur chargement stats SIM:', error);
+      this.toastr.error(
+        'Impossible de charger les statistiques SIM',
+        'Erreur'
+      );
+    }
+  });
+}
 }

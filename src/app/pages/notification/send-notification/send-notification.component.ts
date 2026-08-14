@@ -30,7 +30,7 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
   notifForm!: FormGroup;
 
   readonly typeOptions: NotificationType[]       = ['INFO', 'WARNING', 'ERROR'];
-  readonly channelOptions: NotificationChannel[] = ['PUSH', 'SMS', 'EMAIL', 'WHATSAPP'];
+  readonly channelOptions: NotificationChannel[] = ['Diffusion APP', 'WHATSAPP','SMS'];
 
   // ── Step 2 — target tab ───────────────────────────────────────────────────
   activeTab: TargetTab = 'TAXI';
@@ -62,6 +62,10 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
   // ── Send state ────────────────────────────────────────────────────────────
   isSending = false;
 
+  // ── Live clock (preview panel) ───────────────────────────────────────────
+  now = new Date();
+  private clock$?: ReturnType<typeof setInterval>;
+
   // ── Search debounce ───────────────────────────────────────────────────────
   private taxiSearch$   = new Subject<string>();
   private clientSearch$ = new Subject<string>();
@@ -80,9 +84,34 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
       title:   ['', Validators.required],
       message: ['', Validators.required],
       type:    ['INFO', Validators.required],
-      channel: ['PUSH', Validators.required]
-    });
+      channel: ['Diffusion APP', Validators.required]
+      
+    }
+  );
+this.notifForm.get('channel')?.valueChanges
+  .pipe(takeUntil(this.destroy$))
+  .subscribe(channel => {
 
+    const typeControl = this.notifForm.get('type');
+
+if (channel === 'Diffusion APP') {
+
+  typeControl?.setValidators([Validators.required]);
+
+  if (!typeControl?.value) {
+    typeControl?.setValue('INFO');
+  }
+
+} else {
+
+  typeControl?.clearValidators();
+
+  // Keep a valid backend value even though the field is hidden
+  typeControl?.setValue('INFO', { emitEvent: false });
+}
+
+typeControl?.updateValueAndValidity();
+  });
     // FIX 1 : on passe la valeur dans le pipe pour que distinctUntilChanged
     //         détecte vraiment un changement de texte et déclenche à chaque frappe
     this.taxiSearch$.pipe(
@@ -102,9 +131,12 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
       this.clientPage = 0;
       this.loadClients();
     });
+
+    this.clock$ = setInterval(() => (this.now = new Date()), 30_000);
   }
 
   ngOnDestroy(): void {
+    if (this.clock$) clearInterval(this.clock$);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -141,25 +173,52 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
 
   // ── TAXI ──────────────────────────────────────────────────────────────────
 
-  loadTaxis(): void {
-    if (this.isTaxiLoading) return;
-    this.isTaxiLoading = true;
+loadTaxis(): void {
+  if (this.isTaxiLoading) return;
+  this.isTaxiLoading = true;
 
-    const { phone, name } = this.resolveSearch(this.taxiSearchTerm);
+  const { phone, name } = this.resolveSearch(this.taxiSearchTerm);
 
-    this.notifService
-      .getTaxisByCriteria(this.taxiPage, this.taxiPageSize, phone, name)
-      .pipe(finalize(() => (this.isTaxiLoading = false)))
-      .subscribe({
-        next: res => {
-          this.taxis          = res.content;
-          this.taxiTotalPages = res.totalPages;
-          this.taxiTotalEls   = res.totalElements;
-        },
-        error: () => this.toastr.error('Impossible de charger les taxis', 'Erreur')
-      });
-  }
+  this.notifService
+    .getTaxisByCriteria(
+      this.taxiPage,
+      this.taxiPageSize,
+      phone,
+      name
+    )
+    .pipe(
+      finalize(() => (this.isTaxiLoading = false))
+    )
+    .subscribe({
+      next: res => {
 
+        console.log('TAXI RESPONSE:', res);
+
+        // Swagger response:
+        // res.taxis.content
+        this.taxis = res.taxis?.content ?? [];
+
+        this.taxiTotalPages = res.taxis?.totalPages ?? 0;
+        this.taxiTotalEls   = res.taxis?.totalElements ?? 0;
+
+        console.log('TAXIS:', this.taxis);
+        console.log('TOTAL:', this.taxiTotalEls);
+      },
+
+      error: err => {
+        console.error('Impossible de charger les taxis:', err);
+
+        this.taxis = [];
+        this.taxiTotalPages = 0;
+        this.taxiTotalEls = 0;
+
+        this.toastr.error(
+          'Impossible de charger les taxis',
+          'Erreur'
+        );
+      }
+    });
+}
   // FIX 1 : on émet la valeur courante à chaque changement → déclenche bien le debounce
   onTaxiSearchChange(): void {
     this.taxiSearch$.next(this.taxiSearchTerm);
@@ -308,7 +367,7 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
   }
 
   private resetAll(): void {
-    this.notifForm.reset({ type: 'INFO', channel: 'PUSH' });
+    this.notifForm.reset({type: 'INFO',channel: 'Diffusion APP'});
     this.currentStep        = 1;
     this.activeTab          = 'TAXI';
     this.taxiSearchTerm     = '';
@@ -323,20 +382,28 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
 
   getTypeIcon(type: string): string {
     switch (type) {
-      case 'INFO':    return 'fas fa-info-circle text-info';
-      case 'WARNING': return 'fas fa-exclamation-triangle text-warning';
-      case 'ERROR':   return 'fas fa-times-circle text-danger';
+      case 'INFO':    return 'fas fa-info-circle';
+      case 'WARNING': return 'fas fa-exclamation-triangle';
+      case 'ERROR':   return 'fas fa-times-circle';
       default:        return 'fas fa-bell';
+    }
+  }
+
+  getTypeTone(type: string): string {
+    switch (type) {
+      case 'WARNING': return 'tone-warning';
+      case 'ERROR':   return 'tone-error';
+      default:        return 'tone-info';
     }
   }
 
   getChannelIcon(ch: string): string {
     switch (ch) {
-      case 'PUSH':     return 'fas fa-bell';
-      case 'SMS':      return 'fas fa-sms';
-      case 'EMAIL':    return 'fas fa-envelope';
-      case 'WHATSAPP': return 'fab fa-whatsapp';
-      default:         return 'fas fa-paper-plane';
+      case 'Diffusion APP': return 'fas fa-bell';
+      case 'SMS':           return 'fas fa-sms';
+      case 'EMAIL':         return 'fas fa-envelope';
+      case 'WHATSAPP':      return 'fab fa-whatsapp';
+      default:              return 'fas fa-paper-plane';
     }
   }
 }
