@@ -419,49 +419,52 @@ getTaxiStats(phone: string): Observable<any> {
 
 
   getAllTaxisCriteria(
-    page: number,
-    size: number,
-    filters: TaxiCriteriaFilters = {}
-  ): Observable<TaxiPageResponse> {
+  page: number,
+  size: number,
+  filters: TaxiCriteriaFilters = {}
+): Observable<TaxiPageResponse> {
 
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    if (filters.phone) {
-      params = params.set('phone', filters.phone);
+  const defaultSort = JSON.stringify([
+    {
+      field: 'id',
+      direction: 'asc'
     }
+  ]);
 
-    if (filters.name) {
-      params = params.set('name', filters.name);
-    }
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString())
+    .set('sort', filters.sort || defaultSort);
 
-    if (filters.numeroSim) {
-      params = params.set('numeroSim', filters.numeroSim);
-    }
-
-    if (filters.taxiStatus) {
-      params = params.set('taxiStatus', filters.taxiStatus);
-    }
-
-    if (filters.hide !== undefined && filters.hide !== null) {
-      params = params.set('hide', filters.hide.toString());
-    }
-
-    if (filters.sort) {
-      params = params.set('sort', filters.sort);
-    }
-
-    if (filters.sortBy) {
-      params = params.set('sortBy', filters.sortBy);
-    }
-
-    return this.http.get<TaxiPageResponse>(
-      `${this.baseUrl}/get-all-taxis-criteria`,
-      { params }
-    );
+  if (filters.phone) {
+    params = params.set('phone', filters.phone);
   }
 
+  if (filters.name) {
+    params = params.set('name', filters.name);
+  }
+
+  if (filters.numeroSim) {
+    params = params.set('numeroSim', filters.numeroSim);
+  }
+
+  if (filters.taxiStatus) {
+    params = params.set('taxiStatus', filters.taxiStatus);
+  }
+
+  if (filters.hide !== undefined && filters.hide !== null) {
+    params = params.set('hide', filters.hide.toString());
+  }
+
+  if (filters.sortBy) {
+    params = params.set('sortBy', filters.sortBy);
+  }
+
+  return this.http.get<TaxiPageResponse>(
+    `${this.baseUrl}/get-all-taxis-criteria`,
+    { params }
+  );
+}
   getTaxisCriteria(
   page: number,
   size: number,
