@@ -462,6 +462,7 @@ getTaxiStats(phone: string): Observable<any> {
 
   return this.http.get<TaxiPageResponse>(
     `${this.baseUrl}/get-all-taxis-criteria`,
+    
     { params }
   );
 }
