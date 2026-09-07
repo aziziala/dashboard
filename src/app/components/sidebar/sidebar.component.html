@@ -1,28 +1,14 @@
-<nav
-  class="vertical-menu"
-  [class.open]="isOpen"
-  [class.collapsed]="collapsed && !railHover"
-  role="navigation"
-  aria-label="Menu principal"
-  [attr.aria-hidden]="isMobile && !isOpen ? 'true' : null"
->
+<nav class="vertical-menu" [class.open]="isOpen" [class.collapsed]="collapsed && !railHover" role="navigation"
+  aria-label="Menu principal" [attr.aria-hidden]="isMobile && !isOpen ? 'true' : null">
   <!-- ============================================================
        Brand header — logo, app name and the desktop collapse button.
        When the rail is collapsed the brand row collapses to just the
        collapse button so the user can always expand again.
        ============================================================ -->
   <div class="sidebar-header">
-    <a
-      href="https://smstaxi.tn/"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="sidebar-brand"
-      aria-label="SMS Taxi — site officiel"
-    >
-      <img
-        [src]="currentApp === 'SMSTaxi' ? 'assets/logoY.png' : 'assets/taxiselect4.png'"
-        alt="Logo"
-      />
+    <a href="https://smstaxi.tn/" target="_blank" rel="noopener noreferrer" class="sidebar-brand"
+      aria-label="SMS Taxi — site officiel">
+      <img [src]="currentApp === 'SMSTaxi' ? 'assets/logoY.png' : 'assets/taxiselect4.png'" alt="Logo" />
       <span class="brand-text">
         <span class="brand-name">
           {{ currentApp === 'SMSTaxi' ? 'SMS Taxi' : 'TaxiSelect' }}
@@ -31,19 +17,10 @@
       </span>
     </a>
 
-    <button
-      type="button"
-      class="sidebar-collapse-btn"
-      (click)="toggleCollapse()"
-      [attr.aria-label]="collapsed ? 'Développer le menu' : 'Réduire le menu'"
-      [attr.aria-expanded]="!collapsed"
-      title="Réduire / Développer le menu"
-    >
-      <i
-        class="bx bx-chevrons-left"
-        [class.rotated]="collapsed"
-        aria-hidden="true"
-      ></i>
+    <button type="button" class="sidebar-collapse-btn" (click)="toggleCollapse()"
+      [attr.aria-label]="collapsed ? 'Développer le menu' : 'Réduire le menu'" [attr.aria-expanded]="!collapsed"
+      title="Réduire / Développer le menu">
+      <i class="bx bx-chevrons-left" [class.rotated]="collapsed" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -61,14 +38,9 @@
 
       <!-- Tableau de bord -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/dashboard"
-          [class.active]="activeUrl.startsWith('/dashboard')"
-          role="menuitem"
+        <a routerLink="/dashboard" [class.active]="activeUrl.startsWith('/dashboard')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/dashboard') ? 'page' : null"
-          [title]="collapsed ? 'Tableau de bord' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Tableau de bord' : ''" (click)="closeMobile()">
           <i class="bx bx-home-circle nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label" key="t-dashboards">Tableau de bord</span>
         </a>
@@ -76,14 +48,9 @@
 
       <!-- Gestion des taxis -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/taxis"
-          [class.active]="activeUrl.startsWith('/taxis')"
-          role="menuitem"
+        <a routerLink="/taxis" [class.active]="activeUrl.startsWith('/taxis')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/taxis') ? 'page' : null"
-          [title]="collapsed ? 'Gestion des taxis' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Gestion des taxis' : ''" (click)="closeMobile()">
           <i class="bx bx-taxi nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label" key="t-taxis">Gestion des Taxis</span>
         </a>
@@ -91,29 +58,31 @@
 
       <!-- Gestion des clients -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/clients"
-          [class.active]="activeUrl.startsWith('/clients')"
-          role="menuitem"
+        <a routerLink="/clients" [class.active]="activeUrl.startsWith('/clients')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/clients') ? 'page' : null"
-          [title]="collapsed ? 'Gestion des clients' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Gestion des clients' : ''" (click)="closeMobile()">
           <i class="bx bx-user nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label" key="t-clients">Gestion des clients</span>
         </a>
       </li>
 
+      <!-- Gestion des réservations -->
+      <li class="nav-item" role="none">
+        <a routerLink="/planification/reservations" [class.active]="activeUrl.startsWith('/planification/reservations')"
+          role="menuitem" [attr.aria-current]="activeUrl.startsWith('/planification/reservations') ? 'page' : null"
+          [title]="collapsed ? 'Gestion des réservations' : ''" (click)="closeMobile()">
+          <i class="bx bx-calendar nav-icon" aria-hidden="true"></i>
+          <span class="sidebar-label" key="t-reservations">
+            Gestion des réservations
+          </span>
+        </a>
+      </li>
+
       <!-- Gestion des SMS -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/sms"
-          [class.active]="activeUrl.startsWith('/sms')"
-          role="menuitem"
+        <a routerLink="/sms" [class.active]="activeUrl.startsWith('/sms')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/sms') ? 'page' : null"
-          [title]="collapsed ? 'Gestion des SMS' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Gestion des SMS' : ''" (click)="closeMobile()">
           <i class="bx bx-message nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label" key="t-sms">Gestion des SMS</span>
         </a>
@@ -121,14 +90,9 @@
 
       <!-- Gestion des flottes -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/fleet"
-          [class.active]="activeUrl.startsWith('/fleet')"
-          role="menuitem"
+        <a routerLink="/fleet" [class.active]="activeUrl.startsWith('/fleet')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/fleet') ? 'page' : null"
-          [title]="collapsed ? 'Gestion des flottes' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Gestion des flottes' : ''" (click)="closeMobile()">
           <i class="bx bx-map nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label" key="t-fleet">Gestion des flottes</span>
         </a>
@@ -136,120 +100,75 @@
 
       <!-- Gestion des États (sub-menu, auto-opens on its routes) -->
       <li class="nav-item has-submenu" role="none">
-        <a
-          href="#"
-          role="menuitem"
-          (click)="toggleGestionEtats(); $event.preventDefault()"
-          [attr.aria-expanded]="isGestionEtatsOpen"
-          aria-haspopup="true"
-          [title]="collapsed ? 'Gestion des États' : ''"
-        >
+        <a href="#" role="menuitem" (click)="toggleGestionEtats(); $event.preventDefault()"
+          [attr.aria-expanded]="isGestionEtatsOpen" aria-haspopup="true" [title]="collapsed ? 'Gestion des États' : ''">
           <i class="bx bx-purchase-tag nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label">Gestion des États</span>
           <i class="bx bx-chevron-down nav-caret" aria-hidden="true"></i>
         </a>
 
-        <div
-          class="submenu"
-          [class.open]="isGestionEtatsOpen"
-          [attr.aria-hidden]="!isGestionEtatsOpen"
-        >
+        <div class="submenu" [class.open]="isGestionEtatsOpen" [attr.aria-hidden]="!isGestionEtatsOpen">
           <ul role="menu">
             <li role="none">
-              <a
-                routerLink="/gestion-etats/taxis-actifs"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-actifs')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-etats/taxis-actifs" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-actifs')" (click)="closeMobile()">
                 Liste des taxis actifs
               </a>
             </li>
             <li role="none">
-              <a
-                routerLink="/gestion-etats/taxis-inactifs"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-inactifs')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-etats/taxis-inactifs" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-inactifs')" (click)="closeMobile()">
                 Liste des taxis inactifs
               </a>
             </li>
             <li role="none">
-              <a
-                routerLink="/gestion-etats/taxis-earnings"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-earnings')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-etats/taxis-earnings" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-earnings')" (click)="closeMobile()">
                 Liste des taxis earnings
               </a>
             </li>
             <li role="none">
-              <a
-                routerLink="/gestion-etats/taxis-courses"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-courses')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-etats/taxis-courses" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-courses')" (click)="closeMobile()">
                 Liste des taxis courses
               </a>
             </li>
             <li role="none">
-              <a
-                routerLink="/gestion-etats/taxis-bonus"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-bonus')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-etats/taxis-bonus" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-bonus')" (click)="closeMobile()">
                 Liste des taxis bonus
               </a>
             </li>
             <li role="none">
-              <a
-                routerLink="/gestion-etats/taxis-traffic-history"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-traffic-history')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-etats/taxis-traffic-history" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-etats/taxis-traffic-history')" (click)="closeMobile()">
                 Liste des taxis traffic
               </a>
             </li>
             <li role="none">
-  <a
-    routerLink="/gestion-notifaction/all-demandes-By-state"
-    role="menuitem"
-    [class.active]="activeUrl.startsWith('/gestion-notifaction/all-demandes-By-state')"
-    (click)="closeMobile()"
-  >
-    Demandes par état
-  </a>
-</li>
+              <a routerLink="/gestion-notifaction/all-demandes-By-state" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-notifaction/all-demandes-By-state')"
+                (click)="closeMobile()">
+                Demandes par état
+              </a>
+            </li>
 
-<li role="none">
-  <a
-    routerLink="/gestion-notifaction/all-taxis-traffic-history"
-    role="menuitem"
-    [class.active]="activeUrl.startsWith('/gestion-notifaction/all-taxis-traffic-history')"
-    (click)="closeMobile()"
-  >
-    Historique du trafic des taxis
-  </a>
-</li>
+            <li role="none">
+              <a routerLink="/gestion-notifaction/all-taxis-traffic-history" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-notifaction/all-taxis-traffic-history')"
+                (click)="closeMobile()">
+                Historique du trafic des taxis
+              </a>
+            </li>
           </ul>
         </div>
       </li>
 
       <!-- Gestion des réservations -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/affectation-client"
-          [class.active]="activeUrl.startsWith('/affectation-client')"
-          role="menuitem"
+        <a routerLink="/affectation-client" [class.active]="activeUrl.startsWith('/affectation-client')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/affectation-client') ? 'page' : null"
-          [title]="collapsed ? 'Gestion des réservations' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Gestion des réservations' : ''" (click)="closeMobile()">
           <i class="bx bx-transfer nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label">Gestion des réservations</span>
         </a>
@@ -257,14 +176,9 @@
 
       <!-- Gestion des statistiques -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/analytics"
-          [class.active]="activeUrl.startsWith('/analytics')"
-          role="menuitem"
+        <a routerLink="/analytics" [class.active]="activeUrl.startsWith('/analytics')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/analytics') ? 'page' : null"
-          [title]="collapsed ? 'Gestion des statistiques' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Gestion des statistiques' : ''" (click)="closeMobile()">
           <i class="bx bx-bar-chart nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label" key="t-analytics">Gestion des statistiques</span>
         </a>
@@ -272,14 +186,9 @@
 
       <!-- Sync Taxi Account -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/sync-taxi-account"
-          [class.active]="activeUrl.startsWith('/sync-taxi-account')"
-          role="menuitem"
+        <a routerLink="/sync-taxi-account" [class.active]="activeUrl.startsWith('/sync-taxi-account')" role="menuitem"
           [attr.aria-current]="activeUrl.startsWith('/sync-taxi-account') ? 'page' : null"
-          [title]="collapsed ? 'Sync Taxi Account' : ''"
-          (click)="closeMobile()"
-        >
+          [title]="collapsed ? 'Sync Taxi Account' : ''" (click)="closeMobile()">
           <i class="bx bx-sync nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label">Sync Taxi Account</span>
         </a>
@@ -287,42 +196,25 @@
 
       <!-- Gestion des Notifications (sub-menu) -->
       <li class="nav-item has-submenu" role="none">
-        <a
-          href="#"
-          role="menuitem"
-          (click)="toggleGestionNotifications(); $event.preventDefault()"
-          [attr.aria-expanded]="isGestionNotificationsOpen"
-          aria-haspopup="true"
-          [title]="collapsed ? 'Gestion des Notifications' : ''"
-        >
+        <a href="#" role="menuitem" (click)="toggleGestionNotifications(); $event.preventDefault()"
+          [attr.aria-expanded]="isGestionNotificationsOpen" aria-haspopup="true"
+          [title]="collapsed ? 'Gestion des Notifications' : ''">
           <i class="bx bx-bell nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label">Gestion des Notifications</span>
           <i class="bx bx-chevron-down nav-caret" aria-hidden="true"></i>
         </a>
 
-        <div
-          class="submenu"
-          [class.open]="isGestionNotificationsOpen"
-          [attr.aria-hidden]="!isGestionNotificationsOpen"
-        >
+        <div class="submenu" [class.open]="isGestionNotificationsOpen" [attr.aria-hidden]="!isGestionNotificationsOpen">
           <ul role="menu">
             <li role="none">
-              <a
-                routerLink="/gestion-notifaction/notication-send"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-notifaction/notication-send')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-notifaction/notication-send" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-notifaction/notication-send')" (click)="closeMobile()">
                 Envoi de notification
               </a>
             </li>
             <li role="none">
-              <a
-                routerLink="/gestion-notifaction/notication-list"
-                role="menuitem"
-                [class.active]="activeUrl.startsWith('/gestion-notifaction/notication-list')"
-                (click)="closeMobile()"
-              >
+              <a routerLink="/gestion-notifaction/notication-list" role="menuitem"
+                [class.active]="activeUrl.startsWith('/gestion-notifaction/notication-list')" (click)="closeMobile()">
                 Liste des notifications
               </a>
             </li>
@@ -332,14 +224,9 @@
 
       <!-- WhatsApp -->
       <li class="nav-item" role="none">
-        <a
-          routerLink="/whatsapp"
-          [class.active]="activeUrl.startsWith('/whatsapp')"
-          role="menuitem"
-          [attr.aria-current]="activeUrl.startsWith('/whatsapp') ? 'page' : null"
-          [title]="collapsed ? 'Whatsapp' : ''"
-          (click)="closeMobile()"
-        >
+        <a routerLink="/whatsapp" [class.active]="activeUrl.startsWith('/whatsapp')" role="menuitem"
+          [attr.aria-current]="activeUrl.startsWith('/whatsapp') ? 'page' : null" [title]="collapsed ? 'Whatsapp' : ''"
+          (click)="closeMobile()">
           <i class="bx bxl-whatsapp nav-icon" aria-hidden="true"></i>
           <span class="sidebar-label">Whatsapp</span>
         </a>

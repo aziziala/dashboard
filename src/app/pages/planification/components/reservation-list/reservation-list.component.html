@@ -1,0 +1,208 @@
+<div class="container-fluid">
+  <!-- Titre -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box">
+        <div class="page-title-box__left">
+          <div class="page-title-box__icon-wrap">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="page-title-box__text">
+            <h4 class="page-title-box__title">Réservations &amp; Planification</h4>
+            <p class="page-title-box__subtitle">Suivi et affectation des courses réservées</p>
+          </div>
+        </div>
+        <div class="page-title-box__right">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item active">Réservations</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar : filtre statut + création -->
+    <div class="col-12">
+      <div class="toolbar-card">
+        <div class="toolbar-left">
+          <div class="status-box">
+            <i class="fas fa-filter"></i>
+            <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+              <option value="">Tous les statuts</option>
+              <option [value]="ReservationStatus.CREATED">{{ statusLabels[ReservationStatus.CREATED] }}</option>
+              <option [value]="ReservationStatus.WAITING_DRIVER">{{ statusLabels[ReservationStatus.WAITING_DRIVER] }}
+              </option>
+              <option [value]="ReservationStatus.ASSIGNED">{{ statusLabels[ReservationStatus.ASSIGNED] }}</option>
+
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <button class="btn-add" (click)="goToCreate()">
+            <i class="fas fa-plus"></i>
+            Nouvelle réservation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bannière temps réel : nouvelles réservations arrivées hors page 1 / hors filtre -->
+    <div class="col-12" *ngIf="pendingNewReservationsCount > 0">
+      <div class="realtime-banner">
+        <div class="realtime-banner__text">
+          <i class="fas fa-bell"></i>
+          {{ pendingNewReservationsCount }} nouvelle{{ pendingNewReservationsCount > 1 ? 's' : '' }}
+          réservation{{ pendingNewReservationsCount > 1 ? 's' : '' }} reçue{{ pendingNewReservationsCount > 1 ? 's' : '' }}
+        </div>
+        <div class="realtime-banner__actions">
+          <button class="btn btn-sm btn-gradient-primary" (click)="jumpToLatestReservations()">
+            Voir
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="dismissNewReservationsBanner()">
+            Ignorer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="col-12">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Numéro client</th>
+              <th>Départ</th>
+              <th>Destination</th>
+              <th>Date / heure départ</th>
+              <th>Taxi affecté</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Skeleton pendant le chargement -->
+            <ng-container *ngIf="isLoading">
+              <tr *ngFor="let i of [1,2,3,4,5]">
+                <td colspan="8">
+                  <div class="skeleton-row"></div>
+                </td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="!isLoading">
+              <tr
+                *ngFor="let reservation of reservations"
+                [class.new-reservation]="highlightReservationId === reservation.id"
+              >
+                <td data-label="ID">#{{ reservation.id }}</td>
+                <td data-label="Téléphone">{{ reservation.telephone }}</td>
+                <td data-label="Départ">{{ reservation.pickup }}</td>
+                <td data-label="Destination">{{ reservation.destination }}</td>
+                <td data-label="Date / heure">
+                  <span *ngIf="!isAsap(reservation)" class="fw-bold">
+                    {{ reservation.reservationDateTime | date: 'dd/MM/yy HH:mm' }}
+                  </span>
+                  <span *ngIf="isAsap(reservation)" class="badge badge-status-info">Immédiate</span>
+                </td>
+
+                <td data-label="Taxi affecté">
+                  <span *ngIf="reservation.status !== ReservationStatus.ASSIGNED || !reservation.assignment"
+                    class="text-muted">
+                    —
+                  </span>
+
+                  <span *ngIf="reservation.status === ReservationStatus.ASSIGNED && reservation.assignment">
+                    <strong>{{ reservation.assignment.taxiNom }}</strong>
+                    <br>
+                    <small class="text-muted">
+                      {{ reservation.assignment.taxiTelephone }}
+                    </small>
+                  </span>
+                </td>
+
+                <td data-label="Statut">
+                  <span class="badge" [ngClass]="statusBadgeClass[reservation.status]">
+                    {{ statusLabels[reservation.status] }}
+                  </span>
+                </td>
+
+                <td data-label="Actions">
+                  <div class="btn-group-actions">
+                    <button class="btn btn-sm btn-info" title="Voir les détails"
+                      (click)="openDetailsModal(reservation)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button *ngIf="canUnassign(reservation)" class="btn btn-sm btn-danger" title="Retirer l'affectation"
+                      (click)="openUnassignConfirm(reservation, unassignConfirmModal)">
+                      <i class="fas fa-user-slash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="reservations.length === 0">
+                <td colspan="8" class="text-center text-muted py-4">
+                  Aucune réservation<strong *ngIf="statusFilter"> {{ statusLabels[statusFilter] }}</strong> trouvée.
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-footer">
+        <div class="pagination-info">
+          <span>Total : {{ totalElements }} réservation(s)</span>
+          <div class="page-size-selector">
+            <label for="pageSizeSelect">Lignes / page</label>
+            <select id="pageSizeSelect" [value]="itemsPerPage" (change)="onPageSizeChange($any($event.target).value)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" [totalElements]="totalElements"
+        (pageChange)="onPageChange($event)"></app-pagination>
+    </div>
+  </div>
+</div>
+
+<!-- Modale de confirmation de retrait d'affectation -->
+<ng-template #unassignConfirmModal let-modal>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="fas fa-triangle-exclamation text-danger taxi-icon"></i>
+        Retirer l'affectation
+      </h5>
+      <button class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+      <p class="mb-1">
+        Retirer le taxi affecté à la réservation
+        <strong>#{{ reservationToUnassign?.id }}</strong> ?
+      </p>
+      <p class="text-muted small mb-3">
+        La réservation repassera au statut "En attente de taxi". Cette action peut être annulée en réaffectant un taxi.
+      </p>
+      <div class="form-floating">
+        <input type="text" class="form-control" [(ngModel)]="unassignReason" placeholder="Raison (optionnel)" />
+        <label>Raison (optionnel)</label>
+      </div>
+    </div>
+    <div class="modal-footer justify-content-center">
+      <button class="btn btn-outline-secondary me-2" (click)="modal.dismiss()">Annuler</button>
+      <button class="btn btn-danger" [disabled]="isUnassigning" (click)="confirmUnassign(modal)">
+        <span *ngIf="!isUnassigning"><i class="fas fa-user-slash me-1"></i> Confirmer</span>
+        <span *ngIf="isUnassigning">
+          <span class="spinner-border spinner-border-sm me-2"></span> Retrait…
+        </span>
+      </button>
+    </div>
+  </div>
+</ng-template>

@@ -35,7 +35,6 @@ import { RealTimeMonitoringComponent } from './pages/real-time-monitoring/real-t
 import { SmsGatewayMonitoringComponent } from './pages/sms-gateway-monitoring/sms-gateway-monitoring.component';
 
 import { TaxisActifsComponent } from './pages/gestion-etats/taxis-actifs/taxis-actifs.component';
-import { PaginationComponent } from './components/shared//pagination/pagination.component';
 import { GestionEtatsService  }    from './services/gestion-etats.service';
 
 // Layout
@@ -66,6 +65,7 @@ import { Notificationv2Service } from './services/notificationv2.service';
 import { ListeNotificationComponent } from './pages/notification/liste-notification/liste-notification.component';
 import { AllTrafficHistoryComponent } from './pages/gestion-etats/all-traffic-history/all-traffic-history.component';
 import { AllDemandesByStateComponent } from './pages/gestion-etats/all-demandes-by-state/all-demandes-by-state.component';
+import { SharedModule } from './components/shared/shared.module';
 @NgModule({
   declarations: [
   AppComponent,
@@ -92,11 +92,11 @@ import { AllDemandesByStateComponent } from './pages/gestion-etats/all-demandes-
   TaxisCoursesComponent,
   TaxisBonusComponent,
   TaxiTrafficHistoryComponent,
-  PaginationComponent,
   SendNotificationComponent,
   ListeNotificationComponent,
   AllTrafficHistoryComponent,
-  AllDemandesByStateComponent
+  AllDemandesByStateComponent,
+  
   ],
   imports: [
   BrowserModule,
@@ -109,6 +109,7 @@ import { AllDemandesByStateComponent } from './pages/gestion-etats/all-demandes-
   NgApexchartsModule,
   AppRoutingModule,
   MatSnackBarModule,
+  SharedModule,
 
     TranslateModule.forRoot({
       loader: {

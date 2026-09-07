@@ -1,0 +1,247 @@
+<div class="modal-content">
+ 
+  <div class="modal-header modal-header-enriched">
+    <div class="header-avatar">
+      <i class="fas fa-calendar-check taxi-icon"></i>
+    </div>
+    <h5 class="modal-title">&ensp;Réservation #{{ reservation.id }}</h5>
+    <span class="badge ms-2" [ngClass]="statusBadgeClass[reservation.status]">
+      {{ statusLabels[reservation.status] }}
+    </span>
+
+    <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+  </div>
+
+  <!-- STEPPER NAV -->
+  <div class="reservation-stepper-nav">
+    <button type="button" class="step-btn" [class.active]="currentStep === 'details'" (click)="goToStep('details')">
+      <span class="step-index">1</span> Détails de la réservation
+    </button>
+    <button type="button" class="step-btn" [class.active]="currentStep === 'assignment'"
+      (click)="goToStep('assignment')">
+      <span class="step-index">2</span> Affectation du taxi
+    </button>
+  </div>
+
+  <!-- BODY -->
+  <div class="modal-body">
+    <div class="alert alert-danger py-2" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <!-- ÉTAPE 1 : DÉTAILS -->
+    <form *ngIf="currentStep === 'details'" [formGroup]="detailsForm" class="form-modern">
+      <div class="form-grid">
+        <div class="form-floating input-icon-top">
+          <i class="fas fa-phone"></i>
+          <input type="text" class="form-control" formControlName="telephone" placeholder="Téléphone" />
+          <label>Téléphone</label>
+        </div>
+
+        <div class="form-floating input-icon-top">
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" class="form-control" formControlName="pickup" placeholder="Point de départ" />
+          <label>Point de départ</label>
+        </div>
+
+        <div class="form-floating input-icon-top">
+          <i class="fas fa-flag-checkered"></i>
+          <input type="text" class="form-control" formControlName="destination" placeholder="Destination" />
+          <label>Destination</label>
+        </div>
+
+        <div class="form-floating input-icon-top">
+          <i class="fas fa-clock"></i>
+          <input type="datetime-local" class="form-control" formControlName="reservationDateTime" />
+          <label>Date &amp; heure (vide = immédiate / ASAP)</label>
+        </div>
+
+        <div class="form-floating input-icon-top" style="grid-column: 1 / -1">
+          <i class="fas fa-comment-dots"></i>
+          <input type="text" class="form-control" formControlName="commentaire" placeholder="Commentaire" />
+          <label>Commentaire</label>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <div class="info-box">
+            <span>Prix estimé</span>
+            <strong>{{ reservation.estimatedPrice ?? '—' }}</strong>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-box">
+            <span>Distance estimée</span>
+            <strong>{{ reservation.estimatedDistance ?? '—' }}</strong>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-box">
+            <span>Durée estimée</span>
+            <strong>{{ reservation.estimatedDuration ?? '—' }}</strong>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- ÉTAPE 2 : AFFECTATION -->
+    <div *ngIf="currentStep === 'assignment'">
+      <!-- Affectation existante -->
+
+
+
+
+      <div *ngIf="
+    reservation.assignment?.status === 'ACTIVE'
+    && !showTaxiPicker
+  " class="assignment-current">
+
+        <div class="row g-3">
+
+          <!-- Nom du taxi -->
+          <div class="col-md-6">
+            <div class="info-box">
+              <span>Taxi</span>
+              <strong>
+                {{ reservation.assignment.taxiNom || '—' }}
+                ( {{ reservation.assignment.taxiMatricule }}
+)
+              </strong>
+            </div>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="col-md-6">
+            <div class="info-box">
+              <span>Téléphone du taxi</span>
+              <strong>
+                {{ reservation.assignment.taxiTelephone || '—' }}
+              </strong>
+
+
+            </div>
+          </div>
+
+
+          <!-- Commentaire -->
+          <div class="col-12" *ngIf="reservation.assignment.comment">
+            <div class="info-box">
+              <span>Commentaire</span>
+              <strong>
+                {{ reservation.assignment.comment }}
+              </strong>
+              
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="assignment-actions mt-3">
+
+          <button class="btn btn-outline-secondary" (click)="openTaxiPicker()">
+            <i class="fas fa-right-left me-1"></i>
+            Réaffecter un autre taxi
+          </button>
+
+          <button class="btn btn-outline-danger" [disabled]="!canUnassign" (click)="openUnassignConfirm()">
+            <i class="fas fa-user-slash me-1"></i>
+            Retirer l'affectation
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- ========================================================= -->
+      <!-- AUCUNE AFFECTATION ACTIVE                                -->
+      <!-- ========================================================= -->
+
+
+      <div *ngIf="
+    (!reservation.assignment
+      || reservation.assignment.status !== 'ACTIVE')
+    && !showTaxiPicker
+  " class="assignment-empty">
+
+        <i class="fas fa-taxi mb-2"></i>
+
+        <p>
+          Aucun taxi n'est affecté à cette réservation pour le moment.
+        </p>
+
+        <button class="btn btn-gradient-primary" (click)="openTaxiPicker()">
+          <i class="fas fa-plus me-1"></i>
+          Affecter un taxi
+        </button>
+
+      </div>
+
+      <!-- Sélecteur de taxi (assignation / réaffectation) -->
+      <div *ngIf="showTaxiPicker">
+        <app-taxi-picker [selectedTaxiId]="pendingTaxi?.id ?? null" (taxiSelected)="onTaxiSelected($event)">
+        </app-taxi-picker>
+
+        <div class="form-floating mt-3">
+          <input type="text" class="form-control" [(ngModel)]="assignComment" placeholder="Commentaire (optionnel)" />
+          <label>Commentaire (optionnel)</label>
+        </div>
+
+        <div class="assignment-actions mt-3">
+          <button class="btn btn-outline-secondary" (click)="cancelTaxiPicker()">Annuler</button>
+          <button class="btn btn-gradient-primary" [disabled]="!pendingTaxi || isAssigning"
+            (click)="confirmAssignment()">
+            <span *ngIf="!isAssigning">
+              <i class="fas fa-check me-1"></i> Confirmer l'affectation
+            </span>
+            <span *ngIf="isAssigning">
+              <span class="spinner-border spinner-border-sm me-2"></span> Affectation…
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirmation retrait -->
+      <div class="unassign-confirm" *ngIf="showUnassignConfirm">
+        <div class="delete-icon mb-3">
+          <i class="fas fa-user-slash"></i>
+        </div>
+        <p class="text-center mb-2">Retirer le taxi affecté à cette réservation ?</p>
+        <p class="text-center text-muted small mb-3">
+          La réservation repassera au statut "En attente d'affectation".
+        </p>
+
+        <div class="form-floating">
+          <input type="text" class="form-control" [(ngModel)]="unassignReason" placeholder="Raison (optionnel)" />
+          <label>Raison (optionnel)</label>
+        </div>
+
+        <div class="assignment-actions mt-3">
+          <button class="btn btn-outline-secondary" (click)="showUnassignConfirm = false">Annuler</button>
+          <button class="btn btn-danger" [disabled]="isUnassigning" (click)="confirmUnassign()">
+            <span *ngIf="!isUnassigning">
+              <i class="fas fa-trash me-1"></i> Confirmer le retrait
+            </span>
+            <span *ngIf="isUnassigning">
+              <span class="spinner-border spinner-border-sm me-2"></span> Retrait…
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="modal-footer compact-footer" *ngIf="currentStep === 'details'">
+    <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+      <i class="bi bi-x-circle"></i> Fermer
+    </button>
+    <button class="btn btn-gradient-primary" [disabled]="detailsForm.invalid || isSavingDetails"
+      (click)="saveDetails()">
+      <span *ngIf="!isSavingDetails"><i class="bi bi-save"></i> Enregistrer</span>
+      <span *ngIf="isSavingDetails">
+        <span class="spinner-border spinner-border-sm me-2"></span> Enregistrement…
+      </span>
+    </button>
+  </div>
+</div>

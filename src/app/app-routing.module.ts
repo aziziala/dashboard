@@ -103,7 +103,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/whatsapp-chat/whatsapp-chat.module').then(m => m.WhatsappChatModule)
   },
 
-  
+
+  {
+  path: 'planification',
+  loadChildren: () =>
+    import('./pages/planification/planification.module')
+      .then(m => m.PlanificationModule)
+  },
+
   { path: '**', redirectTo: '/dashboard' }
 ];
 

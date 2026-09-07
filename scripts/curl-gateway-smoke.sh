@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Smoke-test gateway at 192.168.2.2:8444 (no Angular; curl ignores CORS).
+# Smoke-test gateway at 41.225.11.231:8444 (no Angular; curl ignores CORS).
 set -euo pipefail
-G="${GATEWAY:-http://192.168.2.2:8444}"
+G="${GATEWAY:-http://41.225.11.231:8444}"
 
 echo "=== GET list (expect 200) ==="
 curl -sS -o /dev/null -w "%{http_code}\n" "${G}/taxi-client/api/get-all-taxis?page=0&size=5"

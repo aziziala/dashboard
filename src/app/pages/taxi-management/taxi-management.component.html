@@ -25,9 +25,7 @@
 
 
       <div class="stats-row stats-row-5">
-        <div class="stats-card total"
-    [class.active-filter]="currentView === 'all'"
-     (click)="changeView('all')">
+        <div class="stats-card total" [class.active-filter]="currentView === 'all'" (click)="changeView('all')">
           <div class="icon"><i class="fas fa-car"></i></div>
           <div class="info">
             <span>Total</span>
@@ -35,197 +33,136 @@
           </div>
         </div>
 
-<div class="stats-card sim-card"
-    [class.active-filter]="currentView === 'withSim'"
-     (click)="changeView('withSim')">
-  <div class="icon">
-    <i class="fas fa-signal"></i>
-  </div>
-  <div class="info">
-    <span>Avec SIM</span>
-    <h3>{{ simStats.avecSim }}</h3>
-  </div>
-</div>
-
-<div class="stats-card no-sim-card"
-     [class.active-filter]="currentView === 'withoutSim'"
-     (click)="changeView('withoutSim')">
-  <div class="icon">
-    <i class="fas fa-sim-card"></i>
-  </div>
-  <div class="info">
-    <span>Sans SIM</span>
-    <h3>{{ simStats.sansSim }}</h3>
-  </div>
-</div>
-
-
-<div class="stats-card approved compact-card"
-     [class.active-filter]="currentView === 'approved'"
-     (click)="changeView('approved')">
-
-  <div class="icon">
-    <i class="fas fa-check-circle"></i>
-  </div>
-
-  <div class="info">
-    <span>APPROUVÉ</span>
-    <h3>{{ taxiStats.approved }}</h3>
-  </div>
-
-</div>
-
-<div class="stats-card pending compact-card"
-     [class.active-filter]="currentView === 'pending'"
-     (click)="changeView('pending')">
-
-  <div class="icon">
-    <i class="fas fa-clock"></i>
-  </div>
-
-  <div class="info">
-    <span>EN ATTENTE</span>
-    <h3>{{ taxiStats.waiting }}</h3>
-  </div>
-
-</div>
-         </div>
- <!--
-        <div class="stats-card rejected">
-          <div class="icon"><i class="fas fa-times"></i></div>
+        <div class="stats-card sim-card" [class.active-filter]="currentView === 'withSim'"
+          (click)="changeView('withSim')">
+          <div class="icon">
+            <i class="fas fa-signal"></i>
+          </div>
           <div class="info">
-            <span>Rejeté</span>
-            <h3>{{ taxiStats.rejected }}</h3>
+            <span>Avec SIM</span>
+            <h3>{{ simStats.avecSim }}</h3>
           </div>
         </div>
+
+        <div class="stats-card no-sim-card" [class.active-filter]="currentView === 'withoutSim'"
+          (click)="changeView('withoutSim')">
+          <div class="icon">
+            <i class="fas fa-sim-card"></i>
+          </div>
+          <div class="info">
+            <span>Sans SIM</span>
+            <h3>{{ simStats.sansSim }}</h3>
+          </div>
+        </div>
+
+
+        <div class="stats-card approved compact-card" [class.active-filter]="currentView === 'approved'"
+          (click)="changeView('approved')">
+
+          <div class="icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+
+          <div class="info">
+            <span>APPROUVÉ</span>
+            <h3>{{ taxiStats.approved }}</h3>
+          </div>
+
+        </div>
+
+        <div class="stats-card pending compact-card" [class.active-filter]="currentView === 'pending'"
+          (click)="changeView('pending')">
+
+          <div class="icon">
+            <i class="fas fa-clock"></i>
+          </div>
+
+          <div class="info">
+            <span>EN ATTENTE</span>
+            <h3>{{ taxiStats.waiting }}</h3>
+          </div>
+
+        </div>
       </div>
--->
 
 
     </div>
     <div class="toolbar-card">
 
-  <div class="toolbar-left">
+      <div class="toolbar-left">
 
-    <!-- Search -->
-    <div class="search-box">
+        <!-- Search -->
+        <div class="search-box">
 
-      <i *ngIf="!isLoading" class="fas fa-search"></i>
+          <i *ngIf="!isLoading" class="fas fa-search"></i>
 
-      <div
-        *ngIf="isLoading"
-        class="spinner-border spinner-border-sm">
+          <div *ngIf="isLoading" class="spinner-border spinner-border-sm">
+          </div>
+
+          <input type="text" placeholder="Rechercher un taxi, téléphone..." [(ngModel)]="searchTerm"
+            (input)="searchTaxis()">
+
+          <button *ngIf="searchTerm" class="clear-btn" (click)="clearSearch()">
+
+            <i class="fas fa-times"></i>
+
+          </button>
+
+        </div>
+
+
+        <div class="ranking-filter">
+
+          <button class="ranking-btn success" [class.active]="currentSortField === 'acceptees'"
+            (click)="onSortByCourses('acceptees')" title="Plus de courses">
+            <i class="fas fa-arrow-trend-up"></i>
+            <i *ngIf="currentSortField === 'acceptees'" class="fas sort-indicator"
+              [class.fa-arrow-up]="currentSortDirection === 'asc'"
+              [class.fa-arrow-down]="currentSortDirection === 'desc'"></i>
+          </button>
+
+          <button class="ranking-btn danger" [class.active]="currentSortField === 'refusees'"
+            (click)="onSortByCourses('refusees')" title="Plus de refus">
+            <i class="fas fa-arrow-trend-down"></i>
+            <i *ngIf="currentSortField === 'refusees'" class="fas sort-indicator"
+              [class.fa-arrow-up]="currentSortDirection === 'asc'"
+              [class.fa-arrow-down]="currentSortDirection === 'desc'"></i>
+          </button>
+
+        </div>
+
       </div>
 
-      <input
-        type="text"
-        placeholder="Rechercher un taxi, téléphone..."
-        [(ngModel)]="searchTerm"
-        (input)="searchTaxis()">
 
-      <button
-        *ngIf="searchTerm"
-        class="clear-btn"
-        (click)="clearSearch()">
+      <div class="toolbar-right">
 
-        <i class="fas fa-times"></i>
+        <button class="btn-export excel" (click)="exportData('excel')">
 
-      </button>
+          <i class="fas fa-file-excel"></i>
 
-    </div>
+          Excel
 
-    <!-- 
-    <div class="status-box">
+        </button>
 
-      <i class="fas fa-filter"></i>
+        <button class="btn-export pdf" (click)="exportData('pdf')">
 
-      <select
-        [(ngModel)]="statusFilter"
-        (change)="onStatusFilterChange()">
+          <i class="fas fa-file-pdf"></i>
 
-        <option value="">Tous les statuts</option>
+          PDF
 
-        <option
-          *ngFor="let status of [
-            TaxiStatus.APPROVED,
-            TaxiStatus.PENDING,
-            TaxiStatus.REJECTED
-          ]"
-          [value]="status">
+        </button>
 
-          {{ getStatusLabel(status) }}
+        <button class="btn-add" (click)="openAddModal(addEditModal)">
 
-        </option>
+          <i class="fas fa-plus"></i>
 
-      </select>
+          Ajouter un taxi
+
+        </button>
+
+      </div>
 
     </div>
- -->
-
-  <div class="ranking-filter">
-
-  <button
-    class="ranking-btn success"
-    [class.active]="currentSortField === 'acceptees'"
-    (click)="onSortByCourses('acceptees')"
-    title="Plus de courses">
-    <i class="fas fa-arrow-trend-up"></i>
-    <i *ngIf="currentSortField === 'acceptees'" class="fas sort-indicator"
-       [class.fa-arrow-up]="currentSortDirection === 'asc'"
-       [class.fa-arrow-down]="currentSortDirection === 'desc'"></i>
-  </button>
-
-  <button
-    class="ranking-btn danger"
-    [class.active]="currentSortField === 'refusees'"
-    (click)="onSortByCourses('refusees')"
-    title="Plus de refus">
-    <i class="fas fa-arrow-trend-down"></i>
-    <i *ngIf="currentSortField === 'refusees'" class="fas sort-indicator"
-       [class.fa-arrow-up]="currentSortDirection === 'asc'"
-       [class.fa-arrow-down]="currentSortDirection === 'desc'"></i>
-  </button>
-
-</div>
-
-  </div>
-
-
-  <div class="toolbar-right">
-
-    <button
-      class="btn-export excel"
-      (click)="exportData('excel')">
-
-      <i class="fas fa-file-excel"></i>
-
-      Excel
-
-    </button>
-
-    <button
-      class="btn-export pdf"
-      (click)="exportData('pdf')">
-
-      <i class="fas fa-file-pdf"></i>
-
-      PDF
-
-    </button>
-
-    <button
-      class="btn-add"
-      (click)="openAddModal(addEditModal)">
-
-      <i class="fas fa-plus"></i>
-
-      Ajouter un taxi
-
-    </button>
-
-  </div>
-
-</div>
     <!-- Taxi Table -->
     <div class="table-responsive" id="contentToExport">
       <table class="table table-hover align-middle">
@@ -252,44 +189,41 @@
             <td>{{ taxi.numeroMatricule }}</td>
             <td>{{ taxi.numeroTaxi }}</td>
             <td>{{ taxi.constructeur }}</td>
-           <!--  <td>{{ taxi.type }}</td>-->
-<td>
-  <span
-    class="sim-badge"
-    [class.with-sim]="taxi.hide"
-    [class.without-sim]="!taxi.hide">
+            <!--  <td>{{ taxi.type }}</td>-->
+            <td>
+              <span class="sim-badge" [class.with-sim]="taxi.hide" [class.without-sim]="!taxi.hide">
 
-    <ng-container *ngIf="taxi.hide; else noSim">
+                <ng-container *ngIf="taxi.hide; else noSim">
 
-      <span class="sim-icon">
-        <i class="fas fa-signal"></i>
-      </span>
+                  <span class="sim-icon">
+                    <i class="fas fa-signal"></i>
+                  </span>
 
-      <span class="sim-content">
-        <span class="sim-title">SIM Active</span>
-        <span class="sim-number">{{ taxi.numeroSim }}</span>
-      </span>
+                  <span class="sim-content">
+                    <span class="sim-title">SIM Active</span>
+                    <span class="sim-number">{{ taxi.numeroSim }}</span>
+                  </span>
 
-    </ng-container>
+                </ng-container>
 
-    <ng-template #noSim>
-      <i class="fas fa-ban"></i>
-      <span>Aucune SIM</span>
-    </ng-template>
+                <ng-template #noSim>
+                  <i class="fas fa-ban"></i>
+                  <span>Aucune SIM</span>
+                </ng-template>
 
-  </span>
-</td>
+              </span>
+            </td>
             <td>{{ taxi.telephone }}</td>
 
             <td>
-            <span class="ride-badge accepted">
-              <i class="fas fa-check-circle"></i>
-              {{ taxi.acceptedCourses || 0 }}
-            </span>
-            <span class="ride-badge refused">
-              <i class="fas fa-times-circle"></i>
-              {{ taxi.refusedCourses || 0 }}
-            </span>
+              <span class="ride-badge accepted">
+                <i class="fas fa-check-circle"></i>
+                {{ taxi.acceptedCourses || 0 }}
+              </span>
+              <span class="ride-badge refused">
+                <i class="fas fa-times-circle"></i>
+                {{ taxi.refusedCourses || 0 }}
+              </span>
             </td>
 
             <td><span class="badge" [ngClass]="getStatusBadgeClass(taxi.taxiStatus)">{{
@@ -333,8 +267,7 @@ trouvé.
         <span>Total : {{ totalElements }} taxi(s)</span>
         <div class="page-size-selector">
           <label for="pageSizeSelect">Lignes / page</label>
-          <select id="pageSizeSelect" [value]="itemsPerPage"
-                  (change)="onPageSizeChange($any($event.target).value)">
+          <select id="pageSizeSelect" [value]="itemsPerPage" (change)="onPageSizeChange($any($event.target).value)">
             <option [value]="10">10</option>
             <option [value]="25">25</option>
             <option [value]="50">50</option>
@@ -345,79 +278,65 @@ trouvé.
       </div>
     </div>
     <nav *ngIf="totalPages > 1" class="mt-3">
-  <ul class="pagination justify-content-center align-items-center">
+      <ul class="pagination justify-content-center align-items-center">
 
-    <!-- First -->
-    <li class="page-item" [class.disabled]="currentPage === 1">
-      <button class="page-link"
-              (click)="onPageChange(1)"
-              [disabled]="currentPage === 1">
-        Première
-      </button>
-    </li>
+        <!-- First -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="onPageChange(1)" [disabled]="currentPage === 1">
+            Première
+          </button>
+        </li>
 
-    <!-- Previous -->
-    <li class="page-item" [class.disabled]="currentPage === 1">
-      <button class="page-link"
-              (click)="onPageChange(currentPage - 1)"
-              [disabled]="currentPage === 1">
-        Précédent
-      </button>
-    </li>
+        <!-- Previous -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+            Précédent
+          </button>
+        </li>
 
-    <!-- Beginning -->
-    <li class="page-item" *ngIf="visiblePages[0] > 1">
-      <button class="page-link" (click)="onPageChange(1)">1</button>
-    </li>
+        <!-- Beginning -->
+        <li class="page-item" *ngIf="visiblePages[0] > 1">
+          <button class="page-link" (click)="onPageChange(1)">1</button>
+        </li>
 
-    <li class="page-item disabled" *ngIf="visiblePages[0] > 2">
-      <span class="page-link">...</span>
-    </li>
+        <li class="page-item disabled" *ngIf="visiblePages[0] > 2">
+          <span class="page-link">...</span>
+        </li>
 
-    <!-- Current window -->
-    <li class="page-item"
-        *ngFor="let page of visiblePages"
-        [class.active]="page === currentPage">
-      <button class="page-link"
-              (click)="onPageChange(page)">
-        {{ page }}
-      </button>
-    </li>
+        <!-- Current window -->
+        <li class="page-item" *ngFor="let page of visiblePages" [class.active]="page === currentPage">
+          <button class="page-link" (click)="onPageChange(page)">
+            {{ page }}
+          </button>
+        </li>
 
-    <!-- Ending -->
-    <li class="page-item disabled"
-        *ngIf="visiblePages[visiblePages.length - 1] < totalPages - 1">
-      <span class="page-link">...</span>
-    </li>
+        <!-- Ending -->
+        <li class="page-item disabled" *ngIf="visiblePages[visiblePages.length - 1] < totalPages - 1">
+          <span class="page-link">...</span>
+        </li>
 
-    <li class="page-item"
-        *ngIf="visiblePages[visiblePages.length - 1] < totalPages">
-      <button class="page-link"
-              (click)="onPageChange(totalPages)">
-        {{ totalPages }}
-      </button>
-    </li>
+        <li class="page-item" *ngIf="visiblePages[visiblePages.length - 1] < totalPages">
+          <button class="page-link" (click)="onPageChange(totalPages)">
+            {{ totalPages }}
+          </button>
+        </li>
 
-    <!-- Next -->
-    <li class="page-item" [class.disabled]="currentPage === totalPages">
-      <button class="page-link"
-              (click)="onPageChange(currentPage + 1)"
-              [disabled]="currentPage === totalPages">
-        Suivant
-      </button>
-    </li>
+        <!-- Next -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+            Suivant
+          </button>
+        </li>
 
-    <!-- Last -->
-    <li class="page-item" [class.disabled]="currentPage === totalPages">
-      <button class="page-link"
-              (click)="onPageChange(totalPages)"
-              [disabled]="currentPage === totalPages">
-        Dernière
-      </button>
-    </li>
+        <!-- Last -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="onPageChange(totalPages)" [disabled]="currentPage === totalPages">
+            Dernière
+          </button>
+        </li>
 
-  </ul>
-</nav>
+      </ul>
+    </nav>
     <ng-template #addEditModal let-modal>
       <div class="modal-content modal-animated compact-modal">
 
@@ -432,31 +351,26 @@ trouvé.
               {{ isEditing ? 'Éditer le taxi' : 'Ajouter un taxi' }}
             </h6>
 
-</div>
+          </div>
 
-<div class="header-right">
+          <div class="header-right">
 
-<span class="sim-status-text">
-  {{ taxiForm.get('hide')?.value ? 'SIM Active' : 'Aucune SIM' }}
-</span>
+            <span class="sim-status-text">
+              {{ taxiForm.get('hide')?.value ? 'SIM Active' : 'Aucune SIM' }}
+            </span>
 
-<label class="switch">
-  <input
-    type="checkbox"
-    [checked]="taxiForm.get('hide')?.value"
-    (change)="taxiForm.patchValue({ hide: $any($event.target).checked })">
+            <label class="switch">
+              <input type="checkbox" [checked]="taxiForm.get('hide')?.value"
+                (change)="taxiForm.patchValue({ hide: $any($event.target).checked })">
 
-  <span class="slider round"></span>
-</label>
+              <span class="slider round"></span>
+            </label>
 
-  <button
-    type="button"
-    class="btn-close btn-close-white"
-    (click)="addEditModalRef?.close()">
-  </button>
+            <button type="button" class="btn-close btn-close-white" (click)="addEditModalRef?.close()">
+            </button>
 
-</div>
- </div>
+          </div>
+        </div>
         <!-- BODY -->
         <div class="modal-body">
           <form [formGroup]="taxiForm" class="form-modern">
@@ -544,20 +458,14 @@ trouvé.
               </div>
 
 
-                            <div
-                  class="form-floating input-icon-top"
-                  *ngIf="taxiForm.get('hide')?.value">
+              <div class="form-floating input-icon-top" *ngIf="taxiForm.get('hide')?.value">
 
-                  <i class="fas fa-sim-card"></i>
+                <i class="fas fa-sim-card"></i>
 
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="numeroSim"
-                    formControlName="numeroSim"
-                    placeholder="Numéro SIM">
+                <input type="text" class="form-control" id="numeroSim" formControlName="numeroSim"
+                  placeholder="Numéro SIM">
 
-                  <label for="numeroSim">Numéro SIM</label>
+                <label for="numeroSim">Numéro SIM</label>
 
               </div>
             </div>
@@ -566,13 +474,11 @@ trouvé.
 
         <!-- FOOTER -->
         <div class="modal-footer compact-footer">
-          <button
-  *ngIf="isEditing && selectedTaxi"
-  class="btn btn-outline-danger"
-  (click)="openVerifyIdentityModal(verifyIdentityModal, selectedTaxi)">
-  <i class="bi bi-key me-1"></i>
-  Changer mot de passe
-</button>
+          <button *ngIf="isEditing && selectedTaxi" class="btn btn-outline-danger"
+            (click)="openVerifyIdentityModal(verifyIdentityModal, selectedTaxi)">
+            <i class="bi bi-key me-1"></i>
+            Changer mot de passe
+          </button>
           <button class="btn btn-outline-secondary" (click)="modal.dismiss()">
             <i class="bi bi-x-circle"></i> Annuler
           </button>
