@@ -9,6 +9,10 @@ export const environment = {
    * JWT for API calls: interceptor uses localStorage currentUser token, then
    * `devHardcodedBearerToken`, then localStorage key `DEV_GATEWAY_JWT`.
    */
+
+    planificationWsUrl:'/wsplanif8577',   // a modifer apres pour la prod 
+    taxiApiUrl: '/planif-api',  // aussii ca c hard coded 
+
   devBypassBackendAuth: false,
 
   devHardcodedBearerToken: '',

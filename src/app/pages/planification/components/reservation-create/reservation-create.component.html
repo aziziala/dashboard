@@ -1,0 +1,344 @@
+<div class="container-fluid">
+  <!-- Titre -->
+  <div class="row">
+    <div class="col-12 my-3">
+      <div class="page-title-box">
+        <div class="page-title-box__left">
+          <div class="page-title-box__icon-wrap">
+            <i class="fas fa-calendar-plus"></i>
+          </div>
+          <div class="page-title-box__text">
+            <h4 class="page-title-box__title">Nouvelle réservation</h4>
+            <p class="page-title-box__subtitle">Créer une réservation et, si besoin, affecter un taxi</p>
+          </div>
+        </div>
+        <div class="page-title-box__right">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a routerLink="/planification/reservations">Réservations</a></li>
+            <li class="breadcrumb-item active">Nouvelle</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="creation-card">
+        <!-- STEPPER NAV -->
+        <div class="reservation-stepper-nav">
+          <button type="button" class="step-btn" [class.active]="currentStep === 'reservation'" disabled>
+            <span class="step-index">1</span> Détails de la réservation
+          </button>
+          <button type="button" class="step-btn" [class.active]="currentStep === 'assignment'"
+            [disabled]="reservationForm.invalid" (click)="goToAssignmentStep()">
+            <span class="step-index">2</span> Affectation d'un taxi
+          </button>
+        </div>
+
+        <div class="creation-body">
+          <div class="alert alert-danger py-2" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+          <!-- ÉTAPE 1 : DÉTAILS DE LA RÉSERVATION -->
+          <form *ngIf="currentStep === 'reservation'" [formGroup]="reservationForm" class="form-modern">
+
+            <!-- ================= CLIENT ================= -->
+
+            <div class="form-section">
+
+              <div class="form-section-header">
+                <div class="form-section-icon">
+                  <i class="fas fa-user"></i>
+                </div>
+
+                <div>
+                  <h5>Informations client</h5>
+                  <span>Coordonnées du client</span>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <div class="form-floating input-icon-top">
+
+                    <i class="fas fa-phone"></i>
+
+                    <input type="text" class="form-control" formControlName="telephone" placeholder="Téléphone"
+                      [class.is-invalid]="isInvalid('telephone')" [class.is-valid]="reservationForm.get('telephone')?.valid 
+                        && reservationForm.get('telephone')?.touched" />
+
+                    <label>
+                      Téléphone <span class="required">*</span>
+                    </label>
+
+                    <!-- Obligatoire -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('telephone')?.hasError('required')
+             && reservationForm.get('telephone')?.touched">
+                      Le numéro de téléphone est obligatoire.
+                    </div>
+
+                    <!-- Format invalide -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('telephone')?.hasError('invalidPhone')
+             && reservationForm.get('telephone')?.touched">
+                      Veuillez saisir un numéro tunisien ou libyen valide.
+                    </div>
+
+                  </div>
+                </div>
+
+
+
+              </div>
+            </div>
+
+
+            <!-- ================= TRAJET ================= -->
+            <div class="form-section">
+
+              <div class="form-section-header">
+                <div class="form-section-icon">
+                  <i class="fas fa-route"></i>
+                </div>
+
+                <div>
+                  <h5>Trajet</h5>
+                  <span>Définissez le départ et la destination</span>
+                </div>
+              </div>
+
+              <div class="row g-3">
+
+                <!-- Départ -->
+
+                <div class="col-12">
+                  <div class="form-floating input-icon-top">
+
+                    <i class="fas fa-location-dot pickup-icon"></i>
+
+                    <input type="text" class="form-control" formControlName="pickup" placeholder="Point de départ"
+                      [class.is-invalid]="isInvalid('pickup')" [class.is-valid]="reservationForm.get('pickup')?.valid 
+                        && reservationForm.get('pickup')?.touched" />
+
+                    <label>
+                      Point de départ <span class="required">*</span>
+                    </label>
+
+                    <!-- Obligatoire -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('pickup')?.hasError('required')
+             && reservationForm.get('pickup')?.touched">
+                      Le point de départ est obligatoire.
+                    </div>
+
+                    <!-- Trop court -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('pickup')?.hasError('minlength')
+             && reservationForm.get('pickup')?.touched">
+                      Le point de départ doit contenir au moins 2 caractères.
+                    </div>
+
+                    <!-- Uniquement des chiffres -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('pickup')?.hasError('onlyNumbers')
+             && reservationForm.get('pickup')?.touched">
+                      Le point de départ doit être une adresse ou un lieu, pas uniquement des chiffres.
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Destination -->
+                <div class="col-12">
+                  <div class="form-floating input-icon-top">
+
+                    <i class="fas fa-flag-checkered destination-icon"></i>
+
+                    <input type="text" class="form-control" formControlName="destination" placeholder="Destination"
+                      [class.is-invalid]="isInvalid('destination')" [class.is-valid]="reservationForm.get('destination')?.valid 
+                        && reservationForm.get('destination')?.touched" />
+
+                    <label>
+                      Destination <span class="required">*</span>
+                    </label>
+
+                    <!-- Obligatoire -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('destination')?.hasError('required')
+             && reservationForm.get('destination')?.touched">
+                      La destination est obligatoire.
+                    </div>
+
+                    <!-- Trop court -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('destination')?.hasError('minlength')
+             && reservationForm.get('destination')?.touched">
+                      La destination doit contenir au moins 2 caractères.
+                    </div>
+
+                    <!-- Uniquement des chiffres -->
+                    <div class="invalid-feedback" *ngIf="reservationForm.get('destination')?.hasError('onlyNumbers')
+             && reservationForm.get('destination')?.touched">
+                      La destination doit être une adresse ou un lieu, pas uniquement des chiffres.
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+
+            <!-- ================= PLANIFICATION ================= -->
+            <div class="form-section">
+
+              <div class="form-section-header">
+                <div class="form-section-icon">
+                  <i class="fas fa-calendar"></i>
+                </div>
+
+                <div>
+                  <h5>Planification</h5>
+                  <span>Choisissez la date et l'heure de la course</span>
+                </div>
+              </div>
+
+              <div class="row g-3">
+
+                <div class="col-12">
+
+                  <div class="datetime-card">
+
+                    <div class="datetime-icon">
+                      <i class="fas fa-clock"></i>
+                    </div>
+
+                    <div class="datetime-content">
+
+                      <label for="reservationDateTime">
+                        Date et heure
+                      </label>
+
+                      <input id="reservationDateTime" type="datetime-local" class="form-control"
+                        formControlName="reservationDateTime" [class.is-invalid]="isInvalid('reservationDateTime')" />
+
+                      <small>
+                        Laissez vide pour une réservation immédiate
+                        <strong>(ASAP)</strong>.
+                      </small>
+
+                      <div class="text-danger mt-2" *ngIf="reservationForm.get('reservationDateTime')?.hasError('pastDate')
+               && reservationForm.get('reservationDateTime')?.touched">
+                        La date et l'heure de réservation ne peuvent pas être dans le passé.
+                      </div>
+
+                      <div class="text-danger mt-2" *ngIf="reservationForm.get('reservationDateTime')?.hasError('invalidDate')
+               && reservationForm.get('reservationDateTime')?.touched">
+                        Veuillez saisir une date et une heure valides.
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+            <!-- ================= INFORMATIONS ================= -->
+            <div class="form-section">
+
+              <div class="form-section-header">
+                <div class="form-section-icon">
+                  <i class="fas fa-circle-info"></i>
+                </div>
+
+                <div>
+                  <h5>Informations complémentaires</h5>
+                  <span>Informations supplémentaires sur la réservation</span>
+                </div>
+              </div>
+
+              <div class="row g-3">
+
+                <!-- Commentaire -->
+                <div class="col-12">
+
+                  <div class="form-floating input-icon-top">
+
+                    <i class="fas fa-comment-dots"></i>
+
+                    <textarea class="form-control" formControlName="commentaire" placeholder="Commentaire"
+                      style="height: 100px"></textarea>
+
+                    <label>
+                      Commentaire
+                      <span class="optional">(optionnel)</span>
+                    </label>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- ================= ACTIONS ================= -->
+            <div class="creation-actions">
+
+              <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+                <i class="fas fa-xmark me-1"></i>
+                Annuler
+              </button>
+
+              <button type="button" class="btn btn-gradient-primary" [disabled]="reservationForm.invalid"
+                (click)="goToAssignmentStep()">
+                Suivant : affectation
+
+                <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+
+            </div>
+
+          </form>
+
+          <!-- ÉTAPE 2 -->
+          <div *ngIf="currentStep === 'assignment'">
+            <div class="app-switch mb-3">
+              <label class="toggle-wrapper">
+                <input type="checkbox" [(ngModel)]="assignNow" />
+                <span class="slider"></span>
+              </label>
+              <span class="label">Affecter un taxi dès la création</span>
+            </div>
+
+            <div *ngIf="assignNow">
+              <app-taxi-picker [selectedTaxiId]="selectedTaxi?.id ?? null" (taxiSelected)="onTaxiSelected($event)">
+              </app-taxi-picker>
+
+              <div class="form-floating mt-3">
+                <input type="text" class="form-control" [(ngModel)]="assignComment"
+                  placeholder="Commentaire (optionnel)" />
+                <label>Commentaire d'affectation (optionnel)</label>
+              </div>
+            </div>
+
+            <div *ngIf="!assignNow" class="assignment-empty">
+              <i class="fas fa-taxi mb-2"></i>
+              <p>La réservation sera créée sans taxi affecté. Vous pourrez l'affecter plus tard depuis la liste.</p>
+            </div>
+
+            <div class="creation-actions">
+              <button type="button" class="btn btn-outline-secondary" (click)="backToReservationStep()">
+                <i class="fas fa-arrow-left me-1"></i> Précédent
+              </button>
+              <button type="button" class="btn btn-gradient-primary"
+                [disabled]="isSubmitting || (assignNow && !selectedTaxi)" (click)="submit()">
+                <span *ngIf="!isSubmitting"><i class="bi bi-save me-1"></i> Créer la réservation</span>
+                <span *ngIf="isSubmitting">
+                  <span class="spinner-border spinner-border-sm me-2"></span> Création…
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

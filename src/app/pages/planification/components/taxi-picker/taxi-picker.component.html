@@ -1,0 +1,54 @@
+<div class="taxi-picker">
+  <div class="search-box">
+    <i *ngIf="!isLoading" class="fas fa-search"></i>
+    <div *ngIf="isLoading" class="spinner-border spinner-border-sm"></div>
+    <input
+      type="text"
+      placeholder="Rechercher un taxi (nom, téléphone)…"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchChange()"
+    />
+    <button *ngIf="searchTerm" class="clear-btn" (click)="clearSearch()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="taxi-picker__list">
+    <div
+      *ngFor="let taxi of taxis"
+      class="taxi-picker__item"
+      [class.selected]="selectedTaxiId === taxi.id"
+      (click)="selectTaxi(taxi)"
+    >
+      <div class="taxi-picker__radio">
+        <i class="fas" [ngClass]="selectedTaxiId === taxi.id ? 'fa-check-circle' : 'fa-circle'"></i>
+      </div>
+
+      <div class="taxi-picker__info">
+        <strong>{{ taxi.nom }}</strong>
+        <span class="text-muted">{{ taxi.numeroTaxi }} · {{ taxi.numeroMatricule }}</span>
+      </div>
+
+      <div class="taxi-picker__phone">
+        <i class="fas fa-phone"></i> {{ taxi.telephone }}
+      </div>
+
+      <span class="badge" [ngClass]="'badge-status-' + (taxi.taxiStatus | lowercase)">
+        {{ taxi.taxiStatus }}
+      </span>
+    </div>
+
+    <div *ngIf="!isLoading && taxis.length === 0" class="taxi-picker__empty">
+      Aucun taxi trouvé<span *ngIf="searchTerm"> pour « {{ searchTerm }} »</span>.
+    </div>
+  </div>
+
+  <div class="taxi-picker__footer" *ngIf="totalPages > 1">
+    <app-pagination
+      [currentPage]="page + 1"
+      [totalPages]="totalPages"
+      [totalElements]="totalElements"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+</div>

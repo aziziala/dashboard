@@ -833,7 +833,7 @@ updateTaxiAndUser(taxiData: Taxi): void {
   }
 
   useDefaultEmail(): void {
-    this.verifyForm.get('email')?.setValue('kais.fahem@smstaxi.tn');
+    this.verifyForm.get('email')?.setValue('boshra.beldi@smstaxi.tn');
   }
 
   // ===== HELPERS =====
