@@ -963,6 +963,47 @@ $font-lg   : 1.25rem;
   }
 }
 
+// Prix estimé + prix final sur une seule ligne
+.info-box.price-duo {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  .price-cell {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    span {
+      font-size: $font-xs;
+      font-weight: 500;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input.form-control {
+      padding: 0.25rem 0.5rem;
+      font-size: $font-base;
+      font-weight: 600;
+      color: $brand-dark;
+      background-color: #fff;
+      border: 1.5px solid #dee2e6;
+      border-radius: $radius-md;
+      transition: border-color $t-base, box-shadow $t-base, background $t-base;
+
+      &:focus {
+        border-color: $brand-dark;
+        box-shadow: 0 0 0 0.2rem rgba($brand-dark, 0.18);
+        background-color: #fff;
+      }
+    }
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // DELETE MODAL ICON
 // ══════════════════════════════════════════════════════════════════════════════

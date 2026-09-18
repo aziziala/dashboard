@@ -77,6 +77,8 @@ export interface UpdateReservationRequest {
   destination?: string;
   reservationDateTime?: string | null;
   commentaire?: string | null;
+  // prix final après négociation avec le client (null = pas de changement)
+  finalPrice?: number | null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -116,6 +118,7 @@ export interface ReservationResponse {
   language: ReservationLanguage | null;
   commentaire: string | null;
   estimatedPrice: number | null;
+  finalPrice: number | null;
   estimatedDistance: string | null;
   estimatedDuration: string | null;
   reminderSent: boolean;

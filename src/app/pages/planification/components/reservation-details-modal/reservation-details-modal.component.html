@@ -63,9 +63,16 @@
 
       <div class="row g-3 mt-1">
         <div class="col-md-4">
-          <div class="info-box">
-            <span>Prix estimé</span>
-            <strong>{{ reservation.estimatedPrice ?? '—' }}</strong>
+          <div class="info-box price-duo">
+            <div class="price-cell">
+              <span>Prix estimé</span>
+              <strong>{{ reservation.estimatedPrice ?? '—' }}</strong>
+            </div>
+            <div class="price-cell">
+              <span>Prix final</span>
+              <input type="number" class="form-control form-control-sm" formControlName="finalPrice"
+                min="0" step="0.01" placeholder="—" />
+            </div>
           </div>
         </div>
         <div class="col-md-4">
