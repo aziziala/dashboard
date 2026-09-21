@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ChatMessage, Conversation, SendMessageRequest, SendTemplateRequest } from '../models';
+import { ChatMessage, Conversation, MediaUrlResponse, SendMessageRequest, SendTemplateRequest } from '../models';
 
 /**
  * Consomme l'API REST exposée par le microservice whatsapp-service
@@ -34,5 +34,9 @@ export class ChatService {
 
   markConversationAsRead(conversationId: string): Observable<Conversation> {
     return this.http.patch<Conversation>(`${this.baseUrl}/conversations/${conversationId}/read`, {});
+  }
+
+  getMediaUrl(messageId: string): Observable<MediaUrlResponse> {
+    return this.http.get<MediaUrlResponse>(`${this.baseUrl}/media/${messageId}/url`);
   }
 }

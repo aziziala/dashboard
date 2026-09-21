@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ChatStateService } from '../../services/chat-state.service';
-import { Conversation } from '../../models';
+import { Conversation, MessageType } from '../../models';
 import { getAvatarColor, getInitials } from '../../utils/avatar.util';
 
 @Component({
@@ -50,6 +50,28 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   avatarColor(conversation: Conversation): string {
     return getAvatarColor(conversation.waId);
+  }
+
+  /** Aperçu du dernier message : libellé média si c'en est un, sinon le texte. */
+  previewText(conversation: Conversation): string {
+    switch (conversation.lastMessageType) {
+      case MessageType.IMAGE:
+        return '📷 Photo';
+      case MessageType.VIDEO:
+        return '🎬 Vidéo';
+      case MessageType.AUDIO:
+        return '🎤 Message vocal';
+      case MessageType.DOCUMENT:
+        return '📄 Document';
+      case MessageType.STICKER:
+        return '🖼️ Sticker';
+      case MessageType.LOCATION:
+        return '📍 Localisation';
+      case MessageType.CONTACTS:
+        return '👤 Contact';
+      default:
+        return conversation.lastMessage || 'Aucun message';
+    }
   }
 
   private filterConversations(conversations: Conversation[], term: string): Conversation[] {

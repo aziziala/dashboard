@@ -32,7 +32,7 @@
           </span>
         </div>
         <div class="wa-conv-item__bottom">
-          <span class="wa-conv-item__preview">{{ conv.lastMessage || 'Aucun message' }}</span>
+          <span class="wa-conv-item__preview">{{ previewText(conv) }}</span>
           <span class="wa-badge" *ngIf="conv.unreadCount > 0">{{ conv.unreadCount }}</span>
         </div>
       </div>

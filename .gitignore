@@ -12,3 +12,5 @@ node_modules
 .angular
 .vscode
 dist
+# Deepwork state
+.slim/deepwork/

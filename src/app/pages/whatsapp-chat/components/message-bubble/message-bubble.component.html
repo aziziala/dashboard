@@ -1,6 +1,60 @@
 <div class="wa-bubble-row" [class.wa-bubble-row--out]="isOutgoing">
   <div class="wa-bubble" [class.wa-bubble--out]="isOutgoing" [class.wa-bubble--in]="!isOutgoing">
-    <p class="wa-bubble__content">{{ message.content }}</p>
+    <ng-container [ngSwitch]="message.messageType">
+      <p *ngSwitchCase="MessageType.TEXT" class="wa-bubble__content">{{ message.content }}</p>
+
+      <ng-container *ngSwitchCase="MessageType.IMAGE">
+        <img class="wa-media__image" [src]="mediaUrl" alt="Photo">
+        <p class="wa-bubble__content" *ngIf="message.media?.caption">{{ message.media?.caption }}</p>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="MessageType.VIDEO">
+        <video class="wa-media__video" [src]="mediaUrl" controls></video>
+        <p class="wa-bubble__content" *ngIf="message.media?.caption">{{ message.media?.caption }}</p>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="MessageType.AUDIO">
+        <audio class="wa-media__audio" [src]="mediaUrl" controls></audio>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="MessageType.DOCUMENT">
+        <div class="wa-media__document">
+          <span class="wa-media__icon">📄</span>
+          <div class="wa-media__body">
+            <span class="wa-media__name">{{ message.media?.fileName || 'Document' }}</span>
+            <span class="wa-media__meta">{{ formatFileSize(message.media?.size) }} · {{ message.media?.mimeType }}</span>
+            <a class="wa-media__link" [href]="mediaUrl" target="_blank" rel="noopener">Télécharger</a>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="MessageType.STICKER">
+        <img class="wa-media__sticker" [src]="mediaUrl" alt="Sticker">
+      </ng-container>
+
+      <ng-container *ngSwitchCase="MessageType.LOCATION">
+        <div class="wa-media__location">
+          <span class="wa-media__icon">📍</span>
+          <div class="wa-media__body">
+            <span class="wa-media__name" *ngIf="message.media?.locationName">{{ message.media?.locationName }}</span>
+            <span class="wa-media__meta" *ngIf="message.media?.address">{{ message.media?.address }}</span>
+            <span class="wa-media__meta">{{ message.media?.latitude }}, {{ message.media?.longitude }}</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="MessageType.CONTACTS">
+        <div class="wa-media__contact">
+          <span class="wa-media__icon">👤</span>
+          <div class="wa-media__body">
+            <span class="wa-media__name">{{ message.media?.contactName || 'Contact' }}</span>
+            <span class="wa-media__meta" *ngIf="message.media?.contactPhone">{{ message.media?.contactPhone }}</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <p *ngSwitchDefault class="wa-bubble__content">{{ message.content }}</p>
+    </ng-container>
     <div class="wa-bubble__meta">
       <span class="wa-bubble__time">{{ message.createdAt | date:'shortTime' }}</span>
       <span
