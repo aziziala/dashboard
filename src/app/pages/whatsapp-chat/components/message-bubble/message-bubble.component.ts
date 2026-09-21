@@ -372,11 +372,14 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
          * Mise en cache
          */
 
+        const safeUrl = this.toSameOriginMediaUrl(response.url);
+
+        console.log('[MEDIA] URL réécrite (same-origin) =', safeUrl);
+
         this.mediaUrlCache.set(
           this.message.id,
-          response.url
+          safeUrl
         );
-
         console.log(
           '%c[MEDIA] 💾 URL ajoutée au cache',
           'color: #4CAF50; font-weight: bold;'
@@ -387,7 +390,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
          * Affectation mediaUrl
          */
 
-        this.mediaUrl = response.url;
+        this.mediaUrl = safeUrl;
 
         console.log(
           '%c[MEDIA] 🎯 mediaUrl affectée',
@@ -501,5 +504,18 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     }
 
     return `${(size / (1024 * 1024)).toFixed(1)} Mo`;
+  }
+    /**
+   * Remplace l'origine privée de MinIO (http://192.168.2.8:9000) par le chemin
+   * same-origin /minio/... (proxifié par nginx / ng serve). Le path et la query
+   * string restent identiques : la signature présignée en dépend.
+   */
+  private toSameOriginMediaUrl(url: string): string {
+    try {
+      const u = new URL(url);
+      return `/minio${u.pathname}${u.search}`;
+    } catch {
+      return url;
+    }
   }
 }
