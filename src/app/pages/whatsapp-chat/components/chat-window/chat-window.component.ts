@@ -138,6 +138,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   trackByMessageId(_index: number, message: ChatMessage): string {
     return message.id;
   }
+
+  /** TrackBy sur la boucle externe des groupes : le label de date est stable
+   *  d'un cycle de CD à l'autre, ce qui évite de détruire/recréer toutes les
+   *  bulles à chaque émission (le getter groupedMessages crée de nouvelles
+   *  références à chaque appel). */
+  trackByGroup(_index: number, group: MessageGroup): string {
+    return group.label;
+  }
   get headerName(): string {
     return this.conversation?.contactName?.trim() || this.conversation?.waId || '';
   }
